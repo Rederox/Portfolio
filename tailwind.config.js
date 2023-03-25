@@ -6,6 +6,9 @@ module.exports = {
     "./components/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
+    fontFamily: {
+      handwriting: ['"Delicious Handrawn"', 'cursive'],
+    },
     extend: {},
   },
   plugins: [
