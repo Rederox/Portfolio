@@ -27,11 +27,12 @@ function About({}: Props) {
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
       transition={{ duration: 1.5 }}
-      className="flex flex-col md:flex-row max-w-7xl px-4 md:px-10
-justify-evenly mx-auto items-center"
+      className="flex flex-col relative min-h-screen
+    text-center md:text-left md:flex-row max-w-7xl px-4 md:px-10
+    justify-evenly mx-auto items-center"
     >
-      <h3 className="mt-10 uppercase tracking-wider text-gray-500 text-2xl md:text-4xl w-full text-center">
-        A propos
+      <h3 className="absolute top-20 uppercase tracking-[7px] text-gray-500 text-2xl md:text-4xl w-full">
+        About
       </h3>
 
       <motion.div
@@ -49,7 +50,7 @@ justify-evenly mx-auto items-center"
         viewport={{
           once: true,
         }}
-        className="mt-10 md:mt-0 flex-shrink-0 w-56 h-56 md:w-64 md:h-95 xl:w-[500px] xl:h-[500px] mx-auto md:mx-0"
+        className="flex-shrink-0 w-56 h-56 md:w-64 md:h-95 xl:w-[500px] xl:h-[500px] mt-40 md:mt-0"
       >
         <Image
           src={MyPhotoAbout}
@@ -57,7 +58,7 @@ justify-evenly mx-auto items-center"
           className="w-full h-full rounded-full object-cover md:rounded-lg"
         />
       </motion.div>
-      <div className="mt-10 md:mt-0 space-y-10 md:pl-10 text-center md:text-left">
+      <div className="space-y-10 md:pl-10">
         <h4 className="text-4xl font-semibold">
           A propos de{" "}
           <span className="underline decoration-[#F7ABOA]/50">moi</span>{" "}

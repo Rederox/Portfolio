@@ -9,7 +9,7 @@ import Experience from "@/components/Experience";
 
 const Home: NextPage = () => {
   return (
-    <div className="bg-[conic-gradient(at_bottom_right,_var(--tw-gradient-stops))] from-slate-900 via-emerald-900 to-slate-900 text-white h-screen snap-y  snap-mandatory overflow-scroll z-0">
+    <div className="bg-[conic-gradient(at_bottom_right,_var(--tw-gradient-stops))] from-slate-900 via-emerald-900 to-slate-900 text-white h-screen snap-y snap-proximity overflow-scroll z-0">
       <Head>
         <title>Theivathan's Portfolio</title>
       </Head>
