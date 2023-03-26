@@ -3,23 +3,30 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import Header from "../components/Header";
-import Hero from "@/components/Hero";
+import Hero from "../components/Hero";
+import About from "../components/About";
+import Experience from "@/components/Experience";
 
 const Home: NextPage = () => {
   return (
-    <div className="overflow-x-hidden bg-slate-900 text-white">
+    <div className="bg-[conic-gradient(at_bottom_right,_var(--tw-gradient-stops))] from-slate-900 via-emerald-900 to-slate-900 text-white h-screen snap-y  snap-mandatory overflow-scroll z-0">
       <Head>
         <title>Theivathan's Portfolio</title>
       </Head>
 
       <Header />
 
-      <section id="hero">
+      <section id="hero" className="snap-start">
         <Hero />
       </section>
-      {/* Hero */}
 
-      {/* About */}
+      <section id="about" className="snap-start">
+        <About />
+      </section>
+
+      <section id="experience" className="snap-start">
+        <Experience />
+      </section>
 
       {/* Experiences */}
 

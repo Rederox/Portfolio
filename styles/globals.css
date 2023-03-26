@@ -3,3 +3,13 @@
 @tailwind utilities;
 
 @import url('https://fonts.googleapis.com/css2?family=Delicious+Handrawn&display=swap');
+
+@layer components{
+
+    .hero-button{
+        @apply px-3 py-3 border border-[#242424] rounded-full uppercase text-sm 
+        tracking-widest text-gray-500 transition-all
+        hover:border-[#005C46]/80 hover:text-[#005C46]/80 m-4
+    }
+
+}
