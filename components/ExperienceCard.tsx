@@ -9,8 +9,8 @@ function ExperienceCard({}: Props) {
   return (
     <article
       className="flex flex-col rounded-lg  items-center space-y-7 flex-shrink-0 
-    w-[330px] md:w-[600px] xl:w-[700px] snap-center mt-20 
-    bg-[#292929] p-10 hover:opacity-100 opacity-40 cursor-pointer 
+    w-[310px] md:w-[500px] xl:w-[600px] snap-center mt-20 
+    bg-[#50c87846] p-10 hover:opacity-100 opacity-40 cursor-pointer 
     transition-opacity duration-200 overflow-hidden"
     >
       <motion.div
@@ -25,7 +25,7 @@ function ExperienceCard({}: Props) {
         <Image
           src={fablab}
           alt="Expererience"
-          className="w-32 h-33  xl:w-[200px] xl:h-[200px] object-cover"
+          className="w-[80px] h-[95px]  xl:w-[150px] xl:h-[180px] object-cover"
         />
       </motion.div>
 
@@ -63,26 +63,11 @@ function ExperienceCard({}: Props) {
         </div>
         <p className="uppercase py-5 space-y-4 ml-5 text-lg">debut .....</p>
         <ul className="list-disc space-y-4 ml-5 text-lg">
-          <li>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Quo ullam
-            exercitationem sit.
-          </li>
-          <li>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Quo ullam
-            exercitationem sit.
-          </li>
-          <li>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Quo ullam
-            exercitationem sit.
-          </li>
-          <li>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Quo ullam
-            exercitationem sit.
-          </li>
-          <li>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Quo ullam
-            exercitationem sit.
-          </li>
+          <li>Lorem ipsum</li>
+          <li>Lorem ipsum</li>
+          <li>Lorem ipsum</li>
+          <li>Lorem ipsum</li>
+          <li>Lorem ipsum</li>
         </ul>
       </div>
     </article>

@@ -9,7 +9,7 @@ import Experience from "@/components/Experience";
 
 const Home: NextPage = () => {
   return (
-    <div className="bg-[conic-gradient(at_bottom_right,_var(--tw-gradient-stops))] from-slate-900 via-emerald-900 to-slate-900 text-white h-screen snap-y snap-proximity overflow-scroll z-0">
+    <div className="bg-[conic-gradient(at_bottom_right,_var(--tw-gradient-stops))] from-slate-900 via-emerald-900 to-slate-900 text-white h-screen snap-y snap-mandatory overflow-scroll z-0 overflow-x-hidden">
       <Head>
         <title>Theivathan's Portfolio</title>
       </Head>
@@ -20,11 +20,11 @@ const Home: NextPage = () => {
         <Hero />
       </section>
 
-      <section id="about" className="snap-start">
+      <section id="about" className="snap-start ">
         <About />
       </section>
 
-      <section id="experience" className="snap-start">
+      <section id="experience" className="snap-end">
         <Experience />
       </section>
 

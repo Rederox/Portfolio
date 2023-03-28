@@ -13,3 +13,29 @@
     }
 
 }
+
+/* For WebKit-based browsers (e.g., Chrome, Safari) */
+::-webkit-scrollbar {
+    width: 12px; /* width of the scrollbar */
+    height: 12px; /* height of the scrollbar, for horizontal scrollbars */
+   
+  }
+  
+  ::-webkit-scrollbar-track {
+    background-color: #ffffff00; /* background color of the scrollbar track */
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background-color: #00ff513c; /* background color of the scrollbar thumb */
+    border-radius: 8px; /* border radius of the scrollbar thumb */
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: #00ff517b; /* background color of the scrollbar thumb when hovered */
+  }
+  
+  /* For Firefox */
+  * {
+    scrollbar-width: thin; /* width of the scrollbar */
+    scrollbar-color: #00ff513c #ffffff00; /* thumb and track color */
+  }
