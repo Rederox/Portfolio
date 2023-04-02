@@ -49,15 +49,15 @@ const Profile: React.FC<ProfileProps> = ({
   return (
     <div className="bg-[#05092227] text-white shadow rounded-lg p-6 w-full max-w-xl mx-auto mt-[5rem] md:mt-0">
       <div className="flex flex-col md:flex-row justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold flex items-center mb-2 md:mb-0">
+        <h1 className="text-2xl font-bold flex items-center mb-2 md:mb-0">
           {/* <FaUser className="mr-2" /> */}
           <Image
             src={MyPhoto}
             alt={"Profile Photo"}
-            className="relative rounded-full mx-auto object-cover h-10 w-10 mr-5"
+            className="relative rounded-full mx-auto object-cover h-10 w-10 mr-2"
           />
           {`${firstName} ${lastName}`}
-        </h2>
+        </h1>
         <div className="bg-[#4801b32c] px-3 py-1 rounded-md text-sm">
           <FaBirthdayCake className="inline-block mr-1" />
           {age} ans
@@ -104,7 +104,7 @@ const Profile: React.FC<ProfileProps> = ({
       </div>
       <div className="mt-2 bg-[#0172b32c] p-3 rounded-md ">
         <h3 className="text-lg font-bold mb-2">Centres d'intérêt</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:whitespace-nowrap">
           {interests.map((interest, index) => (
             <div
               key={index}

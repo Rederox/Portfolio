@@ -23,10 +23,9 @@ function About({}: Props) {
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         transition={{ duration: 1.5 }}
-        className="flex flex-col relative min-h-screen
-    text-center md:text-left md:flex-row max-w-5xl px-3 md:px-10 mx-auto items-center overflow-hidden snap-start"
+        className="flex flex-col relative min-h-screen text-center md:flex-row max-w-5xl px-3 md:px-10 mx-auto items-center overflow-hidden snap-start gap-[2rem]"
       >
-        <h3 className="absolute top-20 uppercase tracking-wider text-gray-500 text-xl md:text-3xl w-full">
+        <h3 className="absolute top-[4rem] uppercase tracking-[7px] text-gray-500 text-xl md:text-4xl w-full">
           À propos
         </h3>
 
@@ -45,7 +44,7 @@ function About({}: Props) {
           viewport={{
             once: true,
           }}
-          className="w-[12rem] h-[10rem] md:w-64 md:h-95 xl:w-[500px] xl:h-[500px] mt-[7rem] flex items-center justify-center"
+          className="w-[12rem] h-[10rem] md:w-64 md:h-95 xl:w-[500px] xl:h-[500px] mt-[6rem] flex items-center justify-center"
         >
           <Image
             src={MyPhotoAbout}
@@ -54,7 +53,7 @@ function About({}: Props) {
           />
         </motion.div>
         <div className="md:pl-10 mt-0 md:mt-32">
-          <h4 className="text-xl md:text-2xl font-semibold text-gray-400  mt-2">
+          <h4 className="text-xl md:text-2xl font-semibold text-gray-400">
             Qui{" "}
             <span className="bg-[#3cff1180] text-white rounded px-1">
               suis-Je
@@ -81,11 +80,11 @@ function About({}: Props) {
             },
             {
               network: "linkedin",
-              url: "https://www.linkedin.com/in/theivathan/",
+              url: "https://linkedin.com/in/theivathan/",
             },
             {
               network: "instagram",
-              url: "https://www.instagram.com/theivathan14/",
+              url: "https://instagram.com/theivathan14/",
             },
           ]}
           phone="+33784968840"
