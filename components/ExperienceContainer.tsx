@@ -10,10 +10,14 @@ import "swiper/css/pagination";
 import "swiper/css/navigation";
 
 import { EffectCoverflow, Pagination, Navigation } from "swiper";
+import { Experience } from "@/typings";
 
-type Props = {};
+type Props = {
 
-function ExperienceContainer({}: Props) {
+  experiences:Experience[],
+};
+
+function ExperienceContainer({experiences}: Props) {
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -64,15 +68,11 @@ function ExperienceContainer({}: Props) {
         modules={[EffectCoverflow, Pagination, Navigation]}
         className="swiper_container w-full flex sm:mt-20"
       >
-        <SwiperSlide>
-          <ExperienceCard />
-        </SwiperSlide>
-        <SwiperSlide>
-          <ExperienceCard />
-        </SwiperSlide>
-        <SwiperSlide>
-          <ExperienceCard />
-        </SwiperSlide>
+        {experiences.map((experience) => (
+          <SwiperSlide key={experience._id}>
+            <ExperienceCard key={experience._id} experience={experience} />
+          </SwiperSlide>
+        ))}
       </Swiper>
       <div className="slider-controler ">
         <div className="swiper-button-prev slider-arrow text-xl"></div>

@@ -48,7 +48,7 @@ const Home = ({ pageInfo, experiences, skills, socials }: props) => {
       </section>
 
       <section id="experience" className="snap-start">
-        <ExperienceContainer />
+        <ExperienceContainer experiences={experiences} />
       </section>
 
       <section id="skills" className="snap-start">
