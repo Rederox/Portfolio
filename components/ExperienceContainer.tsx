@@ -14,15 +14,15 @@ import { Experience } from "@/typings";
 
 type Props = {
 
-  experiences:Experience[],
+  experiences: Experience[],
 };
 
-function ExperienceContainer({experiences}: Props) {
+function ExperienceContainer({ experiences }: Props) {
   return (
     <motion.div
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
-      transition={{ duration: 1.5 }}
+      transition={{ duration: 3.5 }}
       className="flex flex-col relative min-h-screen
       text-center  md:flex-row  px-3 md:px-10 mx-auto items-center overflow-hidden justify-center "
     >

@@ -9,10 +9,7 @@ type Props = {
 
 function Skills({ skills }: Props) {
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
-      transition={{ duration: 1.5 }}
+    <div
       className="min-h-screen flex flex-col space-x-0 items-center justify-center text-center overflow-hidden relative xl:flex-row m-w-[2000px] xl:px-10 xl:space-y-0"
     >
       <h3 className="absolute top-[4rem] uppercase tracking-[7px] text-gray-500 text-2xl md:text-4xl w-full">
@@ -27,7 +24,7 @@ function Skills({ skills }: Props) {
           <SkillElement key={skill._id} skill={skill} />
         ))}
       </div>
-    </motion.div>
+    </div>
   );
 }
 
