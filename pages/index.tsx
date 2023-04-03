@@ -1,19 +1,32 @@
 /* eslint-disable @next/next/no-img-element */
 /* eslint-disable react/no-unescaped-entities */
 /* eslint-disable @next/next/no-head-element */
-import type { NextPage } from "next";
+import type { GetStaticProps } from "next";
 import Head from "next/head";
 import Header from "../components/Header";
 import Hero from "../components/Hero";
 import About from "../components/About";
-import Experience from "@/components/Experience";
+import ExperienceContainer from "@/components/ExperienceContainer";
 import Skills from "@/components/Skills";
 import Formation from "@/components/Formation";
 import Contact from "@/components/Contact";
 import Link from "next/link";
 import SmoothLink from "@/components/SmoothLink";
+import { Experience, PageInfo, Skill, Social } from "@/typings";
+import { fetchPageInfo } from "@/utils/fetchPageInfo";
+import { fetchExperience } from "@/utils/fetchExperience";
+import { fetchSkills } from "@/utils/fetchSkills";
+import { fetchSocial } from "@/utils/fetchSocials";
+import { Props } from "next/script";
 
-const Home: NextPage = () => {
+type props = {
+  pageInfo: PageInfo;
+  experiences: Experience[];
+  skills: Skill[];
+  socials: Social[];
+};
+
+const Home = ({ pageInfo, experiences, skills, socials }: props) => {
   const handleSubmit = (name: string, email: string, message: string) => {
     console.log("Formulaire soumis:", { name, email, message });
     // Gérer l'envoi du formulaire, par exemple en l'envoyant à une API ou en l'enregistrant dans une base de données
@@ -24,7 +37,7 @@ const Home: NextPage = () => {
         <title>Theivathan's Portfolio</title>
       </Head>
 
-      <Header />
+      <Header socials={socials} />
 
       <section id="hero" className="snap-start">
         <Hero />
@@ -35,11 +48,11 @@ const Home: NextPage = () => {
       </section>
 
       <section id="experience" className="snap-start">
-        <Experience />
+        <ExperienceContainer />
       </section>
 
       <section id="skills" className="snap-start">
-        <Skills />
+        <Skills skills={skills} />
       </section>
 
       <section id="formation" className="snap-start">
@@ -66,3 +79,20 @@ const Home: NextPage = () => {
 };
 
 export default Home;
+
+export const getStaticProps: GetStaticProps = async () => {
+  const pageInfo: PageInfo[] = await fetchPageInfo();
+  const experiences: Experience[] = await fetchExperience();
+  const skills: Skill[] = await fetchSkills();
+  const socials: Social[] = await fetchSocial();
+
+  return {
+    props: {
+      pageInfo,
+      experiences,
+      skills,
+      socials,
+    },
+    revalidate: 10,
+  };
+};

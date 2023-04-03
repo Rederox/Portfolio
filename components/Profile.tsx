@@ -47,9 +47,9 @@ const Profile: React.FC<ProfileProps> = ({
   interests,
 }) => {
   return (
-    <div className="bg-[#05092227] text-white shadow rounded-lg p-6 w-full max-w-xl mx-auto mt-[5rem] md:mt-0">
-      <div className="flex flex-col md:flex-row justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold flex items-center mb-2 md:mb-0">
+    <div className="bg-[#05092227] text-white shadow rounded-lg p-6 w-full max-w-xl lg:max-w-4xl mx-auto mt-[4rem] md:mt-0 lg:p-[1rem] ">
+      <div className="flex flex-col md:flex-row lg:flex-col justify-between items-center mb-4 md:gap-5">
+        <h1 className="text-2xl font-bold flex items-center mb-2 md:mb-0 lg:text-5xl md:gap-5">
           {/* <FaUser className="mr-2" /> */}
           <Image
             src={MyPhoto}
@@ -58,12 +58,12 @@ const Profile: React.FC<ProfileProps> = ({
           />
           {`${firstName} ${lastName}`}
         </h1>
-        <div className="bg-[#4801b32c] px-3 py-1 rounded-md text-sm">
+        <div className="bg-[#4801b32c] px-3 py-1 rounded-md text-sm lg:text-xl lg:px-5 lg:py-2 flex items-center">
           <FaBirthdayCake className="inline-block mr-1" />
           {age} ans
         </div>
       </div>
-      <div className="md:grid  md:grid-cols-1 flex flex-col gap-2 md:mb-4">
+      <div className="md:grid md:grid-cols-1 lg:grid-cols-3 flex flex-col gap-2 md:mb-4">
         <div className="bg-[#0172b32c] p-3 rounded-md">
           <h4 className="text-sm font-bold mb-1">Coordonnées</h4>
           <div className="flex items-center space-x-2 justify-evenly">
@@ -102,8 +102,10 @@ const Profile: React.FC<ProfileProps> = ({
           </div>
         </div>
       </div>
-      <div className="mt-2 bg-[#0172b32c] p-3 rounded-md ">
-        <h3 className="text-lg font-bold mb-2">Centres d'intérêt</h3>
+      <div className="mt-2 bg-[#0172b32c] p-3 rounded-md lg:p-6">
+        <h3 className="text-lg font-bold mb-2 lg:text-3xl">
+          Centres d'intérêt
+        </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:whitespace-nowrap">
           {interests.map((interest, index) => (
             <div

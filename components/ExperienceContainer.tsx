@@ -13,7 +13,7 @@ import { EffectCoverflow, Pagination, Navigation } from "swiper";
 
 type Props = {};
 
-function Experience({}: Props) {
+function ExperienceContainer({}: Props) {
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -83,4 +83,4 @@ function Experience({}: Props) {
   );
 }
 
-export default Experience;
+export default ExperienceContainer;
