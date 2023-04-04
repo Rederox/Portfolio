@@ -17,8 +17,8 @@ Ce portfolio est réalisé avec les technologies suivantes :
 
 - React.js
 - Next.js
-- Node.js
-- CSS
+- Tailwind.css
+- Sanity
 
 ## Installation et utilisation
 
