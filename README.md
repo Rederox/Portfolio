@@ -1,11 +1,10 @@
 # Mon Portfolio
 
-Bienvenue dans mon portfolio ! Ce projet présente mon travail et mes compétences en tant que développeur web. Vous trouverez ici une collection de projets que j'ai réalisés, ainsi que mes coordonnées pour me contacter.
+Bienvenue dans mon portfolio ! Ce projet présente mon travail et mes compétences en tant que développeur fullstack.
 
 ## Fonctionnalités
 
 - Présentation personnelle et professionnelle
-- Liste de projets avec images et descriptions
 - Compétences techniques
 - Expériences professionnelles
 - Formation et certifications
