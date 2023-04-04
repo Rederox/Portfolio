@@ -52,7 +52,11 @@ const Profile: React.FC<ProfileProps> = ({
         <h1 className="text-2xl font-bold flex items-center mb-2 md:mb-0 lg:text-5xl md:gap-5">
           {/* <FaUser className="mr-2" /> */}
           <Image
-            src={MyPhoto}
+            src={
+              "https://cdn.sanity.io/images/m271f9jj/production/28d65e417e1bd6f253f42963306ad457cc465a65-2035x2035.jpg"
+            }
+            width={2035}
+            height={2035}
             alt={"Profile Photo"}
             className="relative rounded-full mx-auto object-cover h-10 w-10 mr-2"
           />

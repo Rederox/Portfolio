@@ -1,7 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 /* eslint-disable react/no-unescaped-entities */
 /* eslint-disable @next/next/no-head-element */
-import type { GetStaticProps } from "next";
 import Head from "next/head";
 import Header from "../components/Header";
 import Hero from "../components/Hero";
@@ -10,27 +9,28 @@ import ExperienceContainer from "@/components/ExperienceContainer";
 import Skills from "@/components/Skills";
 import Formation from "@/components/Formation";
 import Contact from "@/components/Contact";
-import Link from "next/link";
+
 import SmoothLink from "@/components/SmoothLink";
 import { Experience, PageInfo, Skill, Social } from "@/typings";
 import { fetchPageInfo } from "@/utils/fetchPageInfo";
 import { fetchExperience } from "@/utils/fetchExperience";
 import { fetchSkills } from "@/utils/fetchSkills";
 import { fetchSocial } from "@/utils/fetchSocials";
-import { Props } from "next/script";
+import { GetStaticProps } from "next";
 
-type props = {
-  pageInfo: PageInfo;
+type Props = {
+  pageInfo: PageInfo | null;
   experiences: Experience[];
   skills: Skill[];
   socials: Social[];
 };
 
-const Home = ({ pageInfo, experiences, skills, socials }: props) => {
+const Home = ({ pageInfo, experiences, skills, socials }: Props) => {
   const handleSubmit = (name: string, email: string, message: string) => {
     console.log("Formulaire soumis:", { name, email, message });
     // Gérer l'envoi du formulaire, par exemple en l'envoyant à une API ou en l'enregistrant dans une base de données
   };
+  console.log(pageInfo);
   return (
     <div className="bg-[conic-gradient(at_bottom_right,_var(--tw-gradient-stops))] from-slate-900 via-emerald-900 to-slate-900 text-white h-screen snap-y snap-mandatory overflow-scroll z-0 overflow-x-hidden">
       <Head>
@@ -47,7 +47,7 @@ const Home = ({ pageInfo, experiences, skills, socials }: props) => {
         <About />
       </section>
 
-      <section id="experience" className="snap-start">
+      <section id="experience" className="snap-start snap-y snap-mandatory">
         <ExperienceContainer experiences={experiences} />
       </section>
 
@@ -79,20 +79,29 @@ const Home = ({ pageInfo, experiences, skills, socials }: props) => {
 };
 
 export default Home;
-
 export async function getStaticProps() {
-  const pageInfo: PageInfo[] = await fetchPageInfo();
-  const experiences: Experience[] = await fetchExperience();
-  const skills: Skill[] = await fetchSkills();
-  const socials: Social[] = await fetchSocial();
-
-  return {
-    props: {
-      pageInfo,
-      experiences,
-      skills,
-      socials,
-    },
-    revalidate: 10,
-  };
-};
+  try {
+    const pageInfo: PageInfo = await fetchPageInfo();
+    const experiences: Experience[] = await fetchExperience();
+    const skills: Skill[] = await fetchSkills();
+    const socials: Social[] = await fetchSocial();
+    return {
+      props: {
+        pageInfo,
+        experiences,
+        skills,
+        socials,
+      },
+    };
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    return {
+      props: {
+        pageInfo: null,
+        experiences: [],
+        skills: [],
+        socials: [],
+      },
+    };
+  }
+}

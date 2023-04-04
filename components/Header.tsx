@@ -9,7 +9,6 @@ type Props = {
 };
 
 function Header({ socials }: Props) {
-  console.log(socials);
   return (
     <header className="sticky top-0 p-5 flex items-start z-50 justify-between max-w-4xl mx-auto xl:items-center">
       <motion.div
@@ -33,19 +32,6 @@ function Header({ socials }: Props) {
             fgColor="#fff"
           />
         ))}
-
-        {/* <SocialIcon
-          url="https://github.com/Rederox"
-          target="_blank"
-          bgColor="transparent"
-          fgColor="#fff"
-        />
-        <SocialIcon
-          url="https://fr.linkedin.com/in/theivathan"
-          target="_blank"
-          bgColor="transparent"
-          fgColor="#fff"
-        /> */}
       </motion.div>
 
       <motion.div
