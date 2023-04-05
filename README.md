@@ -37,7 +37,3 @@ npm install
 npm run dev
 
 5. Ouvrez votre navigateur et accédez à l'adresse http://localhost:3000 pour voir le projet en action.
-
-## Déploiement
-
-Pour déployer ce projet en production, vous pouvez utiliser un service comme [Vercel](https://vercel.com/) ou [Netlify](https://www.netlify.com/).
