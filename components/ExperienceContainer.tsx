@@ -11,9 +11,7 @@ import "swiper/css/navigation";
 
 import { EffectCoverflow, Pagination, Navigation } from "swiper";
 import { Experience } from "@/typings";
-
 type Props = {
-
   experiences: Experience[],
 };
 
