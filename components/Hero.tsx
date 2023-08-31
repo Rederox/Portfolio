@@ -7,6 +7,8 @@ import Link from "next/link";
 import { animate, motion } from "framer-motion";
 import SmoothLink from "./SmoothLink";
 type Props = {};
+import sanityLoader from "../utils/sanityLoader";
+
 
 export default function Hero({}: Props) {
   const [text, count] = useTypewriter({
@@ -33,9 +35,10 @@ export default function Hero({}: Props) {
           src={
             "https://cdn.sanity.io/images/m271f9jj/production/28d65e417e1bd6f253f42963306ad457cc465a65-2035x2035.jpg"
           }
+          loader={sanityLoader as any}
           alt={"Profile Photo"}
-          width={2035}
-          height={2035}
+          width={400}
+          height={400}
           className="relative rounded-full mx-auto object-cover h-32 w-32 shadow-lg"
         />
       </div>
@@ -52,7 +55,7 @@ export default function Hero({}: Props) {
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
-              className="hero-button"
+              className="hero-button border-[#3c00ff3e] text-[#ffffff90]"
             >
               A propos
             </motion.button>
@@ -61,7 +64,7 @@ export default function Hero({}: Props) {
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
-              className="hero-button"
+              className="hero-button border-[#3c00ff3e] text-[#ffffff90]"
             >
               Expériences
             </motion.button>
@@ -70,7 +73,7 @@ export default function Hero({}: Props) {
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
-              className="hero-button"
+              className="hero-button border-[#3c00ff3e] text-[#ffffff90]"
             >
               Compétences
             </motion.button>
@@ -79,7 +82,7 @@ export default function Hero({}: Props) {
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
-              className="hero-button"
+              className="hero-button border-[#3c00ff3e] text-[#ffffff90]"
             >
               Formation
             </motion.button>
@@ -88,7 +91,7 @@ export default function Hero({}: Props) {
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
-              className="hero-button"
+              className="hero-button border-[#3c00ff3e] text-[#ffffff90]"
             >
               Contact
             </motion.button>
