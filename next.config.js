@@ -3,10 +3,10 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 const nextConfig = {
-  reactStrictMode: true,
   images : {
     domains:["cdn.sanity.io"],
-    unoptimized:true
+    loader: 'custom',
+    loaderFile: './utils/sanityLoader.tsx',
   },
  
 }

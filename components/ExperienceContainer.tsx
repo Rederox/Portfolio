@@ -66,7 +66,7 @@ function ExperienceContainer({ experiences }: Props) {
           },
         }}
         modules={[EffectCoverflow, Pagination, Navigation]}
-        className="swiper_container w-full flex sm:mt-20"
+        className="swiper_container w-full flex mt-10 sm:mt-20"
       >
         {experiences.map((experience) => (
           <SwiperSlide key={experience._id}>

@@ -13,7 +13,7 @@ export default function Hero({}: Props) {
     words: [
       "Bonjour, je m'appelle Thevaraj Theivathan",
       "J'aime transformer mes idées en code.",
-      "Toute probléme à une solution",
+      "Tout problème à une solution",
     ],
     loop: true,
     delaySpeed: 2000,

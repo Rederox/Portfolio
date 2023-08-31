@@ -4,6 +4,7 @@ import Image from "next/image";
 // import MyPhotoAbout from "../public/about.jpg";
 import { motion } from "framer-motion";
 import Profile from "./Profile";
+import sanityLoader from "../utils/sanityLoader";
 
 type Props = {};
 const bio = `
@@ -47,12 +48,13 @@ function About({}: Props) {
           className="w-[12rem] h-[10rem] md:w-64 md:h-95 xl:w-[500px] xl:h-[500px] mt-[6rem] flex items-center justify-center"
         >
           <Image
+            loader={sanityLoader as any}
             src={
               "https://cdn.sanity.io/images/m271f9jj/production/f9de20eb434da08ad27c92065dcdc66e5f20f80e-3024x4032.jpg"
             }
             alt={"A propos"}
-            width={3024}
-            height={4032}
+            width={500}
+            height={500}
             className="w-full h-full rounded-full object-cover md:rounded-lg shadow-lg"
           />
         </motion.div>

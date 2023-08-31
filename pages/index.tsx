@@ -16,7 +16,6 @@ import { fetchPageInfo } from "@/utils/fetchPageInfo";
 import { fetchExperience } from "@/utils/fetchExperience";
 import { fetchSkills } from "@/utils/fetchSkills";
 import { fetchSocial } from "@/utils/fetchSocials";
-import { GetStaticProps } from "next";
 
 type Props = {
   pageInfo: PageInfo | null;
@@ -30,10 +29,6 @@ const Home = ({ pageInfo, experiences, skills, socials }: Props) => {
     console.log("Formulaire soumis:", { name, email, message });
     // Gérer l'envoi du formulaire, par exemple en l'envoyant à une API ou en l'enregistrant dans une base de données
   };
-  // console.log(pageInfo);
-  // console.log(experiences);
-  // console.log(skills);
-  // console.log(socials);
 
   return (
     <div className="bg-[conic-gradient(at_bottom_right,_var(--tw-gradient-stops))] from-slate-900 via-emerald-900 to-slate-900 text-white h-screen snap-y snap-mandatory overflow-scroll z-0 overflow-x-hidden">
@@ -68,7 +63,7 @@ const Home = ({ pageInfo, experiences, skills, socials }: Props) => {
       </section>
 
       <SmoothLink href={"#hero"}>
-        <footer className="sticky bottom-[3.7rem] w-full cursor-pointer">
+        <footer className="sticky bottom-[0.7rem] w-full cursor-pointer">
           <div className="flex items-center justify-end">
             <img
               className="h-10 w-10 rounded-full filter grayscale hover:grayscale-0 cursor-pointer"

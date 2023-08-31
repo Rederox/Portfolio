@@ -15,7 +15,7 @@ function Skills({ skills }: Props) {
       <h3 className="absolute top-[4rem] uppercase tracking-[7px] text-gray-500 text-2xl md:text-4xl w-full">
         Compétences
       </h3>
-      <div className="grid grid-cols-3 md:grid-cols-4 gap-5 mt-[2rem]">
+      <div className="grid grid-cols-3 md:grid-cols-6 sm:grid-cols-4 gap-5 mt-[2rem]">
         {skills?.slice(0, skills.length / 2).map((skill) => (
           <SkillElement key={skill._id} skill={skill} directionLeft />
         ))}
