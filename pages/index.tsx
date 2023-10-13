@@ -33,7 +33,23 @@ const Home = ({ pageInfo, experiences, skills, socials }: Props) => {
   return (
     <div className="bg-[conic-gradient(at_bottom_right,_var(--tw-gradient-stops))] from-slate-900 via-emerald-900 to-slate-900 text-white h-screen snap-y snap-mandatory overflow-scroll z-0 overflow-x-hidden">
       <Head>
-        <title>Theivathan's Portfolio</title>
+        <title>Thevaraj Theivathan - Développeur Web</title>
+        <meta name="description" content="Portfolio de Thevaraj Theivathan, Développeur fullstack, basé à Argenteuil. Découvrez mes projets, compétences et contactez-moi pour plus d'informations." />
+        <meta name="keywords" content="développeur web, Thevaraj Theivathan, portfolio, Développeur fullstack, Web, nextjs, Theivathan, Thevaraj, Master 1, typescript, javascript, PHP, HTML, Argenteuil" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        
+        {/* Open Graph / Partage sur réseaux sociaux */}
+        <meta property="og:title" content="Portfolio de Thevaraj Theivathan, Développeur Web" />
+        <meta property="og:description" content="Découvrez les projets, compétences et expériences de Thevaraj Theivathan, Développeur fullstack." />
+        <meta property="og:image" content="https://cdn.sanity.io/images/m271f9jj/production/f9de20eb434da08ad27c92065dcdc66e5f20f80e-3024x4032.jpg" />
+        <meta property="og:url" content="https://theivathan.fr" />
+        <meta property="og:type" content="website" />
+        
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Portfolio de Thevaraj Theivathan, Développeur Web" />
+        <meta name="twitter:description" content="Découvrez les projets, compétences et expériences de Thevaraj Theivathan, Développeur fullstack." />
+        <meta name="twitter:image" content="https://cdn.sanity.io/images/m271f9jj/production/f9de20eb434da08ad27c92065dcdc66e5f20f80e-3024x4032.jpg" />
       </Head>
 
       <Header socials={socials} />
