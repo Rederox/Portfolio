@@ -4,6 +4,8 @@ import ExperienceCard from "./ExperienceCard";
 
 import { Swiper, SwiperSlide } from "swiper/react";
 
+import {  Swiper as SwiperEvent } from "swiper";
+
 import "swiper/css";
 import "swiper/css/effect-coverflow";
 import "swiper/css/pagination";
@@ -16,6 +18,40 @@ type Props = {
 };
 
 function ExperienceContainer({ experiences }: Props) {
+  const allowScroll = (swiper: SwiperEvent) => {
+    var activeIndex = swiper.activeIndex;
+    var activeSlide = swiper.slides[activeIndex];
+    var { scrollHeight, clientHeight } = activeSlide;
+    const diff = scrollHeight - clientHeight;
+    if (activeSlide.scrollTop === 0) activeSlide.scrollTop = 1;
+    else if (activeSlide.scrollTop === diff) activeSlide.scrollTop = diff - 1;
+    if (diff > 0) {
+      const findScroll = (e :any) => {
+        const scrollUp = e.deltaY < 0;
+        if (
+          (scrollUp || e.type === "touchmove") &&
+          activeSlide.scrollTop <= 0
+        ) {
+          swiper.mousewheel.enable();
+          swiper.allowTouchMove = true;
+          activeSlide.removeEventListener("wheel", findScroll);
+          activeSlide.removeEventListener("touchmove", findScroll);
+        } else if (
+          (!scrollUp || e.type === "touchmove") &&
+          activeSlide.scrollTop >= diff
+        ) {
+          swiper.mousewheel.enable();
+          swiper.allowTouchMove = true;
+          activeSlide.removeEventListener("wheel", findScroll);
+          activeSlide.removeEventListener("touchmove", findScroll);
+        }
+      };
+      activeSlide.addEventListener("wheel", findScroll);
+      activeSlide.addEventListener("touchmove", findScroll);
+      swiper.mousewheel.disable();
+      swiper.allowTouchMove = false;
+    }
+  };
   return (
     <motion.div
       initial={{ opacity: 0 }}

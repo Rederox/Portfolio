@@ -64,7 +64,7 @@ const Home = ({ pageInfo, experiences, skills, socials }: Props) => {
 
       <SmoothLink href={"#hero"}>
         <footer className="sticky bottom-[0.7rem] w-full cursor-pointer">
-          <div className="flex items-center justify-end">
+          <div className="flex items-center justify-end fixed top-[93%] right-[14px]">
             <img
               className="h-10 w-10 rounded-full filter grayscale hover:grayscale-0 cursor-pointer"
               src="https://www.brochureguru.com/images/go-to-top-side.png"

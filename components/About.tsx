@@ -77,7 +77,7 @@ function About({}: Props) {
         <Profile
           firstName="Thevaraj"
           lastName="Theivathan"
-          age={21}
+          age={22}
           languages={["Français", "Anglais", "Tamoul"]}
           socials={[
             {
@@ -103,6 +103,8 @@ function About({}: Props) {
             { emoji: "📚", text: "Mangas/Webtoon" },
             { emoji: "💪", text: "Musculation" },
             { emoji: "🖥️", text: "Montage d'ordinateurs" },
+            { emoji: "🎸", text: "Guitar" },
+
           ]}
         />
       </div>

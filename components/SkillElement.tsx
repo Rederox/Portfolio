@@ -24,7 +24,7 @@ function SkillElement({ directionLeft, skill }: Props) {
           <Image
             loader={sanityLoader}
             src={urlFor(skill?.image).url()}
-            className="rounded-full border border-[#00ff513c] object-contain p-0 w-20 h-20 md:w-28 md:h-28 xl:w-32 xl:h-32 filter group-hover:grayscale transition duration-300 ease-in-out"
+            className="rounded-full border border-[#00ff513c] object-contain p-0 w-[4rem] h-[4rem] sm:w-20 sm:h-20 md:w-28 md:h-28 xl:w-32 xl:h-32 filter group-hover:grayscale transition duration-300 ease-in-out"
             width={200}
             height={200} alt={""} 
           />

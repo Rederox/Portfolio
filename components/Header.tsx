@@ -3,6 +3,7 @@ import { SocialIcon } from "react-social-icons";
 import { motion } from "framer-motion";
 import SmoothLink from "./SmoothLink";
 import { Social } from "@/typings";
+import { FaFileDownload } from "react-icons/fa";
 
 type Props = {
   socials: Social[];
@@ -45,7 +46,17 @@ function Header({ socials }: Props) {
         }}
         transition={{ ease: "easeOut", duration: 1.5 }}
         className="flex flex-row items-center"
-      >
+      > 
+        <a href="/CV_Thevaraj_Theivathan.pdf" 
+        download={true}
+        target="_blank"
+        className="flex flex-row items-center gap-1"
+        >
+          <FaFileDownload  className="cursor-pointer "/>
+          <p className="uppercase hidden md:inline-flex text-sm text-gray-100">
+            CV
+          </p>
+        </a>
         <SocialIcon
           url={"#contact"}
           className="cursor-pointer "

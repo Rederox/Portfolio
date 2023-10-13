@@ -6,7 +6,7 @@ import {
   MdDriveEta,
   MdDirectionsCar,
 } from "react-icons/md";
-import { FaUser, FaBirthdayCake, FaRegThumbsUp, FaPhone } from "react-icons/fa";
+import { FaUser, FaBirthdayCake, FaRegThumbsUp, FaPhone, FaFileDownload } from "react-icons/fa";
 import { SocialIcon } from "react-social-icons";
 import Image from "next/image";
 import MyPhoto from "../public/me.jpg";
@@ -76,14 +76,15 @@ const Profile: React.FC<ProfileProps> = ({
                 key={index}
                 network={social.network}
                 url={social.url}
-                bgColor="transparent"
+                bgColor="currentColor"
                 fgColor="#fff"
+                className=" text-transparent hover:text-[#0172b376]"
               />
             ))}
-            <a href={`tel:${phone}`} className="flex items-center p-2">
+            <a href={`tel:${phone}`} className="flex items-center p-3 rounded-full hover:bg-[#0172b376]">
               <FaPhone className="text-[1.3rem]" />
             </a>
-            <a href={`mailto:${gmail}`} className="flex items-center p-2">
+            <a href={`mailto:${gmail}`} className="flex items-center p-3 rounded-full hover:bg-[#0172b376]">
               <MdEmail className="text-[1.7rem]" />
             </a>
           </div>
@@ -114,7 +115,7 @@ const Profile: React.FC<ProfileProps> = ({
           {interests.map((interest, index) => (
             <div
               key={index}
-              className="flex items-center justify-center flex-row md:flex-col"
+              className="flex items-center justify-start flex-row md:flex-col bg-[#ffffff0a]"
             >
               <span role="img" aria-label={interest.text} className="mr-2">
                 {interest.emoji}
@@ -124,6 +125,16 @@ const Profile: React.FC<ProfileProps> = ({
           ))}
         </div>
       </div>
+      <a href="/CV_Thevaraj_Theivathan.pdf" 
+        download={true}
+        target="_blank"
+        className="flex flex-row justify-center mt-3 mr-auto ml-auto p-2 rounded-md hover:bg-[#0172b376] items-center gap-1 bg-[#0172b32c] w-auto" 
+        >
+          <FaFileDownload  className="cursor-pointer "/>
+          <p className="uppercase inline-flex text-sm text-gray-100">
+            Télécharger le CV
+          </p>
+        </a>
     </div>
   );
 };
