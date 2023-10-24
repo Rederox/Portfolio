@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://theivathan.fr
+
+# Sitemaps
+Sitemap: https://theivathan.fr/sitemap.xml
