@@ -33,13 +33,13 @@ export default function Hero({}: Props) {
       <div className="h-32 w-32 ">
         <Image
           src={
-            "https://cdn.sanity.io/images/m271f9jj/production/28d65e417e1bd6f253f42963306ad457cc465a65-2035x2035.jpg"
+            "https://cdn.sanity.io/images/m271f9jj/production/50dda87656332cc530c1ba12378d58bfd1b254bc-1440x1440.jpg"
           }
           loader={sanityLoader as any}
           alt={"Profile Photo"}
           width={400}
           height={400}
-          className="relative rounded-full mx-auto object-cover h-32 w-32 shadow-lg"
+          className="relative rounded-full scale-125 mx-auto object-cover h-32 w-32 shadow-lg"
         />
       </div>
       <div className="z-20">
