@@ -2,6 +2,7 @@
 /* eslint-disable react/no-unescaped-entities */
 /* eslint-disable @next/next/no-head-element */
 import Head from "next/head";
+import { Analytics } from '@vercel/analytics/react';
 import Header from "../components/Header";
 import Hero from "../components/Hero";
 import About from "../components/About";
@@ -89,6 +90,7 @@ const Home = ({ pageInfo, experiences, skills, socials }: Props) => {
           </div>
         </footer>
       </SmoothLink>
+      <Analytics />
     </div>
   );
 };
