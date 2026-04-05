@@ -16,13 +16,25 @@ export default function Contact() {
   const [form, setForm] = useState({
     firstName: "", lastName: "", email: "", message: "",
   });
+  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setStatus("sending");
     trackEvent("contact_click");
-    const subject = encodeURIComponent(`Contact portfolio — ${form.firstName} ${form.lastName}`);
-    const body    = encodeURIComponent(`Bonjour Thevaraj,\n\n${form.message}\n\n---\nDe : ${form.firstName} ${form.lastName}\nEmail : ${form.email}`);
-    window.location.href = `mailto:${personal.email}?subject=${subject}&body=${body}`;
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      if (!res.ok) throw new Error();
+      setStatus("sent");
+      setForm({ firstName: "", lastName: "", email: "", message: "" });
+    } catch {
+      setStatus("error");
+    }
   };
 
   const fadeUp = (delay = 0) => ({
@@ -31,7 +43,7 @@ export default function Contact() {
   });
 
   return (
-    <section id="contact" className="py-28 px-6">
+    <section id="contact" className="py-20 sm:py-28 px-4 sm:px-6">
       <div className="max-w-6xl mx-auto">
 
         {/* ── Section label ────────────────────────────────────────────────── */}
@@ -40,16 +52,19 @@ export default function Contact() {
           initial="hidden"
           whileInView="show"
           viewport={{ once: true }}
-          className="flex items-center gap-4 mb-14"
+          className="flex items-center gap-4 mb-10 sm:mb-14"
         >
-          <span className="text-white font-display font-bold text-[0.7rem] tracking-[0.3em] uppercase">
+          <span
+            className="font-display font-bold text-[0.7rem] tracking-[0.3em] uppercase"
+            style={{ color: "var(--text-primary)" }}
+          >
             Contact
           </span>
-          <div className="flex-1 h-px bg-[#1a1a1a]" />
+          <div className="flex-1 h-px" style={{ backgroundColor: "var(--border-subtle)" }} />
           <span className="font-mono text-[0.7rem]" style={{ color: "var(--accent)" }}>06</span>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
 
           {/* ── Left — big headline + email CTA ──────────────────────────── */}
           <div>
@@ -58,7 +73,8 @@ export default function Contact() {
               initial="hidden"
               whileInView="show"
               viewport={{ once: true }}
-              className="font-display font-extrabold text-5xl sm:text-6xl text-white leading-[1.0] mb-6"
+              className="font-display font-extrabold text-4xl sm:text-5xl lg:text-6xl leading-[1.0] mb-5 sm:mb-6"
+              style={{ color: "var(--text-primary)" }}
             >
               Travaillons<br />ensemble.
             </motion.h2>
@@ -68,7 +84,8 @@ export default function Contact() {
               initial="hidden"
               whileInView="show"
               viewport={{ once: true }}
-              className="text-slate-500 text-sm leading-relaxed mb-10 max-w-sm"
+              className="text-sm leading-relaxed mb-8 sm:mb-10 max-w-sm"
+              style={{ color: "var(--text-secondary)" }}
             >
               Une opportunité, une mission freelance, ou juste envie d'échanger ?
               Mon inbox est ouvert.
@@ -82,11 +99,14 @@ export default function Contact() {
               whileInView="show"
               viewport={{ once: true }}
               onClick={() => trackEvent("email_click")}
-            className="group inline-flex items-center gap-3 mb-12"
+              className="group inline-flex items-center gap-3 mb-10 sm:mb-12"
               whileHover={{ x: 4 }}
               transition={{ duration: 0.2 }}
             >
-              <span className="font-display font-bold text-xl text-white group-hover:opacity-80 transition-opacity break-all">
+              <span
+                className="font-display font-bold text-base sm:text-xl group-hover:opacity-80 transition-opacity break-all"
+                style={{ color: "var(--text-primary)" }}
+              >
                 {personal.email}
               </span>
               <FiArrowUpRight
@@ -102,10 +122,19 @@ export default function Contact() {
               initial="hidden"
               whileInView="show"
               viewport={{ once: true }}
-              className="mb-10"
+              className="mb-8 sm:mb-10"
             >
-              <p className="text-slate-700 text-[0.65rem] tracking-widest uppercase font-semibold mb-1">Téléphone</p>
-              <a href={`tel:${personal.phone.replace(/\s/g, "")}`} className="text-slate-300 text-sm hover:text-white transition-colors font-medium">
+              <p
+                className="text-[0.65rem] tracking-widest uppercase font-semibold mb-1"
+                style={{ color: "var(--text-secondary)" }}
+              >
+                Téléphone
+              </p>
+              <a
+                href={`tel:${personal.phone.replace(/\s/g, "")}`}
+                className="text-sm font-medium transition-colors"
+                style={{ color: "var(--text-primary)" }}
+              >
                 {personal.phone}
               </a>
             </motion.div>
@@ -126,7 +155,14 @@ export default function Contact() {
                   rel="noopener noreferrer"
                   aria-label={label}
                   onClick={() => trackEvent(event)}
-                  className="w-10 h-10 bg-[#0f0f0f] border border-[#1e1e1e] hover:border-[#2a2a2a] rounded-xl flex items-center justify-center text-slate-500 hover:text-slate-200 transition-all"
+                  className="w-10 h-10 rounded-xl flex items-center justify-center transition-all"
+                  style={{
+                    backgroundColor: "var(--surface)",
+                    border:          "1px solid var(--card-border)",
+                    color:           "var(--text-secondary)",
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--accent)"; e.currentTarget.style.color = "var(--accent)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--card-border)"; e.currentTarget.style.color = "var(--text-secondary)"; }}
                 >
                   <Icon size={16} />
                 </a>
@@ -141,12 +177,17 @@ export default function Contact() {
             initial="hidden"
             whileInView="show"
             viewport={{ once: true }}
-            className="flex flex-col gap-6"
+            className="flex flex-col gap-5 sm:gap-6"
           >
             {/* Name row */}
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-2 gap-4 sm:gap-6">
               <div>
-                <label className="block text-[0.65rem] text-slate-600 font-semibold tracking-widest uppercase mb-1">Prénom</label>
+                <label
+                  className="block text-[0.65rem] font-semibold tracking-widest uppercase mb-1"
+                  style={{ color: "var(--text-secondary)" }}
+                >
+                  Prénom
+                </label>
                 <input
                   type="text"
                   required
@@ -157,7 +198,12 @@ export default function Contact() {
                 />
               </div>
               <div>
-                <label className="block text-[0.65rem] text-slate-600 font-semibold tracking-widest uppercase mb-1">Nom</label>
+                <label
+                  className="block text-[0.65rem] font-semibold tracking-widest uppercase mb-1"
+                  style={{ color: "var(--text-secondary)" }}
+                >
+                  Nom
+                </label>
                 <input
                   type="text"
                   required
@@ -170,7 +216,12 @@ export default function Contact() {
             </div>
 
             <div>
-              <label className="block text-[0.65rem] text-slate-600 font-semibold tracking-widest uppercase mb-1">Email</label>
+              <label
+                className="block text-[0.65rem] font-semibold tracking-widest uppercase mb-1"
+                style={{ color: "var(--text-secondary)" }}
+              >
+                Email
+              </label>
               <input
                 type="email"
                 required
@@ -182,7 +233,12 @@ export default function Contact() {
             </div>
 
             <div>
-              <label className="block text-[0.65rem] text-slate-600 font-semibold tracking-widest uppercase mb-1">Message</label>
+              <label
+                className="block text-[0.65rem] font-semibold tracking-widest uppercase mb-1"
+                style={{ color: "var(--text-secondary)" }}
+              >
+                Message
+              </label>
               <textarea
                 required
                 rows={5}
@@ -195,13 +251,20 @@ export default function Contact() {
 
             <motion.button
               type="submit"
-              whileHover={{ scale: 1.01 }}
-              whileTap={{ scale: 0.98 }}
-              className="mt-2 w-full flex items-center justify-center gap-2 accent-bg accent-glow text-white font-bold py-4 rounded-full text-sm transition-all hover:opacity-90"
+              disabled={status === "sending" || status === "sent"}
+              whileHover={{ scale: status === "idle" || status === "error" ? 1.01 : 1 }}
+              whileTap={{ scale: status === "idle" || status === "error" ? 0.98 : 1 }}
+              className="mt-2 w-full flex items-center justify-center gap-2 accent-bg accent-glow text-white font-bold py-4 rounded-full text-sm transition-all hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed"
             >
               <FiSend size={14} />
-              Envoyer
+              {status === "sending" ? "Envoi…" : status === "sent" ? "Message envoyé ✓" : "Envoyer"}
             </motion.button>
+
+            {status === "error" && (
+              <p className="text-center text-sm" style={{ color: "#ef4444" }}>
+                Échec de l&apos;envoi. Réessayez ou contactez-moi par email.
+              </p>
+            )}
           </motion.form>
         </div>
       </div>

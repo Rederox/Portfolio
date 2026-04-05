@@ -211,6 +211,14 @@ body::before {
 }
 .input-underline::placeholder { color: #363636; }
 
+/* ── Admin inputs — focus uses theme accent ────────────────────────────────── */
+.admin-input:focus {
+  border-color: rgba(var(--accent-rgb), 0.5);
+}
+.admin-select:focus {
+  border-color: rgba(var(--accent-rgb), 0.5);
+}
+
 /* ── Animations ────────────────────────────────────────────────────────────── */
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
@@ -381,3 +389,11 @@ body::before {
 [data-mode="light"] .hover\:text-slate-300:hover { color: #444 !important; }
 [data-mode="light"] .hover\:border-\[#2a2a2a\]:hover { border-color: #b0b0aa !important; }
 [data-mode="light"] .hover\:border-\[#3a3a3a\]:hover { border-color: #a0a09a !important; }
+
+/* ── Group-hover text (Skills chips) ────────────────────────────────────── */
+[data-mode="light"] .group:hover .group-hover\:text-slate-200 { color: #2e2b28 !important; }
+[data-mode="light"] .group:hover .group-hover\:text-slate-300 { color: #555250 !important; }
+
+/* ── Text opacity variants ───────────────────────────────────────────────── */
+/* text-white/50 dans le Hero (overlay photo beige en light mode) */
+[data-mode="light"] .text-white\/50 { color: rgba(46, 43, 40, 0.6) !important; }

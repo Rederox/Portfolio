@@ -19,10 +19,15 @@ const navLinks = [
 export default function Navigation() {
   const [scrolled,    setScrolled]   = useState(false);
   const [mobileOpen,  setMobileOpen] = useState(false);
+  const [progress,    setProgress]   = useState(0);
   const { mode, toggleMode }         = useMode();
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 80);
+    const onScroll = () => {
+      setScrolled(window.scrollY > 80);
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      setProgress(docHeight > 0 ? (window.scrollY / docHeight) * 100 : 0);
+    };
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
@@ -48,6 +53,22 @@ export default function Navigation() {
        * Layout : conteneur flex justify-center pour centrage pixel-perfect de la pill.
        * Logo et boutons droits en absolute pour ne pas perturber le flux.
        */}
+      {/* ── Barre de progression ─────────────────────────────────────────────── */}
+      <div className="fixed inset-x-0 top-0 z-[60] h-[3px] pointer-events-none">
+        <div
+          className="h-full accent-bg transition-none"
+          style={{ width: `${progress}%` }}
+        />
+        {progress > 2 && (
+          <div
+            className="absolute top-[6px] text-[10px] font-bold tabular-nums leading-none px-1.5 py-0.5 rounded-full accent-bg text-white"
+            style={{ left: `calc(${progress}% - 18px)` }}
+          >
+            {Math.round(progress)}%
+          </div>
+        )}
+      </div>
+
       <div className="fixed inset-x-0 top-0 z-50 h-[72px] flex items-start justify-center pt-5 pointer-events-none">
 
         {/* ── Logo — absolument à gauche ────────────────────────────────────── */}
@@ -160,7 +181,7 @@ export default function Navigation() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.97 }}
             transition={{ duration: 0.18 }}
-            className="fixed top-[74px] left-1/2 -translate-x-1/2 z-50 w-60"
+            className="fixed top-[74px] left-0 right-0 mx-auto z-50 w-60"
           >
             <div
               className={`rounded-2xl p-2 shadow-2xl border ${

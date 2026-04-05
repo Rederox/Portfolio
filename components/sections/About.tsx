@@ -1,6 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useRef } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
 import Image from "next/image";
 import { personal } from "@/data/portfolio";
 
@@ -17,8 +18,15 @@ const fadeUp = (delay = 0) => ({
 });
 
 export default function About() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "end start"],
+  });
+  const photoY = useTransform(scrollYProgress, [0, 1], [-30, 30]);
+
   return (
-    <section id="about" className="py-28 px-6">
+    <section id="about" ref={sectionRef} className="py-20 sm:py-28 px-4 sm:px-6">
       <div className="max-w-6xl mx-auto">
 
         {/* ── Section label ────────────────────────────────────────────────── */}
@@ -27,7 +35,7 @@ export default function About() {
           initial="hidden"
           whileInView="show"
           viewport={{ once: true }}
-          className="flex items-center gap-4 mb-16"
+          className="flex items-center gap-4 mb-10 sm:mb-16"
         >
           <span className="font-display font-bold text-[0.7rem] tracking-[0.3em] uppercase"
             style={{ color: "var(--text-primary)" }}>
@@ -38,7 +46,7 @@ export default function About() {
         </motion.div>
 
         {/* ── Layout ───────────────────────────────────────────────────────── */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-12 lg:gap-16 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-10 lg:gap-16 items-start">
 
           {/* ─ Colonne gauche : bio + intérêts + stats ─ */}
           <div>
@@ -60,7 +68,7 @@ export default function About() {
               initial="hidden"
               whileInView="show"
               viewport={{ once: true }}
-              className="text-[1.35rem] leading-relaxed font-light mb-10"
+              className="text-base sm:text-[1.35rem] leading-relaxed font-light mb-8 sm:mb-10"
               style={{ color: "var(--text-primary)" }}
             >
               {personal.bio}
@@ -102,7 +110,7 @@ export default function About() {
               initial="hidden"
               whileInView="show"
               viewport={{ once: true }}
-              className="grid grid-cols-3 gap-0"
+              className="flex"
               style={{ borderTop: "1px solid var(--border-subtle)" }}
             >
               {[
@@ -112,11 +120,10 @@ export default function About() {
               ].map(({ value, label }, i) => (
                 <div
                   key={label}
-                  className="pt-6"
+                  className="flex-1 pt-5 sm:pt-6 pr-2 sm:pr-4"
                   style={{
-                    paddingLeft:   i > 0 ? "2rem" : 0,
-                    borderLeft:    i > 0 ? `1px solid var(--border-subtle)` : "none",
-                    marginLeft:    i > 0 ? "2rem" : 0,
+                    paddingLeft: i > 0 ? "clamp(0.75rem, 3vw, 2rem)" : 0,
+                    borderLeft:  i > 0 ? "1px solid var(--border-subtle)" : "none",
                   }}
                 >
                   <p className="font-display font-extrabold text-3xl leading-none mb-1"
@@ -130,6 +137,7 @@ export default function About() {
           </div>
 
           {/* ─ Colonne droite : photo + faits ─ */}
+          <motion.div style={{ y: photoY }}>
           <motion.div
             variants={fadeUp(0.08)}
             initial="hidden"
@@ -138,11 +146,11 @@ export default function About() {
           >
             {/* Photo */}
             <div
-              className="relative aspect-[3/4] rounded-2xl overflow-hidden mb-0"
+              className="relative aspect-[4/3] sm:aspect-[3/4] rounded-2xl overflow-hidden mb-0"
               style={{ border: "1px solid var(--card-border)" }}
             >
               <Image
-                src="/about.jpg"
+                src="/me.jpg"
                 alt={personal.name}
                 fill
                 className="object-cover object-center"
@@ -187,6 +195,7 @@ export default function About() {
                 </div>
               ))}
             </div>
+          </motion.div>
           </motion.div>
         </div>
       </div>

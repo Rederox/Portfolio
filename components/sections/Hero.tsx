@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { FiGithub, FiLinkedin, FiInstagram, FiMail, FiArrowDown, FiDownload } from "react-icons/fi";
 import Image from "next/image";
 import { personal } from "@/data/portfolio";
@@ -83,6 +83,13 @@ function HeroBg({ style }: { style: string }) {
 
 export default function Hero() {
   const { settings } = useTheme();
+  const { scrollY } = useScroll();
+
+  const bgY      = useTransform(scrollY, [0, 700], [0, 140]);
+  const arcY     = useTransform(scrollY, [0, 700], [0, 80]);
+  const dotY     = useTransform(scrollY, [0, 700], [0, 50]);
+  const vertY    = useTransform(scrollY, [0, 700], [0, 110]);
+  const photoY   = useTransform(scrollY, [0, 700], [0, 60]);
 
   return (
     <section id="home" className="relative min-h-screen flex flex-col overflow-hidden">
@@ -91,10 +98,12 @@ export default function Hero() {
       <div className="hero-glow" />
 
       {/* ── Fond contrôlé depuis l'admin ──────────────────────────────────── */}
-      <HeroBg style={settings.bgStyle} />
+      <motion.div className="absolute inset-0 pointer-events-none" style={{ y: bgY }}>
+        <HeroBg style={settings.bgStyle} />
+      </motion.div>
 
       {/* ── Arcs concentriques — coin haut-droite ─────────────────────────── */}
-      <div className="absolute top-0 right-0 w-[55vw] h-[55vw] max-w-[700px] max-h-[700px] pointer-events-none overflow-hidden">
+      <motion.div className="absolute top-0 right-0 w-[55vw] h-[55vw] max-w-[700px] max-h-[700px] pointer-events-none overflow-hidden" style={{ y: arcY }}>
         {[
           { offset: "0%",  size: "60%",  opacity: 0.07 },
           { offset: "8%",  size: "78%",  opacity: 0.045 },
@@ -116,10 +125,10 @@ export default function Hero() {
           className="absolute top-[18%] right-[18%] w-1.5 h-1.5 rounded-full"
           style={{ backgroundColor: "rgba(var(--accent-rgb), 0.5)" }}
         />
-      </div>
+      </motion.div>
 
       {/* ── Cluster de points — bas-gauche ────────────────────────────────── */}
-      <div className="absolute bottom-28 left-10 pointer-events-none hidden lg:flex flex-col gap-2">
+      <motion.div className="absolute bottom-28 left-10 pointer-events-none hidden lg:flex flex-col gap-2" style={{ y: dotY }}>
         {DOT_ROWS.map((count, row) => (
           <div key={row} className="flex gap-2 justify-center">
             {Array.from({ length: count }).map((_, col) => (
@@ -131,18 +140,18 @@ export default function Hero() {
             ))}
           </div>
         ))}
-      </div>
+      </motion.div>
 
       {/* ── Texte vertical — bord droit ───────────────────────────────────── */}
-      <div
+      <motion.div
         className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none select-none hidden xl:block"
-        style={{ writingMode: "vertical-rl" }}
+        style={{ writingMode: "vertical-rl", y: vertY }}
       >
         <span className="text-[0.55rem] tracking-[0.55em] font-mono uppercase"
           style={{ color: "rgba(var(--accent-rgb), 0.25)" }}>
           Full·Stack·Developer·{new Date().getFullYear()}
         </span>
-      </div>
+      </motion.div>
 
       {/* ── Ligne décorative sous la nav ──────────────────────────────────── */}
       <div
@@ -266,11 +275,11 @@ export default function Hero() {
           </div>
 
           {/* Droite — photo */}
+          <motion.div style={{ y: photoY }} className="lg:w-72 xl:w-80 flex-shrink-0 mx-auto lg:mx-0">
           <motion.div
             initial={{ opacity: 0, scale: 0.92, x: 40 }}
             animate={{ opacity: 1, scale: 1, x: 0 }}
             transition={{ duration: 1, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
-            className="lg:w-72 xl:w-80 flex-shrink-0 mx-auto lg:mx-0"
           >
             <div className="relative">
               <div
@@ -298,6 +307,7 @@ export default function Hero() {
                 </div>
               </div>
             </div>
+          </motion.div>
           </motion.div>
         </div>
 

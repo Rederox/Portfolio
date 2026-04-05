@@ -74,10 +74,9 @@ function ProjectRow({ project, index }: { project: Project; index: number }) {
 
   const imageBlock = (
     <div
-      className="relative flex-shrink-0 rounded-xl overflow-hidden"
+      className="relative w-full lg:w-[380px] lg:flex-shrink-0 rounded-xl overflow-hidden"
       style={{
-        width: "clamp(260px, 38%, 400px)",
-        minHeight: "280px",
+        minHeight: "220px",
         border: "1px solid var(--card-border)",
       }}
     >
@@ -232,7 +231,7 @@ export default function Projects() {
   });
 
   return (
-    <section id="projects" className="py-28 px-6">
+    <section id="projects" className="py-20 sm:py-28 px-4 sm:px-6">
       <div className="max-w-6xl mx-auto">
 
         {/* Label */}
@@ -241,7 +240,7 @@ export default function Projects() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="flex items-center gap-4 mb-16"
+          className="flex items-center gap-4 mb-10 sm:mb-16"
         >
           <span className="font-display font-bold text-[0.7rem] tracking-[0.3em] uppercase" style={{ color: "var(--text-primary)" }}>
             Projets
@@ -255,12 +254,12 @@ export default function Projects() {
 
         {/* Liste horizontale */}
         {sorted.length > 0 ? (
-          <div className="space-y-20">
+          <div className="space-y-14 sm:space-y-20">
             {sorted.map((p, i) => (
               <div key={p.id ?? p.title}>
                 <ProjectRow project={p} index={i} />
                 {i < sorted.length - 1 && (
-                  <div className="mt-20 h-px" style={{ background: "linear-gradient(90deg, transparent, var(--card-border), transparent)" }} />
+                  <div className="mt-14 sm:mt-20 h-px" style={{ background: "linear-gradient(90deg, transparent, var(--card-border), transparent)" }} />
                 )}
               </div>
             ))}

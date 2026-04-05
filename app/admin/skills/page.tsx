@@ -78,18 +78,19 @@ export default function AdminSkills() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-wrap items-start justify-between gap-4 mb-8">
         <div>
           <h1 className="font-display font-bold text-3xl text-white mb-1">Compétences</h1>
           <p className="text-slate-400 text-sm">{cats.length} catégorie{cats.length !== 1 ? "s" : ""}</p>
         </div>
         <button onClick={openAdd}
-          className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition-colors">
+          className="flex items-center gap-2 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition-opacity hover:opacity-85"
+          style={{ backgroundColor: "var(--accent)" }}>
           <FiPlus size={15} /> Nouvelle catégorie
         </button>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {[...cats].sort((a, b) => a.order - b.order).map((cat, i) => (
           <motion.div key={cat.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
             className="bg-[#111] border border-[#1e1e1e] rounded-2xl p-5">
@@ -124,11 +125,11 @@ export default function AdminSkills() {
       <Modal open={modalOpen} onClose={() => setModalOpen(false)}
         title={editing ? "Modifier la catégorie" : "Nouvelle catégorie"} size="lg">
         <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs text-slate-500 font-medium mb-1.5">Nom *</label>
               <input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} placeholder="Frontend"
-                className="w-full bg-[#161616] border border-[#252525] focus:border-emerald-500/50 text-white placeholder-slate-600 rounded-xl px-4 py-2.5 text-sm outline-none" />
+                className="admin-input w-full bg-[#161616] border border-[#252525] text-white placeholder-slate-600 rounded-xl px-4 py-2.5 text-sm outline-none" />
             </div>
             <div>
               <label className="block text-xs text-slate-500 font-medium mb-1.5">Couleur</label>
@@ -145,30 +146,31 @@ export default function AdminSkills() {
             <label className="block text-xs text-slate-500 font-medium mb-1.5">Compétences</label>
 
             {/* Input row */}
-            <div className="flex gap-2 mb-3">
+            <div className="flex flex-wrap sm:flex-nowrap gap-2 mb-3">
               <input value={skillInput.name} onChange={(e) => setSkillInput({ ...skillInput, name: e.target.value })}
                 onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addSkill())}
                 placeholder="React"
-                className="flex-1 bg-[#161616] border border-[#252525] focus:border-emerald-500/50 text-white placeholder-slate-600 rounded-xl px-4 py-2.5 text-sm outline-none" />
+                className="admin-input flex-1 min-w-0 bg-[#161616] border border-[#252525] text-white placeholder-slate-600 rounded-xl px-4 py-2.5 text-sm outline-none" />
 
               {/* Icon key input + live preview */}
-              <div className="relative flex items-center">
+              <div className="relative flex items-center flex-shrink-0">
                 <input value={skillInput.icon} onChange={(e) => setSkillInput({ ...skillInput, icon: e.target.value })}
                   onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addSkill())}
                   placeholder="SiReact"
-                  className="w-36 bg-[#161616] border border-[#252525] focus:border-emerald-500/50 text-white placeholder-slate-600 rounded-xl pl-9 pr-3 py-2.5 text-sm outline-none" />
+                  className="admin-input w-32 bg-[#161616] border border-[#252525] text-white placeholder-slate-600 rounded-xl pl-9 pr-3 py-2.5 text-sm outline-none" />
                 <span className="absolute left-2.5 flex items-center pointer-events-none">
                   {(() => {
                     const Icon = skillInput.icon ? getIconByKey(skillInput.icon) ?? getTechIcon(skillInput.name) : getTechIcon(skillInput.name);
                     return Icon
-                      ? <Icon size={15} className="text-emerald-400" />
+                      ? <Icon size={15} style={{ color: "var(--accent)" }} />
                       : <FiHelpCircle size={14} className="text-slate-600" />;
                   })()}
                 </span>
               </div>
 
               <button type="button" onClick={addSkill}
-                className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-4 rounded-xl text-sm hover:bg-emerald-500/20 transition-colors">+</button>
+                className="flex-shrink-0 px-4 rounded-xl text-sm transition-opacity hover:opacity-80"
+                style={{ backgroundColor: "rgba(var(--accent-rgb), 0.10)", border: "1px solid rgba(var(--accent-rgb), 0.20)", color: "var(--accent)" }}>+</button>
             </div>
 
             {/* Image URL fallback — shown only when no Si icon found */}
@@ -186,7 +188,7 @@ export default function AdminSkills() {
 
             <p className="text-[11px] text-slate-600 mb-2.5">
               Icône : utilisez un nom <span className="text-slate-500">Si*</span> de{" "}
-              <a href="https://react-icons.github.io/react-icons/icons/si/" target="_blank" rel="noopener noreferrer" className="text-emerald-600 hover:text-emerald-400 underline">react-icons/si</a>.
+              <a href="https://react-icons.github.io/react-icons/icons/si/" target="_blank" rel="noopener noreferrer" className="underline hover:opacity-80" style={{ color: "var(--accent)" }}>react-icons/si</a>.
               Laissez vide pour auto-détection par nom.
             </p>
 
@@ -212,7 +214,8 @@ export default function AdminSkills() {
           <div className="flex justify-end gap-3 pt-2 border-t border-[#1e1e1e]">
             <button onClick={() => setModalOpen(false)} className="px-4 py-2.5 text-sm text-slate-400 border border-[#252525] rounded-xl">Annuler</button>
             <button onClick={handleSave} disabled={!form.category || saving}
-              className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 rounded-xl">
+              className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-white rounded-xl transition-opacity hover:opacity-85 disabled:opacity-50"
+              style={{ backgroundColor: "var(--accent)" }}>
               {saving && <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
               {editing ? "Enregistrer" : "Créer"}
             </button>

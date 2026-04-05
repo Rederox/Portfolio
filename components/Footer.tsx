@@ -20,18 +20,22 @@ const navLinks = [
 
 export default function Footer() {
   return (
-    <footer className="border-t border-[#111] px-6 py-8">
-      <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
+    <footer
+      className="px-4 sm:px-6 py-8"
+      style={{ borderTop: "1px solid var(--border-subtle)" }}
+    >
+      <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-5">
 
         {/* Left — logo + copyright */}
-        <div className="flex items-center gap-5">
+        <div className="flex items-center gap-4 sm:gap-5">
           <a
             href="#home"
-            className="font-display font-extrabold text-base text-white hover:opacity-70 transition-opacity"
+            className="font-display font-extrabold text-base hover:opacity-70 transition-opacity"
+            style={{ color: "var(--text-primary)" }}
           >
             TT<span style={{ color: "var(--accent)" }}>.</span>
           </a>
-          <span className="text-slate-700 text-[0.65rem] font-mono">
+          <span className="font-mono text-[0.65rem]" style={{ color: "var(--text-secondary)" }}>
             © {new Date().getFullYear()} {personal.name}
           </span>
         </div>
@@ -42,7 +46,10 @@ export default function Footer() {
             <a
               key={link.href}
               href={link.href}
-              className="text-[0.72rem] text-slate-600 hover:text-slate-300 transition-colors"
+              className="text-[0.72rem] transition-colors"
+              style={{ color: "var(--text-secondary)" }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = "var(--text-primary)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = "var(--text-secondary)"; }}
             >
               {link.label}
             </a>
@@ -59,16 +66,25 @@ export default function Footer() {
               rel="noopener noreferrer"
               aria-label={label}
               onClick={() => trackEvent(event)}
-              className="text-slate-700 hover:text-slate-300 transition-colors p-1"
+              className="transition-colors p-1"
+              style={{ color: "var(--text-secondary)" }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = "var(--text-primary)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = "var(--text-secondary)"; }}
             >
               <Icon size={15} />
             </a>
           ))}
-          <div className="w-px h-4 bg-[#1a1a1a] mx-1" />
+          <div className="w-px h-4 mx-1" style={{ backgroundColor: "var(--border-subtle)" }} />
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
             aria-label="Retour en haut"
-            className="w-7 h-7 border border-[#1e1e1e] hover:border-[#2a2a2a] rounded-full flex items-center justify-center text-slate-600 hover:text-slate-300 transition-all"
+            className="w-7 h-7 rounded-full flex items-center justify-center transition-all"
+            style={{
+              border: "1px solid var(--card-border)",
+              color:  "var(--text-secondary)",
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = "var(--text-primary)"; e.currentTarget.style.borderColor = "var(--accent)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = "var(--text-secondary)"; e.currentTarget.style.borderColor = "var(--card-border)"; }}
           >
             <FiArrowUp size={12} />
           </button>

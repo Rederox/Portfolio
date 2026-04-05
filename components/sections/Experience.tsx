@@ -6,47 +6,47 @@ import { FiChevronDown } from "react-icons/fi";
 import { useExperience } from "@/hooks/useFirestore";
 import { getTechIcon } from "@/lib/iconMap";
 
-const typeBadgeColor: Record<string, string> = {
-  CDI:        "text-emerald-400 bg-emerald-400/8 border-emerald-400/20",
-  CDD:        "text-blue-400 bg-blue-400/8 border-blue-400/20",
-  Stage:      "text-violet-400 bg-violet-400/8 border-violet-400/20",
-  Alternance: "text-amber-400 bg-amber-400/8 border-amber-400/20",
-  Freelance:  "text-cyan-400 bg-cyan-400/8 border-cyan-400/20",
-  Intérim:    "text-rose-400 bg-rose-400/8 border-rose-400/20",
+const TYPE_COLORS: Record<string, { color: string; bg: string; border: string }> = {
+  CDI:        { color: "#34d399", bg: "rgba(52,211,153,0.08)",  border: "rgba(52,211,153,0.2)"  },
+  CDD:        { color: "#60a5fa", bg: "rgba(96,165,250,0.08)",  border: "rgba(96,165,250,0.2)"  },
+  Stage:      { color: "#a78bfa", bg: "rgba(167,139,250,0.08)", border: "rgba(167,139,250,0.2)" },
+  Alternance: { color: "#fbbf24", bg: "rgba(251,191,36,0.08)",  border: "rgba(251,191,36,0.2)"  },
+  Freelance:  { color: "#22d3ee", bg: "rgba(34,211,238,0.08)",  border: "rgba(34,211,238,0.2)"  },
+  Intérim:    { color: "#fb7185", bg: "rgba(251,113,133,0.08)", border: "rgba(251,113,133,0.2)" },
 };
 
 export default function Experience() {
   const { data: experiences } = useExperience();
   const [expanded, setExpanded] = useState<string | null>(null);
-
   const sorted = [...experiences].sort((a, b) => a.order - b.order);
 
   return (
-    <section id="experience" className="py-28 px-6">
+    <section id="experience" className="py-20 sm:py-28 px-4 sm:px-6">
       <div className="max-w-6xl mx-auto">
 
-        {/* ── Section label ────────────────────────────────────────────────── */}
+        {/* Label */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="flex items-center gap-4 mb-14"
+          className="flex items-center gap-4 mb-12"
         >
-          <span className="text-white font-display font-bold text-[0.7rem] tracking-[0.3em] uppercase">
+          <span className="font-display font-bold text-[0.7rem] tracking-[0.3em] uppercase"
+            style={{ color: "var(--text-primary)" }}>
             Expérience
           </span>
-          <div className="flex-1 h-px bg-[#1a1a1a]" />
+          <div className="flex-1 h-px" style={{ backgroundColor: "var(--border-subtle)" }} />
           <span className="font-mono text-[0.7rem]" style={{ color: "var(--accent)" }}>03</span>
         </motion.div>
 
-        {/* ── Numbered list ─────────────────────────────────────────────────── */}
-        <div className="divide-y divide-[#141414]">
+        {/* Liste */}
+        <div>
           {sorted.map((exp, i) => {
-            const id      = exp.id ?? String(i);
-            const isOpen  = expanded === id;
-            const num     = String(i + 1).padStart(2, "0");
-            const badge   = typeBadgeColor[exp.type] ?? "text-slate-400 bg-[#1a1a1a] border-[#252525]";
+            const id     = exp.id ?? String(i);
+            const isOpen = expanded === id;
+            const num    = String(i + 1).padStart(2, "0");
+            const tc     = TYPE_COLORS[exp.type] ?? { color: "var(--text-secondary)", bg: "var(--card)", border: "var(--card-border)" };
 
             return (
               <motion.div
@@ -54,71 +54,79 @@ export default function Experience() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.07 }}
+                transition={{ duration: 0.45, delay: i * 0.06 }}
+                style={{ borderBottom: "1px solid var(--border-subtle)" }}
               >
                 <button
                   onClick={() => setExpanded(isOpen ? null : id)}
-                  className="w-full text-left py-7 flex items-start gap-6 group"
+                  className="w-full text-left py-5 sm:py-7 flex items-start gap-4 sm:gap-6"
                 >
-                  {/* Number */}
+                  {/* Numéro */}
                   <span
-                    className="font-mono text-xs pt-1 flex-shrink-0 w-8 transition-colors"
-                    style={{ color: isOpen ? "var(--accent)" : "#333" }}
+                    className="font-mono text-xs pt-1 flex-shrink-0 w-6 sm:w-8 transition-colors"
+                    style={{ color: isOpen ? "var(--accent)" : "var(--border-subtle)" }}
                   >
                     {num}
                   </span>
 
-                  {/* Main info */}
+                  {/* Contenu principal */}
                   <div className="flex-1 min-w-0">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
+                    {/* Titre + période */}
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1 sm:gap-2 mb-2">
                       <div className="flex items-center flex-wrap gap-2">
-                        <h3 className="font-display font-bold text-white text-xl leading-tight group-hover:opacity-90 transition-opacity">
+                        <h3
+                          className="font-display font-bold text-lg sm:text-xl leading-tight"
+                          style={{ color: "var(--text-primary)" }}
+                        >
                           {exp.role}
                         </h3>
                         {exp.current && (
                           <span
-                            className="inline-flex items-center gap-1.5 text-[0.65rem] font-semibold rounded-full px-2.5 py-0.5 flex-shrink-0"
+                            className="inline-flex items-center gap-1.5 text-[0.62rem] font-semibold rounded-full px-2.5 py-0.5 flex-shrink-0"
                             style={{
-                              color: "var(--accent)",
+                              color:           "var(--accent)",
                               backgroundColor: "rgba(var(--accent-rgb), 0.10)",
-                              border: "1px solid rgba(var(--accent-rgb), 0.20)",
+                              border:          "1px solid rgba(var(--accent-rgb), 0.20)",
                             }}
                           >
-                            <span
-                              className="w-1.5 h-1.5 rounded-full animate-pulse"
-                              style={{ backgroundColor: "var(--accent)" }}
-                            />
+                            <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: "var(--accent)" }} />
                             En cours
                           </span>
                         )}
                       </div>
-
-                      {/* Period */}
-                      <span className="text-slate-600 text-xs font-mono flex-shrink-0">
+                      <span className="text-[0.72rem] font-mono flex-shrink-0" style={{ color: "var(--text-secondary)" }}>
                         {exp.period}
                       </span>
                     </div>
 
-                    {/* Company + type */}
+                    {/* Entreprise + type */}
                     <div className="flex items-center gap-2 flex-wrap mb-3">
-                      <span
-                        className="text-sm font-semibold"
-                        style={{ color: "var(--accent)" }}
-                      >
+                      <span className="text-sm font-semibold" style={{ color: "var(--accent)" }}>
                         {exp.company}
                       </span>
-                      <span className={`text-[0.68rem] font-medium border rounded-full px-2 py-0.5 ${badge}`}>
+                      <span
+                        className="text-[0.65rem] font-medium border rounded-full px-2 py-0.5"
+                        style={{ color: tc.color, backgroundColor: tc.bg, borderColor: tc.border }}
+                      >
                         {exp.type}
                       </span>
                     </div>
 
-                    {/* Tech tags */}
+                    {/* Stack */}
                     <div className="flex flex-wrap gap-1.5">
                       {exp.technologies.map((t) => {
                         const Icon = getTechIcon(t);
                         return (
-                          <span key={t} className="flex items-center gap-1 text-[0.7rem] text-slate-500 bg-[#111] border border-[#1e1e1e] rounded px-2 py-0.5">
-                            {Icon && <Icon size={10} className="text-slate-700" />}
+                          <span
+                            key={t}
+                            className="flex items-center gap-1 text-[0.68rem] rounded px-2 py-0.5"
+                            style={{
+                              color:           "var(--text-secondary)",
+                              backgroundColor: "var(--surface)",
+                              border:          "1px solid var(--card-border)",
+                            }}
+                          >
+                            {Icon && <Icon size={10} style={{ color: "var(--text-secondary)", opacity: 0.7 }} />}
                             {t}
                           </span>
                         );
@@ -126,41 +134,39 @@ export default function Experience() {
                     </div>
                   </div>
 
-                  {/* Expand icon */}
+                  {/* Chevron */}
                   <motion.div
                     animate={{ rotate: isOpen ? 180 : 0 }}
                     transition={{ duration: 0.2 }}
-                    className="text-slate-700 mt-1 flex-shrink-0"
+                    className="flex-shrink-0 mt-1"
+                    style={{ color: "var(--text-secondary)" }}
                   >
-                    <FiChevronDown size={16} />
+                    <FiChevronDown size={15} />
                   </motion.div>
                 </button>
 
-                {/* Expandable content */}
+                {/* Description dépliée */}
                 <AnimatePresence initial={false}>
                   {isOpen && exp.description.length > 0 && (
                     <motion.div
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: "auto", opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.3, ease: "easeInOut" }}
+                      transition={{ duration: 0.28, ease: "easeInOut" }}
                       className="overflow-hidden"
                     >
-                      <div className="pl-14 pb-7">
-                        <ul className="space-y-3">
-                          {exp.description.map((point, idx) => (
-                            <li key={idx} className="flex items-start gap-3 text-slate-400 text-sm leading-relaxed">
-                              <span
-                                className="text-[0.6rem] mt-2 flex-shrink-0"
-                                style={{ color: "var(--accent)" }}
-                              >
-                                ▸
-                              </span>
-                              {point}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
+                      <ul className="pl-10 sm:pl-14 pb-6 space-y-2.5">
+                        {exp.description.map((point, idx) => (
+                          <li
+                            key={idx}
+                            className="flex items-start gap-2.5 text-sm leading-relaxed"
+                            style={{ color: "var(--text-secondary)" }}
+                          >
+                            <span className="text-[0.55rem] mt-2 flex-shrink-0" style={{ color: "var(--accent)" }}>▸</span>
+                            {point}
+                          </li>
+                        ))}
+                      </ul>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -170,7 +176,7 @@ export default function Experience() {
         </div>
       </div>
 
-      <hr className="section-divider max-w-6xl mx-auto mt-24" />
+      <hr className="section-divider max-w-6xl mx-auto mt-20 sm:mt-24" />
     </section>
   );
 }

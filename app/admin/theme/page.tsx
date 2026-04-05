@@ -139,7 +139,7 @@ export default function ThemePage() {
         </div>
         <p className="text-slate-500 text-xs mb-5">Entre n'importe quelle couleur hex ou utilise le sélecteur. Elle sera appliquée à tous les accents du site.</p>
 
-        <div className="flex items-center gap-3 mb-4">
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 mb-4">
           {/* Sélecteur natif */}
           <label className="relative cursor-pointer flex-shrink-0">
             <input

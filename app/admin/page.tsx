@@ -71,7 +71,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
         {[
           { label: "Projets", value: stats.projects, color: "emerald" },
           { label: "Expériences", value: stats.experience, color: "blue" },
@@ -93,7 +93,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Section cards */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {sections.map((section, i) => {
           const c = colorMap[section.color];
           return (

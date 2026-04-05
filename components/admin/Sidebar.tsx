@@ -12,6 +12,7 @@ import {
   FiBarChart2,
   FiLogOut,
   FiExternalLink,
+  FiX,
 } from "react-icons/fi";
 import { useAuth } from "@/lib/auth-context";
 
@@ -25,7 +26,12 @@ const navItems = [
   { label: "Analytics",  href: "/admin/analytics", icon: FiBarChart2 },
 ];
 
-export default function Sidebar() {
+interface SidebarProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+}
+
+export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, signOut } = useAuth();
@@ -37,18 +43,34 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className="w-60 min-h-screen bg-[#0d0d0d] border-r border-[#1a1a1a] flex flex-col fixed top-0 left-0 z-40">
+    <aside
+      className={`
+        w-60 min-h-screen bg-[#0d0d0d] border-r border-[#1a1a1a] flex flex-col
+        fixed top-0 left-0 z-40
+        transition-transform duration-300 ease-in-out
+        ${isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
+      `}
+    >
       {/* Logo */}
-      <div className="px-5 py-5 border-b border-[#1a1a1a]">
+      <div className="px-5 py-5 border-b border-[#1a1a1a] flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-emerald-500/15 border border-emerald-500/25 rounded-lg flex items-center justify-center">
-            <span className="font-display font-bold text-emerald-400 text-sm">TT</span>
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center"
+            style={{ backgroundColor: "rgba(var(--accent-rgb), 0.15)", border: "1px solid rgba(var(--accent-rgb), 0.25)" }}>
+            <span className="font-display font-bold text-sm" style={{ color: "var(--accent)" }}>TT</span>
           </div>
           <div>
             <p className="text-white font-semibold text-sm leading-none">Portfolio</p>
             <p className="text-slate-500 text-xs mt-0.5">Admin</p>
           </div>
         </div>
+        {/* Close button — mobile only */}
+        <button
+          onClick={onClose}
+          className="md:hidden p-1.5 text-slate-500 hover:text-white transition-colors rounded-lg hover:bg-[#1a1a1a]"
+          aria-label="Fermer"
+        >
+          <FiX size={16} />
+        </button>
       </div>
 
       {/* Nav */}
@@ -66,11 +88,15 @@ export default function Sidebar() {
               <li key={item.href}>
                 <a
                   href={item.href}
+                  onClick={onClose}
                   className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 ${
-                    active
-                      ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                      : "text-slate-400 hover:text-white hover:bg-[#1a1a1a]"
+                    active ? "border" : "text-slate-400 hover:text-white hover:bg-[#1a1a1a]"
                   }`}
+                  style={active ? {
+                    backgroundColor: "rgba(var(--accent-rgb), 0.10)",
+                    color:           "var(--accent)",
+                    borderColor:     "rgba(var(--accent-rgb), 0.20)",
+                  } : {}}
                 >
                   <item.icon size={15} />
                   {item.label}

@@ -15,6 +15,7 @@ import {
   SiStyledcomponents, SiBootstrap, SiMui,
   SiSocketdotio, SiNestjs, SiFastify,
   SiZapier, SiGnubash, SiGoogle, SiMeta,
+  SiCanva,
 } from "react-icons/si";
 import type { IconType } from "react-icons";
 
@@ -38,6 +39,7 @@ export const iconRegistry: Record<string, IconType> = {
   SiStyledcomponents, SiBootstrap, SiMui,
   SiSocketdotio, SiNestjs, SiFastify,
   SiZapier, SiGnubash, SiGoogle, SiMeta,
+  SiCanva,
 };
 
 // ─── Normalized name → icon lookup (for Projects & Experience tech tags) ──────

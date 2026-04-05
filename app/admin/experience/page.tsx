@@ -69,13 +69,14 @@ export default function AdminExperience() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-wrap items-start justify-between gap-4 mb-8">
         <div>
           <h1 className="font-display font-bold text-3xl text-white mb-1">Expérience</h1>
           <p className="text-slate-400 text-sm">{items.length} entrée{items.length !== 1 ? "s" : ""}</p>
         </div>
         <button onClick={openAdd}
-          className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition-colors">
+          className="flex items-center gap-2 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition-opacity hover:opacity-85"
+          style={{ backgroundColor: "var(--accent)" }}>
           <FiPlus size={15} /> Nouvelle expérience
         </button>
       </div>
@@ -90,17 +91,21 @@ export default function AdminExperience() {
           {sorted.map((exp, i) => (
             <motion.div key={exp.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
               className="bg-[#111] border border-[#1e1e1e] rounded-2xl p-5 flex items-start gap-4">
-              <div className="w-10 h-10 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
-                <FiBriefcase size={15} className="text-emerald-400" />
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5"
+                style={{ backgroundColor: "rgba(var(--accent-rgb), 0.10)", border: "1px solid rgba(var(--accent-rgb), 0.20)" }}>
+                <FiBriefcase size={15} style={{ color: "var(--accent)" }} />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-0.5">
                   <p className="text-white font-semibold">{exp.role}</p>
                   {exp.current && (
-                    <span className="text-xs text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 rounded-full px-2 py-0.5">En cours</span>
+                    <span className="text-xs rounded-full px-2 py-0.5"
+                      style={{ color: "var(--accent)", backgroundColor: "rgba(var(--accent-rgb), 0.10)", border: "1px solid rgba(var(--accent-rgb), 0.20)" }}>
+                      En cours
+                    </span>
                   )}
                 </div>
-                <p className="text-emerald-400 text-sm font-medium">{exp.company}</p>
+                <p className="text-sm font-medium" style={{ color: "var(--accent)" }}>{exp.company}</p>
                 <div className="flex items-center gap-2 mt-0.5">
                   <span className="text-slate-500 text-xs">{exp.period}</span>
                   <span className="text-slate-600">·</span>
@@ -128,15 +133,15 @@ export default function AdminExperience() {
       <Modal open={modalOpen} onClose={() => setModalOpen(false)}
         title={editing ? "Modifier l'expérience" : "Nouvelle expérience"} size="lg">
         <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label="Entreprise *" value={form.company} onChange={(v) => setForm({ ...form, company: v })} placeholder="Nom de l'entreprise" />
             <Field label="Poste *" value={form.role} onChange={(v) => setForm({ ...form, role: v })} placeholder="Développeur Full Stack" />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs text-slate-500 font-medium mb-1.5">Type de contrat</label>
               <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })}
-                className="w-full bg-[#161616] border border-[#252525] focus:border-emerald-500/50 text-white rounded-xl px-4 py-2.5 text-sm outline-none transition-colors">
+                className="admin-select w-full bg-[#161616] border border-[#252525] text-white rounded-xl px-4 py-2.5 text-sm outline-none transition-colors">
                 {JOB_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
               </select>
             </div>
@@ -146,7 +151,8 @@ export default function AdminExperience() {
           {/* Current */}
           <label className="flex items-center gap-3 cursor-pointer">
             <div onClick={() => setForm({ ...form, current: !form.current })}
-              className={`relative w-10 h-5 rounded-full transition-colors ${form.current ? "bg-emerald-500" : "bg-[#2a2a2a]"}`}>
+              className="relative w-10 h-5 rounded-full transition-colors"
+              style={{ backgroundColor: form.current ? "var(--accent)" : "#2a2a2a" }}>
               <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${form.current ? "translate-x-5" : "translate-x-0.5"}`} />
             </div>
             <span className="text-sm text-slate-300">Poste actuel</span>
@@ -159,16 +165,17 @@ export default function AdminExperience() {
               <input value={descInput} onChange={(e) => setDescInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addDesc())}
                 placeholder="Développement d'une API RESTful..."
-                className="flex-1 bg-[#161616] border border-[#252525] focus:border-emerald-500/50 text-white placeholder-slate-600 rounded-xl px-4 py-2.5 text-sm outline-none" />
+                className="admin-input flex-1 bg-[#161616] border border-[#252525] text-white placeholder-slate-600 rounded-xl px-4 py-2.5 text-sm outline-none" />
               <button type="button" onClick={addDesc}
-                className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-4 rounded-xl text-sm font-medium hover:bg-emerald-500/20 transition-colors">
+                className="rounded-xl px-4 text-sm font-medium transition-opacity hover:opacity-80"
+                style={{ backgroundColor: "rgba(var(--accent-rgb), 0.10)", border: "1px solid rgba(var(--accent-rgb), 0.20)", color: "var(--accent)" }}>
                 +
               </button>
             </div>
             <ul className="space-y-1.5">
               {form.description.map((d, i) => (
                 <li key={i} className="flex items-start gap-2 bg-[#161616] border border-[#252525] rounded-lg px-3 py-2 text-sm text-slate-300">
-                  <span className="text-emerald-400 text-xs mt-1 flex-shrink-0">▸</span>
+                  <span className="text-xs mt-1 flex-shrink-0" style={{ color: "var(--accent)" }}>▸</span>
                   <span className="flex-1">{d}</span>
                   <button onClick={() => setForm((f) => ({ ...f, description: f.description.filter((_, j) => j !== i) }))}
                     className="text-slate-600 hover:text-red-400 flex-shrink-0 ml-1">✕</button>
@@ -184,9 +191,12 @@ export default function AdminExperience() {
               <input value={techInput} onChange={(e) => setTechInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addTech())}
                 placeholder="React, Node.js..."
-                className="flex-1 bg-[#161616] border border-[#252525] focus:border-emerald-500/50 text-white placeholder-slate-600 rounded-xl px-4 py-2.5 text-sm outline-none" />
+                className="admin-input flex-1 bg-[#161616] border border-[#252525] text-white placeholder-slate-600 rounded-xl px-4 py-2.5 text-sm outline-none" />
               <button type="button" onClick={addTech}
-                className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-4 rounded-xl text-sm hover:bg-emerald-500/20 transition-colors">+ Ajouter</button>
+                className="rounded-xl px-4 text-sm transition-opacity hover:opacity-80"
+                style={{ backgroundColor: "rgba(var(--accent-rgb), 0.10)", border: "1px solid rgba(var(--accent-rgb), 0.20)", color: "var(--accent)" }}>
+                + Ajouter
+              </button>
             </div>
             <div className="flex flex-wrap gap-1.5">
               {form.technologies.map((t) => (
@@ -201,7 +211,8 @@ export default function AdminExperience() {
           <div className="flex justify-end gap-3 pt-2 border-t border-[#1e1e1e]">
             <button onClick={() => setModalOpen(false)} className="px-4 py-2.5 text-sm text-slate-400 border border-[#252525] rounded-xl hover:border-[#333]">Annuler</button>
             <button onClick={handleSave} disabled={!form.company || !form.role || saving}
-              className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 rounded-xl transition-colors">
+              className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-white rounded-xl transition-opacity hover:opacity-85 disabled:opacity-50"
+              style={{ backgroundColor: "var(--accent)" }}>
               {saving && <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
               {editing ? "Enregistrer" : "Créer"}
             </button>
@@ -226,7 +237,7 @@ function Field({ label, value, onChange, placeholder }: { label: string; value: 
     <div>
       <label className="block text-xs text-slate-500 font-medium mb-1.5">{label}</label>
       <input value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder}
-        className="w-full bg-[#161616] border border-[#252525] focus:border-emerald-500/50 text-white placeholder-slate-600 rounded-xl px-4 py-2.5 text-sm outline-none transition-colors" />
+        className="admin-input w-full bg-[#161616] border border-[#252525] text-white placeholder-slate-600 rounded-xl px-4 py-2.5 text-sm outline-none transition-colors" />
     </div>
   );
 }

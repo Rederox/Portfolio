@@ -2,61 +2,53 @@
 
 /**
  * AnalyticsTracker — invisible, monté une seule fois dans le layout.
- *
- * Corrections vs version précédente :
- * - Flag `recorded` pour éviter le double-enregistrement de la durée
- *   (visibilitychange → hidden + pagehide pouvaient tous les deux déclencher la sauvegarde)
- * - Utilise `pagehide` au lieu de `beforeunload` (plus fiable sur mobile/Safari)
- * - Réinitialise le timer si l'utilisateur revient sur l'onglet (ne compte que le temps actif)
- * - Ignore les visites < 3 secondes (bots, fermetures accidentelles)
+ * - Enregistre la visite avec géolocalisation IP + device
+ * - Mesure la durée active (temps en premier plan)
+ * - Utilise sessionStorage pour éviter le double-comptage
  */
 
 import { useEffect } from "react";
-import { recordPageView, recordDuration } from "@/lib/analytics";
+import { recordVisit, recordDuration } from "@/lib/analytics";
 
 export default function AnalyticsTracker() {
   useEffect(() => {
+    const SESSION_KEY = "pf_visited_v2";
+
     // ── Visite — une seule fois par session ──────────────────────────────────
-    const SESSION_VISIT_KEY = "pf_visited";
-    if (!sessionStorage.getItem(SESSION_VISIT_KEY)) {
-      sessionStorage.setItem(SESSION_VISIT_KEY, "1");
-      recordPageView();
-    }
+    if (sessionStorage.getItem(SESSION_KEY)) return;
+    sessionStorage.setItem(SESSION_KEY, "1");
+
+    // Lance l'enregistrement (async, on ne bloque pas le rendu)
+    recordVisit();
 
     // ── Durée active ─────────────────────────────────────────────────────────
-    let activeStart = Date.now();   // horodatage du dernier "retour en premier plan"
-    let accumulated = 0;            // ms actives avant le dernier masquage
-    let saved = false;              // guard anti-double-enregistrement
+    let activeStart  = Date.now();
+    let accumulated  = 0;
+    let saved        = false;
 
     const save = () => {
       if (saved) return;
       saved = true;
-      const totalMs  = accumulated + (Date.now() - activeStart);
-      const seconds  = Math.round(totalMs / 1000);
-      recordDuration(seconds); // ignore automatiquement < 3 secondes
+      const totalMs = accumulated + (Date.now() - activeStart);
+      recordDuration(Math.round(totalMs / 1000));
     };
 
     const onVisibility = () => {
       if (document.visibilityState === "hidden") {
-        // L'onglet est masqué → on sauvegarde
         accumulated += Date.now() - activeStart;
         save();
       } else {
-        // L'onglet revient au premier plan → on repart
         activeStart = Date.now();
-        saved = false; // autoriser un nouvel enregistrement à la prochaine sortie
+        saved = false;
       }
     };
 
-    // pagehide = événement le plus fiable pour la fermeture (mobile inclus)
-    const onPageHide = () => save();
-
     document.addEventListener("visibilitychange", onVisibility);
-    window.addEventListener("pagehide", onPageHide);
+    window.addEventListener("pagehide", save);
 
     return () => {
       document.removeEventListener("visibilitychange", onVisibility);
-      window.removeEventListener("pagehide", onPageHide);
+      window.removeEventListener("pagehide", save);
     };
   }, []);
 
