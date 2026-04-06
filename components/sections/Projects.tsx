@@ -77,6 +77,7 @@ function ProjectRow({ project, index }: { project: Project; index: number }) {
       className="relative w-full lg:w-[380px] lg:flex-shrink-0 rounded-xl overflow-hidden"
       style={{
         minHeight: "220px",
+        height: "260px",
         border: "1px solid var(--card-border)",
       }}
     >
