@@ -35,7 +35,7 @@ function ImageCarousel({ images, title }: { images: string[]; title: string }) {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.18 }}
-          className="absolute inset-0 w-full h-full object-cover"
+          className="absolute inset-0 w-full h-full object-contain"
         />
       </AnimatePresence>
 
@@ -74,10 +74,11 @@ function ProjectRow({ project, index }: { project: Project; index: number }) {
 
   const imageBlock = (
     <div
-      className="relative w-full lg:w-[380px] lg:flex-shrink-0 rounded-xl overflow-hidden"
+      className="relative w-full lg:w-[460px] lg:flex-shrink-0 rounded-xl overflow-hidden"
       style={{
-        minHeight: "220px",
-        height: "260px",
+        minHeight: "280px",
+        height: "320px",
+        backgroundColor: "var(--card)",
         border: "1px solid var(--card-border)",
       }}
     >
