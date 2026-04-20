@@ -94,7 +94,38 @@ export default function Hero() {
   return (
     <section id="home" className="relative min-h-screen flex flex-col overflow-hidden">
 
-      {/* ── Ambient glow ─────────────────────────────────────────────────── */}
+      {/* ── Ambient blobs OLED ───────────────────────────────────────────── */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden>
+        <div
+          className="blob-1 absolute rounded-full"
+          style={{
+            width: 600, height: 600,
+            top: "-15%", left: "30%",
+            background: `radial-gradient(circle, rgba(var(--accent-rgb), 0.09) 0%, transparent 70%)`,
+            filter: "blur(60px)",
+          }}
+        />
+        <div
+          className="blob-2 absolute rounded-full"
+          style={{
+            width: 500, height: 500,
+            top: "20%", right: "-10%",
+            background: `radial-gradient(circle, rgba(var(--accent-rgb), 0.06) 0%, transparent 70%)`,
+            filter: "blur(80px)",
+          }}
+        />
+        <div
+          className="blob-3 absolute rounded-full"
+          style={{
+            width: 400, height: 400,
+            bottom: "10%", left: "-5%",
+            background: `radial-gradient(circle, rgba(var(--accent-rgb), 0.05) 0%, transparent 70%)`,
+            filter: "blur(70px)",
+          }}
+        />
+      </div>
+
+      {/* ── Ambient glow (classique) ──────────────────────────────────────── */}
       <div className="hero-glow" />
 
       {/* ── Fond contrôlé depuis l'admin ──────────────────────────────────── */}
@@ -206,13 +237,13 @@ export default function Hero() {
                 initial={{ opacity: 0, y: 60 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-                className="font-display font-extrabold leading-[0.88] uppercase"
-                style={{ fontSize: "clamp(2.6rem, 6.5vw, 5.8rem)", color: "var(--text-primary)" }}
+                className="font-display font-extrabold leading-[0.86] uppercase"
+                style={{ fontSize: "clamp(3.2rem, 8vw, 7.5rem)", color: "var(--text-primary)" }}
               >
-                <span className="block tracking-tight">
+                <span className="block tracking-[-0.02em]">
                   {personal.firstName}
                 </span>
-                <span className="block hero-name-outlined tracking-tight">
+                <span className="block hero-name-outlined tracking-[-0.02em]">
                   {personal.lastName}.
                 </span>
               </motion.h1>
@@ -280,6 +311,8 @@ export default function Hero() {
             initial={{ opacity: 0, scale: 0.92, x: 40 }}
             animate={{ opacity: 1, scale: 1, x: 0 }}
             transition={{ duration: 1, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
           >
             <div className="relative">
               <div
@@ -291,17 +324,35 @@ export default function Hero() {
                 style={{ background: "linear-gradient(180deg, transparent, rgba(var(--accent-rgb),0.08), transparent)" }}
               />
 
+              {/* Glow derrière la photo */}
+              <div
+                className="absolute inset-0 rounded-[1.75rem] pointer-events-none"
+                style={{
+                  boxShadow: "0 0 60px rgba(var(--accent-rgb), 0.12), 0 0 120px rgba(var(--accent-rgb), 0.05)",
+                  zIndex: -1,
+                }}
+              />
+
               <div
                 className="relative aspect-[3/4] rounded-[1.75rem] overflow-hidden"
-                style={{ border: "1px solid var(--card-border)" }}
+                style={{ border: "1px solid rgba(var(--accent-rgb), 0.12)" }}
               >
                 <Image src="/me.jpg" alt={personal.name} fill className="object-cover object-top" priority />
                 <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/70 to-transparent" />
 
+                {/* Badge glassmorphism en bas */}
                 <div className="absolute bottom-0 left-0 right-0 p-5 flex items-end justify-between">
-                  <div>
-                    <p className="text-white font-bold text-sm leading-none">{personal.age} ans</p>
-                    <p className="text-white/50 text-xs mt-0.5">{personal.location}</p>
+                  <div
+                    className="flex items-center gap-2 rounded-full px-3 py-1.5"
+                    style={{
+                      background: "rgba(0,0,0,0.45)",
+                      backdropFilter: "blur(12px)",
+                      border: "1px solid rgba(255,255,255,0.12)",
+                    }}
+                  >
+                    <span className="text-white font-bold text-xs leading-none">{personal.age} ans</span>
+                    <span className="w-px h-3 bg-white/20" />
+                    <span className="text-white/60 text-xs">{personal.location}</span>
                   </div>
                   <span className="text-base">🇫🇷</span>
                 </div>

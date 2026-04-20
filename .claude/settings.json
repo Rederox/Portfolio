@@ -1,0 +1,9 @@
+{
+  "enabledPlugins": {
+    "ui-ux-pro-max@ui-ux-pro-max-skill": true,
+    "claude-md-management@claude-plugins-official": true,
+    "feature-dev@claude-plugins-official": true,
+    "searchfit-seo@claude-plugins-official": true,
+    "claude-seo@agricidaniel-seo": true
+  }
+}

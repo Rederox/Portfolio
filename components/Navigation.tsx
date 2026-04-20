@@ -10,9 +10,9 @@ import { useMode } from "@/lib/mode-context";
 
 const navLinks = [
   { label: "Profil",     href: "#about" },
-  { label: "Skills",     href: "#skills" },
   { label: "Expérience", href: "#experience" },
   { label: "Projets",    href: "#projects" },
+  { label: "Skills",     href: "#skills" },
   { label: "Contact",    href: "#contact" },
 ];
 
@@ -20,6 +20,7 @@ export default function Navigation() {
   const [scrolled,    setScrolled]   = useState(false);
   const [mobileOpen,  setMobileOpen] = useState(false);
   const [progress,    setProgress]   = useState(0);
+  const [activeHash,  setActiveHash] = useState("#home");
   const { mode, toggleMode }         = useMode();
 
   useEffect(() => {
@@ -30,6 +31,25 @@ export default function Navigation() {
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Active section tracker via IntersectionObserver
+  useEffect(() => {
+    const sections = navLinks.map((l) => document.querySelector(l.href));
+    if (sections.some((s) => !s)) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveHash(`#${entry.target.id}`);
+          }
+        });
+      },
+      { rootMargin: "-40% 0px -55% 0px", threshold: 0 }
+    );
+    sections.forEach((s) => s && observer.observe(s));
+    return () => observer.disconnect();
   }, []);
 
   const pillBg = scrolled
@@ -97,22 +117,35 @@ export default function Navigation() {
         >
           {/* Desktop */}
           <div className={`hidden md:flex items-center gap-0.5 rounded-full px-3 py-2.5 transition-all duration-300 ${activePillBg}`}>
-            {navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                className={`
-                  text-[0.83rem] font-medium whitespace-nowrap
-                  px-4 py-2 rounded-full transition-colors duration-150
-                  ${mode === "light"
-                    ? "text-[#7a7570] hover:text-[#2e2b28] hover:bg-black/5"
-                    : "text-slate-400 hover:text-white hover:bg-white/6"
-                  }
-                `}
-              >
-                {link.label}
-              </a>
-            ))}
+            {navLinks.map((link) => {
+              const isActive = activeHash === link.href;
+              return (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  className="relative text-[0.83rem] font-medium whitespace-nowrap px-4 py-2 rounded-full transition-colors duration-150"
+                  style={{
+                    color: isActive
+                      ? "var(--accent)"
+                      : mode === "light" ? "#7a7570" : "#94a3b8",
+                  }}
+                >
+                  {isActive && (
+                    <motion.span
+                      layoutId="nav-active-pill"
+                      className="absolute inset-0 rounded-full"
+                      style={{
+                        backgroundColor: mode === "light"
+                          ? "rgba(var(--accent-rgb),0.1)"
+                          : "rgba(var(--accent-rgb),0.12)",
+                      }}
+                      transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                    />
+                  )}
+                  <span className="relative z-10">{link.label}</span>
+                </a>
+              );
+            })}
           </div>
 
           {/* Mobile */}

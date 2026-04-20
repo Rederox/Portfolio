@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
   FiPlus, FiEdit2, FiTrash2, FiStar, FiCode, FiImage, FiVideo,
-  FiGithub, FiExternalLink, FiArrowUp, FiArrowDown,
+  FiGithub, FiExternalLink, FiArrowUp, FiArrowDown, FiDownload,
 } from "react-icons/fi";
 import Modal from "@/components/admin/Modal";
 import ImageUpload from "@/components/admin/ImageUpload";
@@ -71,6 +71,25 @@ export default function AdminProjects() {
   const handleDelete = async (id: string) => {
     await deleteProject(id);
     setDeleteConfirm(null);
+  };
+
+  const downloadAllImages = async (p: Project) => {
+    for (let i = 0; i < p.images.length; i++) {
+      try {
+        const res = await fetch(p.images[i]);
+        const blob = await res.blob();
+        const ext = blob.type.split("/")[1] || "jpg";
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `${p.title.replace(/\s+/g, "-").toLowerCase()}-${i + 1}.${ext}`;
+        a.click();
+        URL.revokeObjectURL(a.href);
+        // small delay between downloads to avoid browser blocking
+        await new Promise((r) => setTimeout(r, 300));
+      } catch {
+        window.open(p.images[i], "_blank");
+      }
+    }
   };
 
   const moveOrder = async (p: Project, dir: 1 | -1) => {
@@ -160,6 +179,9 @@ export default function AdminProjects() {
               <div className="flex items-center gap-1 flex-shrink-0">
                 <button onClick={() => moveOrder(p, -1)} className="p-2 text-slate-500 hover:text-white hover:bg-[#1a1a1a] rounded-lg transition-all" title="Monter"><FiArrowUp size={14} /></button>
                 <button onClick={() => moveOrder(p, 1)} className="p-2 text-slate-500 hover:text-white hover:bg-[#1a1a1a] rounded-lg transition-all" title="Descendre"><FiArrowDown size={14} /></button>
+                {p.images.length > 0 && (
+                  <button onClick={() => downloadAllImages(p)} className="p-2 text-slate-500 hover:text-blue-400 hover:bg-blue-400/10 rounded-lg transition-all" title={`Télécharger ${p.images.length} image${p.images.length > 1 ? "s" : ""}`}><FiDownload size={14} /></button>
+                )}
                 <button onClick={() => updateProject(p.id!, { featured: !p.featured })}
                   className={`p-2 rounded-lg transition-all ${p.featured ? "text-amber-400 hover:bg-amber-400/10" : "text-slate-500 hover:text-amber-400 hover:bg-[#1a1a1a]"}`}
                   title="Toggle featured">

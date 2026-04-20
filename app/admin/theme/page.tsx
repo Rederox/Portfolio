@@ -7,9 +7,9 @@ import { useTheme } from "@/lib/theme-context";
 import { THEME_LIST, isValidHex, lightenHex, type ThemeKey, type BgStyle } from "@/lib/themes";
 
 const BG_OPTIONS: { key: BgStyle; label: string; desc: string; animated?: boolean }[] = [
-  { key: "none",      label: "Aucun",       desc: "Fond épuré"              },
-  { key: "grid",      label: "Grille",      desc: "Lignes fines"           },
-  { key: "dots",      label: "Points",      desc: "Points fixes"           },
+  { key: "none",      label: "Aucun",       desc: "Fond OLED épuré"         },
+  { key: "grid",      label: "Grille",      desc: "Lignes fines"            },
+  { key: "dots",      label: "Points",      desc: "Points fixes"            },
   { key: "particles", label: "Particules",  desc: "Points animés",    animated: true },
   { key: "waves",     label: "Ondes",       desc: "Pulsation douce",  animated: true },
   { key: "lines",     label: "Diagonales",  desc: "Lignes en dérive", animated: true },
@@ -54,27 +54,42 @@ export default function ThemePage() {
       </div>
 
       {/* ── Live preview ──────────────────────────────────────────────────── */}
-      <div className="bg-[#111] border border-[#1e1e1e] rounded-2xl p-6">
-        <p className="text-slate-500 text-xs font-semibold uppercase tracking-widest mb-4">Aperçu</p>
-        <div className="flex flex-wrap items-center gap-3">
+      <div
+        className="rounded-2xl p-6 relative overflow-hidden"
+        style={{
+          background: "rgba(255,255,255,0.03)",
+          border: "1px solid rgba(255,255,255,0.08)",
+          backdropFilter: "blur(16px)",
+        }}
+      >
+        {/* Mini blobs décoratifs */}
+        <div className="absolute top-0 right-0 w-40 h-40 rounded-full pointer-events-none"
+          style={{ background: `radial-gradient(circle, rgba(var(--accent-rgb),0.1) 0%, transparent 70%)`, filter: "blur(30px)", transform: "translate(20%, -20%)" }} />
+
+        <p className="text-slate-400 text-xs font-semibold uppercase tracking-widest mb-5 relative z-10">Aperçu en temps réel</p>
+        <div className="flex flex-wrap items-center gap-3 relative z-10">
           <span
-            className="inline-flex items-center gap-2 text-sm font-medium rounded-full px-4 py-1.5 border"
-            style={{ color: "var(--accent)", backgroundColor: "rgba(var(--accent-rgb), 0.10)", borderColor: "rgba(var(--accent-rgb), 0.20)" }}
+            className="inline-flex items-center gap-2 text-sm font-medium rounded-full px-4 py-1.5"
+            style={{ color: "var(--accent)", backgroundColor: "rgba(var(--accent-rgb), 0.12)", border: "1px solid rgba(var(--accent-rgb), 0.25)" }}
           >
             <span className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: "var(--accent)" }} />
             Disponible pour un poste
           </span>
 
           <button
-            className="inline-flex items-center gap-2 text-white font-semibold px-5 py-2 rounded-xl text-sm"
-            style={{ backgroundColor: "var(--accent)" }}
+            className="inline-flex items-center gap-2 text-white font-bold px-5 py-2 rounded-xl text-sm"
+            style={{ backgroundColor: "var(--accent)", boxShadow: "0 4px 16px rgba(var(--accent-rgb),0.35)" }}
           >
             Télécharger CV
           </button>
 
           <button
-            className="inline-flex items-center gap-2 border text-white font-semibold px-5 py-2 rounded-xl text-sm"
-            style={{ borderColor: "rgba(var(--accent-rgb), 0.30)" }}
+            className="inline-flex items-center gap-2 text-white/70 font-semibold px-5 py-2 rounded-xl text-sm"
+            style={{
+              background: "rgba(255,255,255,0.05)",
+              border: "1px solid rgba(var(--accent-rgb),0.25)",
+              backdropFilter: "blur(8px)",
+            }}
           >
             Me contacter →
           </button>
@@ -85,6 +100,23 @@ export default function ThemePage() {
           >
             Theivathan.
           </span>
+        </div>
+
+        {/* Glass card preview */}
+        <div className="mt-5 pt-5 border-t" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+          <p className="text-slate-600 text-[0.65rem] uppercase tracking-widest font-semibold mb-3">Aperçu glass card</p>
+          <div
+            className="rounded-xl p-4 text-sm"
+            style={{
+              background: "rgba(255,255,255,0.04)",
+              border: "1px solid rgba(255,255,255,0.08)",
+              backdropFilter: "blur(12px)",
+              color: "var(--accent)",
+              boxShadow: "inset 0 1px 0 rgba(255,255,255,0.05)",
+            }}
+          >
+            Glassmorphism card — bordure hairline + backdrop blur
+          </div>
         </div>
       </div>
 
@@ -100,10 +132,15 @@ export default function ThemePage() {
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
+                whileHover={{ scale: 1.02, y: -1 }}
+                whileTap={{ scale: 0.97 }}
                 onClick={() => setTheme(t.key as ThemeKey)}
-                className={`relative group bg-[#111] border rounded-2xl p-4 flex flex-col gap-3 text-left transition-all duration-200 ${
-                  active ? "border-white/20 shadow-lg" : "border-[#1e1e1e] hover:border-[#2a2a2a]"
-                }`}
+                className="relative group rounded-2xl p-4 flex flex-col gap-3 text-left transition-all duration-200"
+                style={{
+                  background: active ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.03)",
+                  border: `1px solid ${active ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.07)"}`,
+                  backdropFilter: "blur(12px)",
+                }}
               >
                 <div className="w-full h-10 rounded-xl" style={{ background: t.preview }} />
                 <div className="flex items-center justify-between">
@@ -122,7 +159,7 @@ export default function ThemePage() {
                   <motion.div
                     layoutId="active-theme-glow"
                     className="absolute inset-0 rounded-2xl pointer-events-none"
-                    style={{ boxShadow: `0 0 0 1px ${t.accent}40, 0 0 20px ${t.accent}15` }}
+                    style={{ boxShadow: `0 0 0 1px ${t.accent}40, 0 0 24px ${t.accent}18` }}
                   />
                 )}
               </motion.button>
@@ -132,7 +169,7 @@ export default function ThemePage() {
       </div>
 
       {/* ── Couleur personnalisée ──────────────────────────────────────────── */}
-      <div className="bg-[#111] border border-[#1e1e1e] rounded-2xl p-6">
+      <div className="rounded-2xl p-6" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", backdropFilter: "blur(12px)" }}>
         <div className="flex items-center gap-2 mb-1">
           <FiDroplet size={14} style={{ color: "var(--accent)" }} />
           <p className="text-white font-semibold text-sm">Couleur personnalisée</p>
@@ -193,7 +230,7 @@ export default function ThemePage() {
       </div>
 
       {/* ── Style de fond du hero ──────────────────────────────────────────── */}
-      <div className="bg-[#111] border border-[#1e1e1e] rounded-2xl p-6">
+      <div className="rounded-2xl p-6" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", backdropFilter: "blur(12px)" }}>
         <p className="text-white font-semibold text-sm mb-1">Fond du hero</p>
         <p className="text-slate-500 text-xs mb-5">Le motif affiché derrière le nom dans la section principale.</p>
 
@@ -201,12 +238,17 @@ export default function ThemePage() {
           {BG_OPTIONS.map(({ key, label, desc, animated }) => {
             const active = settings.bgStyle === key;
             return (
-              <button
+              <motion.button
                 key={key}
                 onClick={() => handleBgStyle(key)}
-                className={`relative border rounded-2xl p-4 flex flex-col gap-2 text-left transition-all duration-200 ${
-                  active ? "border-white/20 bg-white/4" : "border-[#1e1e1e] hover:border-[#2a2a2a] bg-[#0a0a0a]"
-                }`}
+                whileHover={{ scale: 1.02, y: -1 }}
+                whileTap={{ scale: 0.97 }}
+                className="relative rounded-2xl p-4 flex flex-col gap-2 text-left transition-all duration-200"
+                style={{
+                  background: active ? "rgba(var(--accent-rgb),0.08)" : "rgba(255,255,255,0.03)",
+                  border: `1px solid ${active ? "rgba(var(--accent-rgb),0.3)" : "rgba(255,255,255,0.07)"}`,
+                  backdropFilter: "blur(8px)",
+                }}
               >
                 <div className="flex items-center gap-2 mb-1">
                   <p className={`text-sm font-semibold ${active ? "text-white" : "text-slate-300"}`}>{label}</p>
@@ -217,16 +259,17 @@ export default function ThemePage() {
                     </span>
                   )}
                 </div>
-                <p className="text-slate-600 text-xs">{desc}</p>
+                <p className="text-slate-500 text-xs">{desc}</p>
                 {active && (
-                  <div
+                  <motion.div
+                    layoutId="active-bg-check"
                     className="absolute top-3 right-3 w-5 h-5 rounded-full flex items-center justify-center"
                     style={{ backgroundColor: "var(--accent)" }}
                   >
                     <FiCheck size={10} className="text-white" strokeWidth={3} />
-                  </div>
+                  </motion.div>
                 )}
-              </button>
+              </motion.button>
             );
           })}
         </div>

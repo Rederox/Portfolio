@@ -151,6 +151,75 @@ export const updateSkillCategory = (id: string, data: Partial<SkillCategory>) =>
 export const deleteSkillCategory = (id: string) =>
   deleteDoc(doc(getDb(), "skills", id));
 
+// ─── Job Board ────────────────────────────────────────────────────────────────
+
+export const JOB_STATUSES = [
+  { key: "wishlist",  label: "À postuler",  color: "#8b5cf6", bg: "rgba(139,92,246,0.12)",  border: "rgba(139,92,246,0.25)" },
+  { key: "applied",   label: "Postulé",     color: "#3b82f6", bg: "rgba(59,130,246,0.12)",  border: "rgba(59,130,246,0.25)" },
+  { key: "interview", label: "Entretien",   color: "#f59e0b", bg: "rgba(245,158,11,0.12)",  border: "rgba(245,158,11,0.25)" },
+  { key: "offer",     label: "Offre",       color: "#10b981", bg: "rgba(16,185,129,0.12)",  border: "rgba(16,185,129,0.25)" },
+  { key: "rejected",  label: "Refusé",      color: "#ef4444", bg: "rgba(239,68,68,0.12)",   border: "rgba(239,68,68,0.25)" },
+] as const;
+
+export type JobStatus = (typeof JOB_STATUSES)[number]["key"];
+
+export interface JobBoardTab {
+  id?: string;
+  name: string;
+  order: number;
+}
+
+export interface JobDoc {
+  url: string;
+  name: string;
+}
+
+export interface JobApplication {
+  id?: string;
+  tabId: string;
+  title: string;
+  company: string;
+  location: string;
+  lat?: number;
+  lng?: number;
+  description: string;
+  status: JobStatus;
+  notes: string;
+  screenshots: string[];
+  documents: JobDoc[];
+  link: string;
+  order: number;
+  createdAt?: Date;
+}
+
+export const subscribeJobTabs = (cb: (tabs: JobBoardTab[]) => void): Unsubscribe =>
+  onSnapshot(query(col("jobTabs"), orderBy("order")), (snap) =>
+    cb(snap.docs.map((d) => ({ id: d.id, ...d.data() } as unknown as JobBoardTab)))
+  );
+
+export const addJobTab = (data: Omit<JobBoardTab, "id">) =>
+  addDoc(col("jobTabs"), data);
+
+export const updateJobTab = (id: string, data: Partial<JobBoardTab>) =>
+  updateDoc(doc(getDb(), "jobTabs", id), data as Record<string, unknown>);
+
+export const deleteJobTab = (id: string) =>
+  deleteDoc(doc(getDb(), "jobTabs", id));
+
+export const subscribeJobApplications = (cb: (apps: JobApplication[]) => void): Unsubscribe =>
+  onSnapshot(query(col("jobApplications"), orderBy("order")), (snap) =>
+    cb(snap.docs.map((d) => ({ id: d.id, ...d.data() } as unknown as JobApplication)))
+  );
+
+export const addJobApplication = (data: Omit<JobApplication, "id">) =>
+  addDoc(col("jobApplications"), { ...data, createdAt: serverTimestamp() });
+
+export const updateJobApplication = (id: string, data: Partial<JobApplication>) =>
+  updateDoc(doc(getDb(), "jobApplications", id), data as Record<string, unknown>);
+
+export const deleteJobApplication = (id: string) =>
+  deleteDoc(doc(getDb(), "jobApplications", id));
+
 // ─── Theme settings ───────────────────────────────────────────────────────────
 
 export const getThemeSettings = async (): Promise<ThemeSettings> => {

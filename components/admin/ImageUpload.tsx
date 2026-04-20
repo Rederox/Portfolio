@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FiUpload, FiX, FiImage, FiLoader } from "react-icons/fi";
+import { FiUpload, FiX, FiImage, FiLoader, FiDownload } from "react-icons/fi";
 import { uploadFile } from "@/lib/storage";
 
 interface ImageUploadProps {
@@ -47,6 +47,21 @@ export default function ImageUpload({
 
   const removeImage = (idx: number) => {
     onChange(images.filter((_, i) => i !== idx));
+  };
+
+  const downloadImage = async (url: string, idx: number) => {
+    try {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const ext = blob.type.split("/")[1] || "jpg";
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `image-${idx + 1}.${ext}`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    } catch {
+      window.open(url, "_blank");
+    }
   };
 
   return (
@@ -121,13 +136,24 @@ export default function ImageUpload({
                     Cover
                   </span>
                 )}
-                <button
-                  type="button"
-                  onClick={() => removeImage(idx)}
-                  className="absolute top-1 right-1 w-5 h-5 bg-black/70 hover:bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all"
-                >
-                  <FiX size={11} />
-                </button>
+                <div className="absolute top-1 right-1 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                  <button
+                    type="button"
+                    onClick={() => downloadImage(url, idx)}
+                    className="w-5 h-5 bg-black/70 hover:bg-blue-500 text-white rounded-full flex items-center justify-center transition-colors"
+                    title="Télécharger"
+                  >
+                    <FiDownload size={10} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => removeImage(idx)}
+                    className="w-5 h-5 bg-black/70 hover:bg-red-500 text-white rounded-full flex items-center justify-center transition-colors"
+                    title="Supprimer"
+                  >
+                    <FiX size={11} />
+                  </button>
+                </div>
               </motion.div>
             ))}
           </AnimatePresence>

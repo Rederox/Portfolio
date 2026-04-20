@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useRef, useCallback } from "react";
+import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from "framer-motion";
 import {
   FiGithub, FiExternalLink, FiCode,
   FiChevronLeft, FiChevronRight, FiStar, FiPlay,
@@ -67,37 +67,94 @@ function ImageCarousel({ images, title }: { images: string[]; title: string }) {
   );
 }
 
+// ─── Spotlight + 3D Tilt card ─────────────────────────────────────────────────
+
+function TiltCard({ children, className, style }: {
+  children: React.ReactNode;
+  className?: string;
+  style?: React.CSSProperties;
+}) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const mouseX  = useMotionValue(0);
+  const mouseY  = useMotionValue(0);
+  const spotX   = useMotionValue(50);
+  const spotY   = useMotionValue(50);
+
+  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [4, -4]), { stiffness: 300, damping: 30 });
+  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-4, 4]), { stiffness: 300, damping: 30 });
+
+  // Computed outside JSX — hook rule compliant
+  const spotBg = useTransform(
+    [spotX, spotY] as const,
+    ([x, y]: number[]) =>
+      `radial-gradient(400px circle at ${x}% ${y}%, rgba(var(--accent-rgb), 0.08), transparent 60%)`
+  );
+
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = cardRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    mouseX.set((e.clientX - rect.left) / rect.width - 0.5);
+    mouseY.set((e.clientY - rect.top)  / rect.height - 0.5);
+    spotX.set(((e.clientX - rect.left) / rect.width)  * 100);
+    spotY.set(((e.clientY - rect.top)  / rect.height) * 100);
+  }, [mouseX, mouseY, spotX, spotY]);
+
+  const handleMouseLeave = useCallback(() => {
+    mouseX.set(0);
+    mouseY.set(0);
+  }, [mouseX, mouseY]);
+
+  return (
+    <motion.div
+      ref={cardRef}
+      style={{ rotateX, rotateY, transformStyle: "preserve-3d", ...style }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className={className}
+    >
+      {/* Spotlight overlay */}
+      <motion.div
+        className="absolute inset-0 rounded-[inherit] pointer-events-none z-10"
+        style={{ background: spotBg }}
+      />
+      {children}
+    </motion.div>
+  );
+}
+
 // ─── Projet en horizontal ─────────────────────────────────────────────────────
 
 function ProjectRow({ project, index }: { project: Project; index: number }) {
   const imageLeft = index % 2 === 0;
 
   const imageBlock = (
-    <div
-      className="relative w-full lg:w-[460px] lg:flex-shrink-0 rounded-xl overflow-hidden"
+    <TiltCard
+      className="relative w-full lg:w-[440px] xl:w-[480px] lg:flex-shrink-0 rounded-2xl overflow-hidden spotlight-card"
       style={{
-        minHeight: "280px",
-        height: "320px",
-        backgroundColor: "var(--card)",
-        border: "1px solid var(--card-border)",
-      }}
+        minHeight: 240,
+        height: 280,
+        background: "rgba(255,255,255,0.03)",
+        border: "1px solid rgba(255,255,255,0.07)",
+      } as React.CSSProperties}
     >
       <ImageCarousel images={project.images} title={project.title} />
 
       {/* Badges */}
-      <div className="absolute top-3 left-3 flex gap-1.5 z-10 pointer-events-none">
+      <div className="absolute top-3 left-3 flex gap-1.5 z-20 pointer-events-none">
         {project.featured && (
-          <span className="flex items-center gap-1 text-[0.6rem] font-medium text-amber-400 bg-black/80 border border-amber-400/25 rounded-full px-2 py-0.5 backdrop-blur-sm">
+          <span className="flex items-center gap-1 text-[0.6rem] font-medium text-amber-400 rounded-full px-2.5 py-0.5"
+            style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)", border: "1px solid rgba(251,191,36,0.25)" }}>
             <FiStar size={8} /> Featured
           </span>
         )}
         {project.video && (
-          <span className="flex items-center gap-1 text-[0.6rem] font-medium text-blue-400 bg-black/80 border border-blue-400/25 rounded-full px-2 py-0.5 backdrop-blur-sm">
+          <span className="flex items-center gap-1 text-[0.6rem] font-medium text-blue-400 rounded-full px-2.5 py-0.5"
+            style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)", border: "1px solid rgba(96,165,250,0.25)" }}>
             <FiPlay size={8} /> Vidéo
           </span>
         )}
       </div>
-    </div>
+    </TiltCard>
   );
 
   const infoBlock = (
@@ -136,31 +193,30 @@ function ProjectRow({ project, index }: { project: Project; index: number }) {
 
         {/* Description complète */}
         {project.description && (
-          <p
-            className="text-sm leading-relaxed mb-5"
-            style={{ color: "var(--text-secondary)" }}
-          >
+          <p className="text-sm leading-relaxed mb-5" style={{ color: "var(--text-secondary)" }}>
             {project.description}
           </p>
         )}
 
-        {/* Stack complète */}
+        {/* Stack */}
         <div className="flex flex-wrap gap-2 mb-6">
           {project.technologies.map((t) => {
             const Icon = getTechIcon(t);
             return (
-              <span
+              <motion.span
                 key={t}
+                whileHover={{ scale: 1.05 }}
                 className="flex items-center gap-1.5 text-xs font-semibold rounded-lg px-3 py-1.5"
                 style={{
-                  color:           "var(--text-primary)",
-                  backgroundColor: "var(--card)",
-                  border:          "1px solid var(--card-border)",
+                  color:   "var(--text-primary)",
+                  background: "rgba(255,255,255,0.04)",
+                  border:  "1px solid rgba(255,255,255,0.08)",
+                  backdropFilter: "blur(8px)",
                 }}
               >
                 {Icon && <Icon size={11} style={{ color: "var(--accent)" }} />}
                 {t}
-              </span>
+              </motion.span>
             );
           })}
         </div>
@@ -169,35 +225,39 @@ function ProjectRow({ project, index }: { project: Project; index: number }) {
       {/* Liens */}
       <div className="flex items-center gap-3">
         {project.github && (
-          <a
+          <motion.a
             href={project.github}
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => trackEvent("github_click")}
-            className="inline-flex items-center gap-2 text-sm font-semibold rounded-xl px-4 py-2.5 transition-all"
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            className="inline-flex items-center gap-2 text-sm font-semibold rounded-xl px-4 py-2.5"
             style={{
-              color:           "var(--text-primary)",
-              border:          "1px solid var(--card-border)",
-              backgroundColor: "var(--card)",
+              color:   "var(--text-primary)",
+              background: "rgba(255,255,255,0.04)",
+              border:  "1px solid rgba(255,255,255,0.08)",
+              backdropFilter: "blur(8px)",
+              transition: "border-color 0.2s ease, color 0.2s ease",
             }}
             onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--accent)"; e.currentTarget.style.color = "var(--accent)"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--card-border)"; e.currentTarget.style.color = "var(--text-primary)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; e.currentTarget.style.color = "var(--text-primary)"; }}
           >
             <FiGithub size={14} /> Code source
-          </a>
+          </motion.a>
         )}
         {project.live && (
-          <a
+          <motion.a
             href={project.live}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-sm font-bold rounded-xl px-4 py-2.5 transition-all text-white accent-glow"
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            className="inline-flex items-center gap-2 text-sm font-bold rounded-xl px-4 py-2.5 text-white accent-glow"
             style={{ backgroundColor: "var(--accent)" }}
-            onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.88"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; }}
           >
             <FiExternalLink size={14} /> Voir en live
-          </a>
+          </motion.a>
         )}
         {!project.github && !project.live && (
           <span className="text-xs" style={{ color: "var(--text-secondary)" }}>
@@ -210,11 +270,11 @@ function ProjectRow({ project, index }: { project: Project; index: number }) {
 
   return (
     <motion.article
-      initial={{ opacity: 0, y: 28 }}
+      initial={{ opacity: 0, y: 32 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.5 }}
-      className={`flex gap-8 lg:gap-12 items-start flex-col ${imageLeft ? "lg:flex-row" : "lg:flex-row-reverse"}`}
+      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      className={`flex gap-6 sm:gap-8 lg:gap-12 items-start flex-col ${imageLeft ? "lg:flex-row" : "lg:flex-row-reverse"}`}
     >
       {imageBlock}
       {infoBlock}
