@@ -18,6 +18,7 @@ import {
   type JobBoardTab, type JobApplication, type JobStatus,
 } from "@/lib/firestore";
 
+
 // ─── Config ───────────────────────────────────────────────────────────────────
 
 const MAPBOX_TOKEN =
