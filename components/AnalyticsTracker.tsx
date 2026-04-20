@@ -8,10 +8,15 @@
  */
 
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { recordVisit, recordDuration } from "@/lib/analytics";
 
 export default function AnalyticsTracker() {
+  const pathname = usePathname();
+
   useEffect(() => {
+    if (pathname.startsWith("/admin")) return;
+
     const SESSION_KEY = "pf_visited_v2";
 
     // ── Visite — une seule fois par session ──────────────────────────────────
