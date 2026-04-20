@@ -174,6 +174,31 @@ export interface JobDoc {
   name: string;
 }
 
+export interface AIAnalysisRoadmapStep {
+  step: number;
+  title: string;
+  description: string;
+}
+
+export interface CompatibilityResult {
+  score: number;
+  strengths: string[];
+  gaps: string[];
+  recommendation: string;
+  analyzedAt: string;
+}
+
+export interface AIAnalysis {
+  summary: string;
+  skills_required: string[];
+  skills_nice: string[];
+  roadmap: AIAnalysisRoadmapStep[];
+  tips: string[];
+  salary_estimate: string | null;
+  analyzedAt?: string;
+  compatibility?: CompatibilityResult;
+}
+
 export interface JobApplication {
   id?: string;
   tabId: string;
@@ -189,6 +214,25 @@ export interface JobApplication {
   documents: JobDoc[];
   link: string;
   order: number;
+  createdAt?: Date;
+  aiAnalysis?: AIAnalysis;
+  lastContactAt?: string;
+  relanceCount?: number;
+  coverLetter?: string;
+  coverLetterGeneratedAt?: string;
+}
+
+export type InterviewType = "phone" | "video" | "onsite" | "technical";
+
+export interface Interview {
+  id?: string;
+  jobId: string;
+  title: string;
+  company: string;
+  date: string;
+  time: string;
+  type: InterviewType;
+  notes: string;
   createdAt?: Date;
 }
 
@@ -219,6 +263,22 @@ export const updateJobApplication = (id: string, data: Partial<JobApplication>) 
 
 export const deleteJobApplication = (id: string) =>
   deleteDoc(doc(getDb(), "jobApplications", id));
+
+// ─── Interviews ───────────────────────────────────────────────────────────────
+
+export const subscribeInterviews = (cb: (interviews: Interview[]) => void): Unsubscribe =>
+  onSnapshot(query(col("interviews"), orderBy("date")), (snap) =>
+    cb(snap.docs.map((d) => ({ id: d.id, ...d.data() } as unknown as Interview)))
+  );
+
+export const addInterview = (data: Omit<Interview, "id">) =>
+  addDoc(col("interviews"), { ...data, createdAt: serverTimestamp() });
+
+export const updateInterview = (id: string, data: Partial<Interview>) =>
+  updateDoc(doc(getDb(), "interviews", id), data as Record<string, unknown>);
+
+export const deleteInterview = (id: string) =>
+  deleteDoc(doc(getDb(), "interviews", id));
 
 // ─── Theme settings ───────────────────────────────────────────────────────────
 

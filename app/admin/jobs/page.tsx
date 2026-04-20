@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FiPlus, FiEdit2, FiTrash2, FiX, FiExternalLink, FiMapPin,
   FiLink, FiImage, FiNavigation, FiSearch, FiCheck, FiClipboard,
   FiDownload, FiFileText, FiMessageSquare, FiFile, FiCalendar,
-  FiZap,
+  FiZap, FiChevronLeft, FiChevronRight, FiBell, FiPhone,
+  FiVideo, FiMonitor, FiCode, FiLoader,
 } from "react-icons/fi";
 import Modal from "@/components/admin/Modal";
 import ImageUpload from "@/components/admin/ImageUpload";
@@ -14,15 +15,25 @@ import FileUpload from "@/components/admin/FileUpload";
 import {
   subscribeJobTabs, addJobTab, updateJobTab, deleteJobTab,
   subscribeJobApplications, addJobApplication, updateJobApplication, deleteJobApplication,
+  subscribeInterviews, addInterview, updateInterview, deleteInterview,
+  subscribeExperience, subscribeSkills,
   JOB_STATUSES,
   type JobBoardTab, type JobApplication, type JobStatus,
+  type Interview, type InterviewType, type AIAnalysis,
+  type Experience, type SkillCategory, type CompatibilityResult,
 } from "@/lib/firestore";
 
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
-const MAPBOX_TOKEN =
-  process.env.NEXT_PUBLIC_MAPBOX_TOKEN 
+const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
+
+const INTERVIEW_TYPES: { key: InterviewType; label: string; icon: React.ReactNode }[] = [
+  { key: "phone",     label: "Téléphonique",   icon: <FiPhone size={12} /> },
+  { key: "video",     label: "Visio",           icon: <FiVideo size={12} /> },
+  { key: "onsite",    label: "Présentiel",      icon: <FiMonitor size={12} /> },
+  { key: "technical", label: "Technique",       icon: <FiCode size={12} /> },
+];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -45,6 +56,15 @@ function formatDate(ts: unknown): string {
   if (diff < 7) return `Il y a ${diff}j`;
   if (diff < 30) return `Il y a ${Math.floor(diff / 7)} sem`;
   return d.toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: diff > 365 ? "numeric" : undefined });
+}
+
+function formatInterviewDate(date: string, time: string): string {
+  if (!date) return "";
+  const d = new Date(`${date}T${time || "00:00"}`);
+  return d.toLocaleString("fr-FR", {
+    weekday: "short", day: "numeric", month: "short",
+    hour: time ? "2-digit" : undefined, minute: time ? "2-digit" : undefined,
+  });
 }
 
 function exportToCSV(apps: JobApplication[], tabName: string) {
@@ -73,13 +93,58 @@ const EMPTY_FORM: Omit<JobApplication, "id" | "createdAt"> = {
   notes: "", screenshots: [], documents: [], link: "", order: 0,
 };
 
+const EMPTY_INTERVIEW: Omit<Interview, "id" | "createdAt"> = {
+  jobId: "", title: "", company: "", date: "", time: "10:00", type: "phone", notes: "",
+};
+
+// ─── Relance helpers ───────────────────────────────────────────────────────────
+
+function getRelanceStatus(card: JobApplication): { days: number; level: "warning" | "alert" | null } {
+  if (card.status !== "applied" && card.status !== "interview") return { days: 0, level: null };
+  const raw = card.lastContactAt ?? card.createdAt;
+  const ts = !raw ? null
+    : typeof raw === "object" && "seconds" in (raw as object)
+    ? new Date((raw as unknown as { seconds: number }).seconds * 1000)
+    : new Date(raw as unknown as string);
+  if (!ts || isNaN(ts.getTime())) return { days: 0, level: null };
+  const days = Math.floor((Date.now() - ts.getTime()) / 86400000);
+  const warn = card.status === "applied" ? 7 : 10;
+  const alert = warn * 2;
+  if (days >= alert) return { days, level: "alert" };
+  if (days >= warn) return { days, level: "warning" };
+  return { days, level: null };
+}
+
+// ─── Push notification helpers ─────────────────────────────────────────────────
+
+async function registerPush(): Promise<PushSubscription | null> {
+  if (typeof window === "undefined" || !("serviceWorker" in navigator) || !("PushManager" in window)) return null;
+  try {
+    const reg = await navigator.serviceWorker.register("/sw.js");
+    const existing = await reg.pushManager.getSubscription();
+    if (existing) return existing;
+    const perm = await Notification.requestPermission();
+    if (perm !== "granted") return null;
+    const sub = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
+    });
+    await fetch("/api/jobs/subscribe", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(sub) });
+    return sub;
+  } catch { return null; }
+}
+
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function AdminJobs() {
   const [tabs, setTabs] = useState<JobBoardTab[]>([]);
   const [applications, setApplications] = useState<JobApplication[]>([]);
+  const [interviews, setInterviews] = useState<Interview[]>([]);
+  const [experiences, setExperiences] = useState<Experience[]>([]);
+  const [skills, setSkills] = useState<SkillCategory[]>([]);
   const [activeTabId, setActiveTabId] = useState<string | null>(null);
   const [selectedCard, setSelectedCard] = useState<JobApplication | null>(null);
+  const [view, setView] = useState<"kanban" | "calendar">("kanban");
 
   const [cardModal, setCardModal] = useState(false);
   const [editingCard, setEditingCard] = useState<JobApplication | null>(null);
@@ -97,6 +162,13 @@ export default function AdminJobs() {
   const [dragOverStatus, setDragOverStatus] = useState<JobStatus | null>(null);
   const [geocoding, setGeocoding] = useState(false);
 
+  const [interviewModal, setInterviewModal] = useState(false);
+  const [editingInterview, setEditingInterview] = useState<Interview | null>(null);
+  const [interviewForm, setInterviewForm] = useState<Omit<Interview, "id" | "createdAt">>(EMPTY_INTERVIEW);
+  const [savingInterview, setSavingInterview] = useState(false);
+  const [pushSub, setPushSub] = useState<PushSubscription | null>(null);
+  const [sendingRemind, setSendingRemind] = useState<string | null>(null);
+
   useEffect(() => subscribeJobTabs((t) => {
     setTabs(t);
     setActiveTabId((prev) => {
@@ -106,6 +178,9 @@ export default function AdminJobs() {
   }), []);
 
   useEffect(() => subscribeJobApplications(setApplications), []);
+  useEffect(() => subscribeInterviews(setInterviews), []);
+  useEffect(() => subscribeExperience(setExperiences), []);
+  useEffect(() => subscribeSkills(setSkills), []);
 
   useEffect(() => {
     if (selectedCard?.id) {
@@ -186,7 +261,7 @@ export default function AdminJobs() {
     await updateJobApplication(draggingId, { status: newStatus, order: newOrder });
   };
 
-  // ─── Geocoding (Mapbox) ────────────────────────────────────────────────────
+  // ─── Geocoding ─────────────────────────────────────────────────────────────
 
   const geocode = async () => {
     if (!form.location.trim()) return;
@@ -203,12 +278,67 @@ export default function AdminJobs() {
     } finally { setGeocoding(false); }
   };
 
+  // ─── Interview handlers ─────────────────────────────────────────────────────
+
+  const openAddInterview = (card: JobApplication) => {
+    setEditingInterview(null);
+    setInterviewForm({
+      ...EMPTY_INTERVIEW,
+      jobId: card.id!,
+      title: card.title,
+      company: card.company,
+      date: new Date().toISOString().split("T")[0],
+    });
+    setInterviewModal(true);
+  };
+
+  const openEditInterview = (iv: Interview) => {
+    setEditingInterview(iv);
+    setInterviewForm({
+      jobId: iv.jobId, title: iv.title, company: iv.company,
+      date: iv.date, time: iv.time, type: iv.type, notes: iv.notes,
+    });
+    setInterviewModal(true);
+  };
+
+  const handleSaveInterview = async () => {
+    if (!interviewForm.date) return;
+    setSavingInterview(true);
+    try {
+      if (editingInterview?.id) await updateInterview(editingInterview.id, interviewForm);
+      else await addInterview(interviewForm);
+      setInterviewModal(false);
+    } finally { setSavingInterview(false); }
+  };
+
+  const handleDeleteInterview = async (id: string) => {
+    await deleteInterview(id);
+  };
+
+  const handleSendReminder = async (iv: Interview) => {
+    setSendingRemind(iv.id!);
+    try {
+      let sub = pushSub;
+      if (!sub) { sub = await registerPush(); if (sub) setPushSub(sub); }
+      await fetch("/api/jobs/remind", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ interview: iv, subscription: sub }),
+      });
+    } finally { setSendingRemind(null); }
+  };
+
   // ─── Computed ──────────────────────────────────────────────────────────────
 
   const activeTab = tabs.find((t) => t.id === activeTabId);
   const tabApps = applications.filter((a) => a.tabId === activeTabId);
   const cardsByStatus = (status: JobStatus) =>
     tabApps.filter((a) => a.status === status).sort((a, b) => a.order - b.order);
+
+  const upcomingInterviews = interviews.filter((iv) => {
+    const d = new Date(`${iv.date}T${iv.time}`);
+    return d >= new Date();
+  }).sort((a, b) => `${a.date}${a.time}`.localeCompare(`${b.date}${b.time}`));
 
   // ─── Render ────────────────────────────────────────────────────────────────
 
@@ -222,16 +352,36 @@ export default function AdminJobs() {
           <p className="text-slate-500 text-xs mt-0.5">
             {tabApps.length} offre{tabApps.length !== 1 ? "s" : ""}
             {activeTab ? ` · ${activeTab.name}` : ""}
+            {upcomingInterviews.length > 0 && (
+              <span className="ml-2 text-amber-400">· {upcomingInterviews.length} entretien{upcomingInterviews.length > 1 ? "s" : ""} à venir</span>
+            )}
           </p>
         </div>
-        {tabApps.length > 0 && (
-          <button
-            onClick={() => exportToCSV(tabApps, activeTab?.name ?? "export")}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs text-slate-400 hover:text-white border border-[#1e1e1e] hover:border-[#2a2a2a] hover:bg-[#111] transition-all"
-          >
-            <FiDownload size={12} /> Exporter
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          {/* View toggle */}
+          <div className="flex items-center gap-0.5 bg-[#111] border border-[#1e1e1e] rounded-xl p-0.5">
+            <button
+              onClick={() => setView("kanban")}
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${view === "kanban" ? "bg-[#1e1e1e] text-white" : "text-slate-500 hover:text-slate-300"}`}
+            >
+              <FiClipboard size={11} /> Kanban
+            </button>
+            <button
+              onClick={() => setView("calendar")}
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${view === "calendar" ? "bg-[#1e1e1e] text-white" : "text-slate-500 hover:text-slate-300"}`}
+            >
+              <FiCalendar size={11} /> Calendrier
+            </button>
+          </div>
+          {tabApps.length > 0 && (
+            <button
+              onClick={() => exportToCSV(tabApps, activeTab?.name ?? "export")}
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs text-slate-400 hover:text-white border border-[#1e1e1e] hover:border-[#2a2a2a] hover:bg-[#111] transition-all"
+            >
+              <FiDownload size={12} /> Exporter
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Tabs bar */}
@@ -302,8 +452,26 @@ export default function AdminJobs() {
         </div>
       )}
 
-      {/* Kanban board — fills remaining height, NO scrollbar visible */}
-      {activeTabId && (
+      {/* ─── Calendar view ──────────────────────────────────────────────────────── */}
+      {activeTabId && view === "calendar" && (
+        <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar px-5 pb-4">
+          <InterviewCalendar
+            interviews={interviews}
+            applications={applications}
+            onAddInterview={(jobId) => {
+              const card = applications.find((a) => a.id === jobId);
+              if (card) openAddInterview(card);
+            }}
+            onEditInterview={openEditInterview}
+            onDeleteInterview={handleDeleteInterview}
+            onSendReminder={handleSendReminder}
+            sendingRemind={sendingRemind}
+          />
+        </div>
+      )}
+
+      {/* ─── Kanban board ───────────────────────────────────────────────────────── */}
+      {activeTabId && view === "kanban" && (
         <div className="flex-1 min-h-0 overflow-x-auto no-scrollbar px-5 pb-4">
           <div className="flex gap-3 h-full" style={{ minWidth: `${JOB_STATUSES.length * 232}px` }}>
             {JOB_STATUSES.map((status) => {
@@ -316,7 +484,6 @@ export default function AdminJobs() {
                   onDragLeave={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragOverStatus(null); }}
                   onDrop={(e) => { e.preventDefault(); handleDrop(status.key); setDragOverStatus(null); setDraggingId(null); }}
                 >
-                  {/* Column header */}
                   <div className="flex-shrink-0 flex items-center justify-between px-3 py-2.5">
                     <div className="flex items-center gap-2">
                       <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: status.color }} />
@@ -332,18 +499,21 @@ export default function AdminJobs() {
                     </button>
                   </div>
 
-                  {/* Scrollable cards area */}
                   <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar px-2 pb-2 space-y-1.5">
                     <AnimatePresence>
-                      {cards.map((card) => (
-                        <KanbanCard key={card.id} card={card} isDragging={draggingId === card.id}
-                          onOpen={() => setSelectedCard(card)}
-                          onEdit={() => openEditCard(card)}
-                          onDelete={() => setDeleteConfirm(card.id!)}
-                          onDragStart={() => setDraggingId(card.id!)}
-                          onDragEnd={() => setDraggingId(null)}
-                        />
-                      ))}
+                      {cards.map((card) => {
+                        const cardInterviews = interviews.filter((iv) => iv.jobId === card.id);
+                        return (
+                          <KanbanCard key={card.id} card={card} isDragging={draggingId === card.id}
+                            interviewCount={cardInterviews.length}
+                            onOpen={() => setSelectedCard(card)}
+                            onEdit={() => openEditCard(card)}
+                            onDelete={() => setDeleteConfirm(card.id!)}
+                            onDragStart={() => setDraggingId(card.id!)}
+                            onDragEnd={() => setDraggingId(null)}
+                          />
+                        );
+                      })}
                     </AnimatePresence>
 
                     {cards.length === 0 && !isOver && (
@@ -374,21 +544,29 @@ export default function AdminJobs() {
             <motion.aside
               initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 32, stiffness: 320 }}
-              className="fixed right-0 top-0 h-full z-50 w-full max-w-[460px] bg-[#0d0d0d] border-l border-[#1e1e1e] flex flex-col shadow-2xl overflow-hidden"
+              className="fixed right-0 top-0 h-full z-50 w-full max-w-[500px] bg-[#0d0d0d] border-l border-[#1e1e1e] flex flex-col shadow-2xl overflow-hidden"
             >
               <DetailDrawer
                 card={selectedCard}
+                interviews={interviews.filter((iv) => iv.jobId === selectedCard.id)}
+                experiences={experiences}
+                skills={skills}
                 onEdit={() => openEditCard(selectedCard)}
                 onDelete={() => setDeleteConfirm(selectedCard.id!)}
                 onClose={() => setSelectedCard(null)}
                 onStatusChange={(status) => updateJobApplication(selectedCard.id!, { status })}
+                onAddInterview={() => openAddInterview(selectedCard)}
+                onEditInterview={openEditInterview}
+                onDeleteInterview={handleDeleteInterview}
+                onSendReminder={handleSendReminder}
+                sendingRemind={sendingRemind}
               />
             </motion.aside>
           </>
         )}
       </AnimatePresence>
 
-      {/* ─── Add / Edit Modal ─────────────────────────────────────────────────── */}
+      {/* ─── Add / Edit Card Modal ─────────────────────────────────────────────── */}
       <Modal open={cardModal} onClose={() => setCardModal(false)}
         title={editingCard ? "Modifier l'offre" : "Nouvelle offre"} size="xl">
         <div className="space-y-4">
@@ -407,7 +585,6 @@ export default function AdminJobs() {
             </div>
           </div>
 
-          {/* Status */}
           <div>
             <label className="block text-xs text-slate-500 font-medium mb-1.5">Statut</label>
             <div className="flex flex-wrap gap-1.5">
@@ -424,7 +601,6 @@ export default function AdminJobs() {
             </div>
           </div>
 
-          {/* Location */}
           <div>
             <label className="block text-xs text-slate-500 font-medium mb-1.5">Localisation</label>
             <div className="flex gap-2">
@@ -451,11 +627,7 @@ export default function AdminJobs() {
             </div>
             {form.lat && form.lng && (
               <div className="mt-2 rounded-xl overflow-hidden border border-[#252525] relative group">
-                <img
-                  src={mapboxStaticUrl(form.lat, form.lng, 800, 200)}
-                  alt="Carte"
-                  className="w-full h-[160px] object-cover"
-                />
+                <img src={mapboxStaticUrl(form.lat, form.lng, 800, 200)} alt="Carte" className="w-full h-[160px] object-cover" />
                 <button type="button" onClick={() => setForm((f) => ({ ...f, lat: undefined, lng: undefined }))}
                   className="absolute top-2 right-2 w-6 h-6 bg-black/60 hover:bg-black/80 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                   <FiX size={12} />
@@ -467,7 +639,6 @@ export default function AdminJobs() {
             )}
           </div>
 
-          {/* Link */}
           <div>
             <label className="block text-xs text-slate-500 font-medium mb-1.5">Lien de l'offre</label>
             <div className="relative">
@@ -478,7 +649,6 @@ export default function AdminJobs() {
             </div>
           </div>
 
-          {/* Description */}
           <div>
             <label className="block text-xs text-slate-500 font-medium mb-1.5">Description du poste</label>
             <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
@@ -486,7 +656,6 @@ export default function AdminJobs() {
               className="admin-input w-full bg-[#161616] border border-[#252525] text-white placeholder-slate-600 rounded-xl px-4 py-2.5 text-sm outline-none resize-none" />
           </div>
 
-          {/* Notes */}
           <div>
             <label className="block text-xs text-slate-500 font-medium mb-1.5">Notes personnelles</label>
             <textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })}
@@ -494,7 +663,6 @@ export default function AdminJobs() {
               className="admin-input w-full bg-[#161616] border border-[#252525] text-white placeholder-slate-600 rounded-xl px-4 py-2.5 text-sm outline-none resize-none" />
           </div>
 
-          {/* Screenshots */}
           <div>
             <label className="block text-xs text-slate-500 font-medium mb-1.5">
               Captures <span className="text-slate-600">(offre, échanges, etc.)</span>
@@ -502,7 +670,6 @@ export default function AdminJobs() {
             <ImageUpload images={form.screenshots} onChange={(urls) => setForm({ ...form, screenshots: urls })} folder="jobs" maxFiles={10} />
           </div>
 
-          {/* Documents */}
           <div>
             <label className="block text-xs text-slate-500 font-medium mb-1.5">
               Documents <span className="text-slate-600">(CV, lettre de motivation, etc.)</span>
@@ -520,6 +687,60 @@ export default function AdminJobs() {
               style={{ backgroundColor: "var(--accent)" }}>
               {saving && <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
               {editingCard ? "Enregistrer" : "Ajouter"}
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* ─── Interview Modal ───────────────────────────────────────────────────── */}
+      <Modal open={interviewModal} onClose={() => setInterviewModal(false)}
+        title={editingInterview ? "Modifier l'entretien" : "Programmer un entretien"} size="md">
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs text-slate-500 font-medium mb-1.5">Date</label>
+              <input type="date" value={interviewForm.date} onChange={(e) => setInterviewForm({ ...interviewForm, date: e.target.value })}
+                className="admin-input w-full bg-[#161616] border border-[#252525] text-white rounded-xl px-3 py-2.5 text-sm outline-none" />
+            </div>
+            <div>
+              <label className="block text-xs text-slate-500 font-medium mb-1.5">Heure</label>
+              <input type="time" value={interviewForm.time} onChange={(e) => setInterviewForm({ ...interviewForm, time: e.target.value })}
+                className="admin-input w-full bg-[#161616] border border-[#252525] text-white rounded-xl px-3 py-2.5 text-sm outline-none" />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs text-slate-500 font-medium mb-1.5">Type d'entretien</label>
+            <div className="grid grid-cols-2 gap-2">
+              {INTERVIEW_TYPES.map((t) => (
+                <button key={t.key} type="button" onClick={() => setInterviewForm({ ...interviewForm, type: t.key })}
+                  className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm border transition-all"
+                  style={interviewForm.type === t.key
+                    ? { backgroundColor: "rgba(var(--accent-rgb),0.1)", color: "var(--accent)", borderColor: "rgba(var(--accent-rgb),0.3)" }
+                    : { backgroundColor: "transparent", color: "#64748b", borderColor: "#252525" }}>
+                  {t.icon} {t.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs text-slate-500 font-medium mb-1.5">Notes (lien visio, contact, etc.)</label>
+            <textarea value={interviewForm.notes} onChange={(e) => setInterviewForm({ ...interviewForm, notes: e.target.value })}
+              rows={3} placeholder="https://meet.google.com/... ou nom du recruteur..."
+              className="admin-input w-full bg-[#161616] border border-[#252525] text-white placeholder-slate-600 rounded-xl px-4 py-2.5 text-sm outline-none resize-none" />
+          </div>
+
+          <div className="flex justify-end gap-3 pt-2 border-t border-[#1e1e1e]">
+            <button onClick={() => setInterviewModal(false)}
+              className="px-4 py-2.5 text-sm text-slate-400 hover:text-white border border-[#252525] rounded-xl transition-colors">
+              Annuler
+            </button>
+            <button onClick={handleSaveInterview} disabled={!interviewForm.date || savingInterview}
+              className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-white rounded-xl transition-opacity hover:opacity-85 disabled:opacity-50"
+              style={{ backgroundColor: "var(--accent)" }}>
+              {savingInterview && <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
+              {editingInterview ? "Enregistrer" : "Programmer"}
             </button>
           </div>
         </div>
@@ -549,6 +770,7 @@ export default function AdminJobs() {
 interface KanbanCardProps {
   card: JobApplication;
   isDragging: boolean;
+  interviewCount: number;
   onOpen: () => void;
   onEdit: () => void;
   onDelete: () => void;
@@ -556,16 +778,17 @@ interface KanbanCardProps {
   onDragEnd: () => void;
 }
 
-function KanbanCard({ card, isDragging, onOpen, onEdit, onDelete, onDragStart, onDragEnd }: KanbanCardProps) {
+function KanbanCard({ card, isDragging, interviewCount, onOpen, onEdit, onDelete, onDragStart, onDragEnd }: KanbanCardProps) {
   const status = JOB_STATUSES.find((s) => s.key === card.status)!;
+  const relance = getRelanceStatus(card);
+  const relanceBorder = relance.level === "alert" ? "#ef4444" : relance.level === "warning" ? "#f59e0b" : null;
   return (
     <motion.div layout initial={{ opacity: 0, y: 6 }} animate={{ opacity: isDragging ? 0.35 : 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.96 }} transition={{ duration: 0.12 }}
       draggable onDragStart={onDragStart} onDragEnd={onDragEnd} onClick={onOpen}
       className="group bg-[#131313] border border-[#1c1c1c] hover:border-[#262626] rounded-xl p-2.5 cursor-pointer active:cursor-grabbing transition-all select-none"
-      style={{ borderLeft: `2px solid ${status.color}40` }}
+      style={{ borderLeft: `2px solid ${relanceBorder ?? status.color + "40"}` }}
     >
-      {/* Company + Title */}
       <div className="mb-1.5">
         {card.company && (
           <p className="text-[10px] text-slate-500 font-medium uppercase tracking-wide truncate leading-none mb-0.5">{card.company}</p>
@@ -573,7 +796,6 @@ function KanbanCard({ card, isDragging, onOpen, onEdit, onDelete, onDragStart, o
         <p className="text-sm text-white font-semibold leading-snug truncate">{card.title || card.company}</p>
       </div>
 
-      {/* Location / link */}
       {(card.location || card.link) && (
         <div className="space-y-0.5 mb-2">
           {card.location && (
@@ -591,7 +813,6 @@ function KanbanCard({ card, isDragging, onOpen, onEdit, onDelete, onDragStart, o
         </div>
       )}
 
-      {/* Footer: date + meta + actions */}
       <div className="flex items-center justify-between pt-1.5 border-t border-[#1c1c1c]">
         <div className="flex items-center gap-2 text-[10px] text-slate-600">
           {card.createdAt && (
@@ -603,6 +824,18 @@ function KanbanCard({ card, isDragging, onOpen, onEdit, onDelete, onDragStart, o
           {card.screenshots.length > 0 && <span className="flex items-center gap-0.5"><FiImage size={8} />{card.screenshots.length}</span>}
           {(card.documents ?? []).length > 0 && <span className="flex items-center gap-0.5"><FiFile size={8} />{card.documents.length}</span>}
           {card.notes && <FiMessageSquare size={8} />}
+          {card.aiAnalysis && <FiZap size={8} className="text-amber-500" />}
+          {interviewCount > 0 && (
+            <span className="flex items-center gap-0.5 text-amber-400">
+              <FiCalendar size={8} />{interviewCount}
+            </span>
+          )}
+          {relance.level && (
+            <span className="flex items-center gap-0.5 font-semibold"
+              style={{ color: relanceBorder ?? undefined }}>
+              {relance.days}j
+            </span>
+          )}
         </div>
         <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
           {card.link && (
@@ -629,15 +862,61 @@ function KanbanCard({ card, isDragging, onOpen, onEdit, onDelete, onDragStart, o
 
 interface DetailDrawerProps {
   card: JobApplication;
+  interviews: Interview[];
+  experiences: Experience[];
+  skills: SkillCategory[];
   onEdit: () => void;
   onDelete: () => void;
   onClose: () => void;
   onStatusChange: (status: JobStatus) => void;
+  onAddInterview: () => void;
+  onEditInterview: (iv: Interview) => void;
+  onDeleteInterview: (id: string) => void;
+  onSendReminder: (iv: Interview) => void;
+  sendingRemind: string | null;
 }
 
-function DetailDrawer({ card, onEdit, onDelete, onClose, onStatusChange }: DetailDrawerProps) {
+function DetailDrawer({
+  card, interviews, experiences, skills, onEdit, onDelete, onClose, onStatusChange,
+  onAddInterview, onEditInterview, onDeleteInterview, onSendReminder, sendingRemind,
+}: DetailDrawerProps) {
   const status = JOB_STATUSES.find((s) => s.key === card.status)!;
   const [imgOpen, setImgOpen] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<"details" | "ai" | "interviews">("details");
+  const [analyzing, setAnalyzing] = useState(false);
+  const [analysis, setAnalysis] = useState<AIAnalysis | null>(card.aiAnalysis ?? null);
+  const [analyzeError, setAnalyzeError] = useState<string | null>(null);
+
+  useEffect(() => { setAnalysis(card.aiAnalysis ?? null); }, [card.aiAnalysis]);
+
+  const handleAnalyze = useCallback(async () => {
+    if (analyzing) return;
+    setAnalyzing(true);
+    setAnalyzeError(null);
+    try {
+      const res = await fetch("/api/jobs/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: card.title, company: card.company, description: card.description }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        setAnalyzeError(err.error ?? "Erreur inconnue");
+        return;
+      }
+      const data: AIAnalysis = await res.json();
+      data.analyzedAt = new Date().toISOString();
+      setAnalysis(data);
+      await updateJobApplication(card.id!, { aiAnalysis: data });
+    } catch {
+      setAnalyzeError("Impossible de contacter l'API");
+    } finally {
+      setAnalyzing(false);
+    }
+  }, [card, analyzing]);
+
+  const upcomingInterviews = interviews.filter((iv) => new Date(`${iv.date}T${iv.time}`) >= new Date());
+  const pastInterviews = interviews.filter((iv) => new Date(`${iv.date}T${iv.time}`) < new Date());
 
   return (
     <>
@@ -669,8 +948,33 @@ function DetailDrawer({ card, onEdit, onDelete, onClose, onStatusChange }: Detai
           </div>
         </div>
 
+        {/* Relance banner */}
+        {(() => {
+          const rel = getRelanceStatus(card);
+          if (!rel.level) return null;
+          const isAlert = rel.level === "alert";
+          return (
+            <div className={`flex items-center justify-between gap-2 mb-3 px-3 py-2 rounded-xl border text-xs ${
+              isAlert
+                ? "bg-red-500/8 border-red-500/20 text-red-400"
+                : "bg-amber-500/8 border-amber-500/20 text-amber-400"
+            }`}>
+              <span>
+                Pas de réponse depuis <strong>{rel.days} jours</strong>
+                {rel.days >= 14 && " — relance urgente"}
+              </span>
+              <button
+                onClick={() => updateJobApplication(card.id!, { lastContactAt: new Date().toISOString(), relanceCount: (card.relanceCount ?? 0) + 1 })}
+                className="flex-shrink-0 px-2 py-0.5 rounded-lg border font-medium transition-all hover:opacity-80"
+                style={{ borderColor: isAlert ? "rgba(239,68,68,0.3)" : "rgba(245,158,11,0.3)" }}>
+                Marquer relancé
+              </button>
+            </div>
+          );
+        })()}
+
         {/* Quick status change */}
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex flex-wrap gap-1.5 mb-3">
           {JOB_STATUSES.map((s) => (
             <button key={s.key} onClick={() => onStatusChange(s.key)}
               className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-medium border transition-all"
@@ -682,116 +986,200 @@ function DetailDrawer({ card, onEdit, onDelete, onClose, onStatusChange }: Detai
             </button>
           ))}
         </div>
+
+        {/* Inner tabs */}
+        <div className="flex gap-0.5 bg-[#111] rounded-xl p-0.5 border border-[#1a1a1a]">
+          {[
+            { key: "details", label: "Détails", icon: <FiFileText size={11} /> },
+            { key: "ai", label: "Analyse IA", icon: <FiZap size={11} />, badge: analysis ? "✓" : undefined },
+            { key: "interviews", label: "Entretiens", icon: <FiCalendar size={11} />, badge: interviews.length > 0 ? String(interviews.length) : undefined },
+          ].map((t) => (
+            <button key={t.key} onClick={() => setActiveTab(t.key as typeof activeTab)}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-[11px] font-medium transition-all relative ${
+                activeTab === t.key ? "bg-[#1e1e1e] text-white" : "text-slate-500 hover:text-slate-300"
+              }`}>
+              {t.icon} {t.label}
+              {t.badge && (
+                <span className="absolute -top-1 -right-1 text-[9px] font-bold px-1 rounded-full"
+                  style={{ backgroundColor: "var(--accent)", color: "#fff" }}>
+                  {t.badge}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Scrollable body — hidden scrollbar */}
+      {/* Scrollable body */}
       <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar px-5 py-4 space-y-5">
 
-        {/* Meta info */}
-        <div className="flex flex-wrap gap-3 text-xs text-slate-500">
-          {card.createdAt && (
-            <span className="flex items-center gap-1.5">
-              <FiCalendar size={11} />
-              Ajouté {formatDate(card.createdAt)}
-            </span>
-          )}
-          {card.location && (
-            <span className="flex items-center gap-1.5">
-              <FiMapPin size={11} />
-              {card.location}
-            </span>
-          )}
-        </div>
-
-        {/* Map */}
-        {card.lat && card.lng && (
-          <section>
-            <a href={`https://www.google.com/maps/dir/?api=1&destination=${card.lat},${card.lng}`}
-              target="_blank" rel="noopener noreferrer"
-              className="block rounded-xl overflow-hidden border border-[#1e1e1e] relative group">
-              <img src={mapboxStaticUrl(card.lat, card.lng)} alt="Carte" className="w-full h-[180px] object-cover" />
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all flex items-center justify-center">
-                <span className="opacity-0 group-hover:opacity-100 flex items-center gap-1.5 text-white text-xs bg-black/60 px-3 py-1.5 rounded-full transition-opacity">
-                  <FiNavigation size={11} /> Ouvrir l'itinéraire
+        {/* ── Détails tab ── */}
+        {activeTab === "details" && (
+          <>
+            <div className="flex flex-wrap gap-3 text-xs text-slate-500">
+              {card.createdAt && (
+                <span className="flex items-center gap-1.5">
+                  <FiCalendar size={11} />
+                  Ajouté {formatDate(card.createdAt)}
                 </span>
-              </div>
-            </a>
-          </section>
-        )}
-
-        {/* Link */}
-        {card.link && (
-          <section>
-            <a href={card.link} target="_blank" rel="noopener noreferrer"
-              className="flex items-center gap-2 text-xs text-blue-400 hover:text-blue-300 bg-blue-400/5 border border-blue-400/10 hover:border-blue-400/20 rounded-xl px-3 py-2.5 transition-all">
-              <FiLink size={11} className="flex-shrink-0" />
-              <span className="truncate flex-1">{card.link}</span>
-              <FiExternalLink size={10} className="flex-shrink-0" />
-            </a>
-          </section>
-        )}
-
-        {/* Description */}
-        {card.description && (
-          <section>
-            <p className="text-[10px] text-slate-600 font-semibold uppercase tracking-widest mb-2 flex items-center gap-1.5">
-              <FiZap size={9} /> Description
-            </p>
-            <p className="text-sm text-slate-300 leading-relaxed whitespace-pre-wrap">{card.description}</p>
-          </section>
-        )}
-
-        {/* Notes */}
-        {card.notes && (
-          <section>
-            <p className="text-[10px] text-slate-600 font-semibold uppercase tracking-widest mb-2 flex items-center gap-1.5">
-              <FiMessageSquare size={9} /> Notes
-            </p>
-            <p className="text-sm text-slate-300 leading-relaxed whitespace-pre-wrap bg-[#131313] border border-[#1a1a1a] rounded-xl px-3 py-2.5">{card.notes}</p>
-          </section>
-        )}
-
-        {/* Screenshots */}
-        {card.screenshots.length > 0 && (
-          <section>
-            <p className="text-[10px] text-slate-600 font-semibold uppercase tracking-widest mb-2 flex items-center gap-1.5">
-              <FiImage size={9} /> Captures ({card.screenshots.length})
-            </p>
-            <div className="grid grid-cols-3 gap-2">
-              {card.screenshots.map((url, i) => (
-                <button key={url} onClick={() => setImgOpen(url)}
-                  className="aspect-square rounded-lg overflow-hidden border border-[#1a1a1a] hover:border-[#2a2a2a] transition-all group">
-                  <img src={url} alt={`${i + 1}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200" />
-                </button>
-              ))}
+              )}
+              {card.location && (
+                <span className="flex items-center gap-1.5">
+                  <FiMapPin size={11} />
+                  {card.location}
+                </span>
+              )}
             </div>
-          </section>
-        )}
 
-        {/* Documents */}
-        {(card.documents ?? []).length > 0 && (
-          <section>
-            <p className="text-[10px] text-slate-600 font-semibold uppercase tracking-widest mb-2 flex items-center gap-1.5">
-              <FiFileText size={9} /> Documents ({card.documents.length})
-            </p>
-            <div className="space-y-1.5">
-              {card.documents.map((doc) => (
-                <a key={doc.url} href={doc.url} target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-2.5 bg-[#131313] border border-[#1a1a1a] hover:border-[#252525] rounded-xl px-3 py-2.5 transition-all group">
-                  <FiFile size={12} className="text-slate-500 flex-shrink-0" />
-                  <span className="text-xs text-slate-300 truncate flex-1">{doc.name}</span>
-                  <FiDownload size={11} className="text-slate-600 group-hover:text-slate-400 flex-shrink-0 transition-colors" />
+            {card.lat && card.lng && (
+              <section>
+                <a href={`https://www.google.com/maps/dir/?api=1&destination=${card.lat},${card.lng}`}
+                  target="_blank" rel="noopener noreferrer"
+                  className="block rounded-xl overflow-hidden border border-[#1e1e1e] relative group">
+                  <img src={mapboxStaticUrl(card.lat, card.lng)} alt="Carte" className="w-full h-[180px] object-cover" />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all flex items-center justify-center">
+                    <span className="opacity-0 group-hover:opacity-100 flex items-center gap-1.5 text-white text-xs bg-black/60 px-3 py-1.5 rounded-full transition-opacity">
+                      <FiNavigation size={11} /> Ouvrir l'itinéraire
+                    </span>
+                  </div>
                 </a>
-              ))}
-            </div>
-          </section>
+              </section>
+            )}
+
+            {card.link && (
+              <section>
+                <a href={card.link} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-xs text-blue-400 hover:text-blue-300 bg-blue-400/5 border border-blue-400/10 hover:border-blue-400/20 rounded-xl px-3 py-2.5 transition-all">
+                  <FiLink size={11} className="flex-shrink-0" />
+                  <span className="truncate flex-1">{card.link}</span>
+                  <FiExternalLink size={10} className="flex-shrink-0" />
+                </a>
+              </section>
+            )}
+
+            {card.description && (
+              <section>
+                <p className="text-[10px] text-slate-600 font-semibold uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                  <FiZap size={9} /> Description
+                </p>
+                <p className="text-sm text-slate-300 leading-relaxed whitespace-pre-wrap">{card.description}</p>
+              </section>
+            )}
+
+            {card.notes && (
+              <section>
+                <p className="text-[10px] text-slate-600 font-semibold uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                  <FiMessageSquare size={9} /> Notes
+                </p>
+                <p className="text-sm text-slate-300 leading-relaxed whitespace-pre-wrap bg-[#131313] border border-[#1a1a1a] rounded-xl px-3 py-2.5">{card.notes}</p>
+              </section>
+            )}
+
+            {card.screenshots.length > 0 && (
+              <section>
+                <p className="text-[10px] text-slate-600 font-semibold uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                  <FiImage size={9} /> Captures ({card.screenshots.length})
+                </p>
+                <div className="grid grid-cols-3 gap-2">
+                  {card.screenshots.map((url, i) => (
+                    <button key={url} onClick={() => setImgOpen(url)}
+                      className="aspect-square rounded-lg overflow-hidden border border-[#1a1a1a] hover:border-[#2a2a2a] transition-all group">
+                      <img src={url} alt={`${i + 1}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200" />
+                    </button>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {(card.documents ?? []).length > 0 && (
+              <section>
+                <p className="text-[10px] text-slate-600 font-semibold uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                  <FiFileText size={9} /> Documents ({card.documents.length})
+                </p>
+                <div className="space-y-1.5">
+                  {card.documents.map((doc) => (
+                    <a key={doc.url} href={doc.url} target="_blank" rel="noopener noreferrer"
+                      className="flex items-center gap-2.5 bg-[#131313] border border-[#1a1a1a] hover:border-[#252525] rounded-xl px-3 py-2.5 transition-all group">
+                      <FiFile size={12} className="text-slate-500 flex-shrink-0" />
+                      <span className="text-xs text-slate-300 truncate flex-1">{doc.name}</span>
+                      <FiDownload size={11} className="text-slate-600 group-hover:text-slate-400 flex-shrink-0 transition-colors" />
+                    </a>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {!card.location && !card.description && !card.notes && card.screenshots.length === 0 && (card.documents ?? []).length === 0 && (
+              <div className="flex flex-col items-center justify-center py-10 text-center">
+                <p className="text-slate-600 text-xs mb-2">Aucun détail renseigné</p>
+                <button onClick={onEdit} className="text-xs underline text-slate-500 hover:text-slate-300 transition-colors">Compléter l'offre</button>
+              </div>
+            )}
+          </>
         )}
 
-        {/* Empty state */}
-        {!card.location && !card.description && !card.notes && card.screenshots.length === 0 && (card.documents ?? []).length === 0 && (
-          <div className="flex flex-col items-center justify-center py-10 text-center">
-            <p className="text-slate-600 text-xs mb-2">Aucun détail renseigné</p>
-            <button onClick={onEdit} className="text-xs underline text-slate-500 hover:text-slate-300 transition-colors">Compléter l'offre</button>
+        {/* ── Analyse IA tab ── */}
+        {activeTab === "ai" && (
+          <AIAnalysisPanel
+            card={card}
+            analysis={analysis}
+            analyzing={analyzing}
+            error={analyzeError}
+            onAnalyze={handleAnalyze}
+            experiences={experiences}
+            skills={skills}
+          />
+        )}
+
+        {/* ── Entretiens tab ── */}
+        {activeTab === "interviews" && (
+          <div className="space-y-4">
+            <button onClick={onAddInterview}
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium text-white transition-opacity hover:opacity-85"
+              style={{ backgroundColor: "var(--accent)" }}>
+              <FiPlus size={14} /> Programmer un entretien
+            </button>
+
+            {upcomingInterviews.length > 0 && (
+              <div>
+                <p className="text-[10px] text-slate-600 font-semibold uppercase tracking-widest mb-2">À venir</p>
+                <div className="space-y-2">
+                  {upcomingInterviews.map((iv) => (
+                    <InterviewCard key={iv.id} interview={iv}
+                      onEdit={() => onEditInterview(iv)}
+                      onDelete={() => onDeleteInterview(iv.id!)}
+                      onRemind={() => onSendReminder(iv)}
+                      sendingRemind={sendingRemind === iv.id}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {pastInterviews.length > 0 && (
+              <div>
+                <p className="text-[10px] text-slate-600 font-semibold uppercase tracking-widest mb-2">Passés</p>
+                <div className="space-y-2 opacity-60">
+                  {pastInterviews.map((iv) => (
+                    <InterviewCard key={iv.id} interview={iv}
+                      onEdit={() => onEditInterview(iv)}
+                      onDelete={() => onDeleteInterview(iv.id!)}
+                      onRemind={() => {}}
+                      sendingRemind={false}
+                      past
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {interviews.length === 0 && (
+              <div className="flex flex-col items-center justify-center py-10 text-center">
+                <FiCalendar size={28} className="text-slate-700 mb-2" />
+                <p className="text-slate-500 text-sm">Aucun entretien planifié</p>
+                <p className="text-slate-600 text-xs mt-1">Clique sur "Programmer" pour ajouter un entretien</p>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -811,5 +1199,691 @@ function DetailDrawer({ card, onEdit, onDelete, onClose, onStatusChange }: Detai
         )}
       </AnimatePresence>
     </>
+  );
+}
+
+// ─── Interview Card ───────────────────────────────────────────────────────────
+
+interface InterviewCardProps {
+  interview: Interview;
+  onEdit: () => void;
+  onDelete: () => void;
+  onRemind: () => void;
+  sendingRemind: boolean;
+  past?: boolean;
+}
+
+function InterviewCard({ interview, onEdit, onDelete, onRemind, sendingRemind, past }: InterviewCardProps) {
+  const typeInfo = INTERVIEW_TYPES.find((t) => t.key === interview.type)!;
+  return (
+    <div className="bg-[#131313] border border-[#1e1e1e] rounded-xl px-3.5 py-3 group">
+      <div className="flex items-start justify-between gap-2 mb-2">
+        <div>
+          <div className="flex items-center gap-1.5 text-xs text-slate-400 mb-1">
+            {typeInfo?.icon}
+            <span>{typeInfo?.label}</span>
+          </div>
+          <p className="text-sm font-semibold text-white">{formatInterviewDate(interview.date, interview.time)}</p>
+        </div>
+        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          {!past && (
+            <button onClick={onRemind} disabled={sendingRemind}
+              className="p-1.5 text-amber-400 hover:bg-amber-400/10 rounded-lg transition-all disabled:opacity-50"
+              title="Envoyer un rappel (email + push)">
+              {sendingRemind ? <FiLoader size={12} className="animate-spin" /> : <FiBell size={12} />}
+            </button>
+          )}
+          <button onClick={onEdit} className="p-1.5 text-slate-500 hover:text-white hover:bg-[#1e1e1e] rounded-lg transition-all">
+            <FiEdit2 size={12} />
+          </button>
+          <button onClick={onDelete} className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-all">
+            <FiTrash2 size={12} />
+          </button>
+        </div>
+      </div>
+      {interview.notes && (
+        <p className="text-xs text-slate-500 truncate">{interview.notes}</p>
+      )}
+    </div>
+  );
+}
+
+// ─── AI Analysis Panel ────────────────────────────────────────────────────────
+
+interface AIAnalysisPanelProps {
+  card: JobApplication;
+  analysis: AIAnalysis | null;
+  analyzing: boolean;
+  error: string | null;
+  onAnalyze: () => void;
+  experiences: Experience[];
+  skills: SkillCategory[];
+}
+
+function AIAnalysisPanel({ card, analysis, analyzing, error, onAnalyze, experiences, skills }: AIAnalysisPanelProps) {
+  const [compat, setCompat] = useState<CompatibilityResult | null>(analysis?.compatibility ?? null);
+  const [loadingCompat, setLoadingCompat] = useState(false);
+  const [compatError, setCompatError] = useState<string | null>(null);
+
+  const [coverLetter, setCoverLetter] = useState<string>(card.coverLetter ?? "");
+  const [loadingLetter, setLoadingLetter] = useState(false);
+  const [letterError, setLetterError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const [relanceContent, setRelanceContent] = useState<string>("");
+  const [loadingRelance, setLoadingRelance] = useState(false);
+  const [relanceOpen, setRelanceOpen] = useState(false);
+
+  useEffect(() => {
+    setCompat(analysis?.compatibility ?? null);
+    setCoverLetter(card.coverLetter ?? "");
+  }, [card.id, analysis?.compatibility, card.coverLetter]);
+
+  const profile = { experiences, skills };
+
+  const handleCompat = async () => {
+    setLoadingCompat(true);
+    setCompatError(null);
+    try {
+      const res = await fetch("/api/jobs/compat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ job: { title: card.title, company: card.company, description: card.description }, profile }),
+      });
+      if (!res.ok) { setCompatError("Erreur API"); return; }
+      const data: CompatibilityResult = await res.json();
+      setCompat(data);
+      const newAnalysis = { ...(analysis ?? {} as AIAnalysis), compatibility: data };
+      await updateJobApplication(card.id!, { aiAnalysis: newAnalysis });
+    } catch { setCompatError("Impossible de contacter l'API"); }
+    finally { setLoadingCompat(false); }
+  };
+
+  const handleCoverLetter = async () => {
+    setLoadingLetter(true);
+    setLetterError(null);
+    try {
+      const res = await fetch("/api/jobs/cover-letter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "letter",
+          job: { title: card.title, company: card.company, description: card.description, location: card.location },
+          profile,
+        }),
+      });
+      if (!res.ok) { setLetterError("Erreur API"); return; }
+      const { content } = await res.json();
+      setCoverLetter(content);
+      await updateJobApplication(card.id!, { coverLetter: content, coverLetterGeneratedAt: new Date().toISOString() });
+    } catch { setLetterError("Impossible de contacter l'API"); }
+    finally { setLoadingLetter(false); }
+  };
+
+  const handleRelanceEmail = async () => {
+    setLoadingRelance(true);
+    const { days } = getRelanceStatus(card);
+    try {
+      const res = await fetch("/api/jobs/cover-letter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "relance",
+          job: { title: card.title, company: card.company, description: card.description },
+          relanceContext: { days: days || 7 },
+        }),
+      });
+      if (!res.ok) return;
+      const { content } = await res.json();
+      setRelanceContent(content);
+      setRelanceOpen(true);
+    } catch { /* silent */ }
+    finally { setLoadingRelance(false); }
+  };
+
+  const copyText = (text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const downloadTxt = (text: string, filename: string) => {
+    const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = filename; a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const scoreColor = (n: number) => n >= 70 ? "#10b981" : n >= 45 ? "#f59e0b" : "#ef4444";
+
+  if (!card.description && !card.title) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 text-center">
+        <FiZap size={28} className="text-slate-700 mb-3" />
+        <p className="text-slate-500 text-sm font-medium">Description requise</p>
+        <p className="text-slate-600 text-xs mt-1">Ajoute une description à l'offre pour l'analyser avec l'IA</p>
+      </div>
+    );
+  }
+
+  if (!analysis && !analyzing) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 text-center">
+        <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mb-4">
+          <FiZap size={24} className="text-amber-400" />
+        </div>
+        <p className="text-white font-semibold text-base mb-1">Analyse Mistral AI</p>
+        <p className="text-slate-500 text-xs mb-6 max-w-[280px] leading-relaxed">
+          Résumé, compétences, roadmap, compatibilité et lettre de motivation générés par l'IA.
+        </p>
+        {error && <p className="text-red-400 text-xs mb-4 bg-red-400/10 border border-red-400/20 rounded-lg px-3 py-2">{error}</p>}
+        <button onClick={onAnalyze}
+          className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-85"
+          style={{ background: "linear-gradient(135deg, #f59e0b, #d97706)" }}>
+          <FiZap size={14} /> Analyser avec l'IA
+        </button>
+      </div>
+    );
+  }
+
+  if (analyzing) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 text-center">
+        <div className="w-12 h-12 rounded-full border-2 border-amber-400/20 border-t-amber-400 animate-spin mb-4" />
+        <p className="text-slate-400 text-sm">Mistral analyse l'offre…</p>
+      </div>
+    );
+  }
+
+  if (!analysis) return null;
+
+  return (
+    <div className="space-y-5">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <p className="text-[10px] text-slate-600">
+          {analysis.analyzedAt ? `Analysé le ${new Date(analysis.analyzedAt).toLocaleDateString("fr-FR")}` : ""}
+        </p>
+        <button onClick={onAnalyze} disabled={analyzing}
+          className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] text-amber-400 border border-amber-400/20 hover:border-amber-400/40 hover:bg-amber-400/5 transition-all disabled:opacity-50">
+          <FiZap size={9} /> Ré-analyser
+        </button>
+      </div>
+
+      {/* Summary */}
+      <section className="bg-[#131313] border border-[#1e1e1e] rounded-xl p-4">
+        <p className="text-[10px] text-amber-400/70 font-semibold uppercase tracking-widest mb-2">Résumé</p>
+        <p className="text-sm text-slate-300 leading-relaxed">{analysis.summary}</p>
+        {analysis.salary_estimate && (
+          <div className="mt-3 pt-3 border-t border-[#1e1e1e]">
+            <span className="text-xs text-emerald-400 font-medium">{analysis.salary_estimate}</span>
+          </div>
+        )}
+      </section>
+
+      {/* Skills */}
+      <section>
+        <p className="text-[10px] text-slate-600 font-semibold uppercase tracking-widest mb-2">Compétences requises</p>
+        <div className="flex flex-wrap gap-1.5">
+          {analysis.skills_required.map((s) => (
+            <span key={s} className="px-2.5 py-1 rounded-lg text-xs font-medium bg-blue-500/10 text-blue-300 border border-blue-500/20">{s}</span>
+          ))}
+        </div>
+      </section>
+
+      {analysis.skills_nice.length > 0 && (
+        <section>
+          <p className="text-[10px] text-slate-600 font-semibold uppercase tracking-widest mb-2">Compétences bonus</p>
+          <div className="flex flex-wrap gap-1.5">
+            {analysis.skills_nice.map((s) => (
+              <span key={s} className="px-2.5 py-1 rounded-lg text-xs font-medium bg-[#1a1a1a] text-slate-400 border border-[#252525]">{s}</span>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Roadmap */}
+      {analysis.roadmap.length > 0 && (
+        <section>
+          <p className="text-[10px] text-slate-600 font-semibold uppercase tracking-widest mb-3">Roadmap pour décrocher le poste</p>
+          <div className="space-y-2">
+            {analysis.roadmap.map((step) => (
+              <div key={step.step} className="flex gap-3">
+                <div className="flex-shrink-0 w-6 h-6 rounded-full border flex items-center justify-center text-[10px] font-bold mt-0.5"
+                  style={{ borderColor: "var(--accent)", color: "var(--accent)", backgroundColor: "rgba(var(--accent-rgb),0.1)" }}>
+                  {step.step}
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-white mb-0.5">{step.title}</p>
+                  <p className="text-xs text-slate-400 leading-relaxed">{step.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Tips */}
+      {analysis.tips.length > 0 && (
+        <section>
+          <p className="text-[10px] text-slate-600 font-semibold uppercase tracking-widest mb-2">Conseils pour réussir</p>
+          <ul className="space-y-1.5">
+            {analysis.tips.map((tip, i) => (
+              <li key={i} className="flex gap-2 text-xs text-slate-400 leading-relaxed">
+                <span className="text-amber-400 flex-shrink-0 mt-0.5">→</span>
+                {tip}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {/* ── Score de compatibilité ── */}
+      <section className="border-t border-[#1e1e1e] pt-5">
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-[10px] text-slate-600 font-semibold uppercase tracking-widest">Score de compatibilité</p>
+          {compat && (
+            <button onClick={handleCompat} disabled={loadingCompat}
+              className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] text-slate-500 border border-[#252525] hover:border-[#333] hover:text-slate-300 transition-all disabled:opacity-40">
+              {loadingCompat ? <FiLoader size={9} className="animate-spin" /> : <FiZap size={9} />} Recalculer
+            </button>
+          )}
+        </div>
+
+        {!compat && !loadingCompat && (
+          <div className="bg-[#131313] border border-[#1e1e1e] rounded-xl p-4 text-center">
+            <p className="text-slate-500 text-xs mb-3">Compare ton profil avec cette offre</p>
+            {compatError && <p className="text-red-400 text-xs mb-3">{compatError}</p>}
+            <button onClick={handleCompat}
+              className="flex items-center gap-2 mx-auto px-4 py-2 rounded-xl text-xs font-semibold text-white transition-opacity hover:opacity-85"
+              style={{ backgroundColor: "var(--accent)" }}>
+              <FiZap size={11} /> Calculer la compatibilité
+            </button>
+          </div>
+        )}
+
+        {loadingCompat && (
+          <div className="flex items-center justify-center gap-2 py-6 text-slate-500 text-xs">
+            <FiLoader size={12} className="animate-spin" /> Analyse en cours…
+          </div>
+        )}
+
+        {compat && !loadingCompat && (
+          <div className="space-y-3">
+            {/* Score gauge */}
+            <div className="bg-[#131313] border border-[#1e1e1e] rounded-xl p-4">
+              <div className="flex items-center gap-4 mb-3">
+                <div className="relative w-16 h-16 flex-shrink-0">
+                  <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
+                    <circle cx="18" cy="18" r="15.9" fill="none" stroke="#1e1e1e" strokeWidth="3" />
+                    <circle cx="18" cy="18" r="15.9" fill="none" strokeWidth="3"
+                      strokeDasharray={`${compat.score} ${100 - compat.score}`}
+                      strokeLinecap="round"
+                      style={{ stroke: scoreColor(compat.score), transition: "stroke-dasharray 0.6s ease" }} />
+                  </svg>
+                  <span className="absolute inset-0 flex items-center justify-center text-sm font-bold"
+                    style={{ color: scoreColor(compat.score) }}>
+                    {compat.score}%
+                  </span>
+                </div>
+                <div>
+                  <p className="text-white font-semibold text-sm">
+                    {compat.score >= 70 ? "Excellent match" : compat.score >= 45 ? "Match partiel" : "Match faible"}
+                  </p>
+                  <p className="text-slate-500 text-xs mt-0.5 leading-relaxed">{compat.recommendation}</p>
+                </div>
+              </div>
+            </div>
+
+            {compat.strengths.length > 0 && (
+              <div>
+                <p className="text-[10px] text-emerald-400/70 font-semibold uppercase tracking-widest mb-1.5">Points forts</p>
+                <ul className="space-y-1">
+                  {compat.strengths.map((s, i) => (
+                    <li key={i} className="flex gap-2 text-xs text-slate-400">
+                      <span className="text-emerald-400 flex-shrink-0">✓</span>{s}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {compat.gaps.length > 0 && (
+              <div>
+                <p className="text-[10px] text-red-400/70 font-semibold uppercase tracking-widest mb-1.5">Lacunes</p>
+                <ul className="space-y-1">
+                  {compat.gaps.map((g, i) => (
+                    <li key={i} className="flex gap-2 text-xs text-slate-400">
+                      <span className="text-red-400 flex-shrink-0">✗</span>{g}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
+      </section>
+
+      {/* ── Lettre de motivation ── */}
+      <section className="border-t border-[#1e1e1e] pt-5">
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-[10px] text-slate-600 font-semibold uppercase tracking-widest">Lettre de motivation</p>
+          {coverLetter && (
+            <div className="flex gap-1">
+              <button onClick={() => copyText(coverLetter)}
+                className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] text-slate-400 border border-[#252525] hover:border-[#333] hover:text-white transition-all">
+                {copied ? <FiCheck size={9} className="text-emerald-400" /> : <FiClipboard size={9} />}
+                {copied ? "Copié !" : "Copier"}
+              </button>
+              <button onClick={() => downloadTxt(coverLetter, `LDM-${card.company}-${card.title}.txt`)}
+                className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] text-slate-400 border border-[#252525] hover:border-[#333] hover:text-white transition-all">
+                <FiDownload size={9} /> .txt
+              </button>
+            </div>
+          )}
+        </div>
+
+        {!coverLetter && !loadingLetter && (
+          <div className="bg-[#131313] border border-[#1e1e1e] rounded-xl p-4 text-center">
+            <p className="text-slate-500 text-xs mb-3">Génère une lettre personnalisée avec ton profil</p>
+            {letterError && <p className="text-red-400 text-xs mb-3">{letterError}</p>}
+            <button onClick={handleCoverLetter}
+              className="flex items-center gap-2 mx-auto px-4 py-2 rounded-xl text-xs font-semibold text-white transition-opacity hover:opacity-85"
+              style={{ backgroundColor: "var(--accent)" }}>
+              <FiFileText size={11} /> Générer la lettre
+            </button>
+          </div>
+        )}
+
+        {loadingLetter && (
+          <div className="flex items-center justify-center gap-2 py-6 text-slate-500 text-xs">
+            <FiLoader size={12} className="animate-spin" /> Rédaction en cours…
+          </div>
+        )}
+
+        {coverLetter && !loadingLetter && (
+          <div className="space-y-2">
+            <textarea
+              value={coverLetter}
+              onChange={(e) => setCoverLetter(e.target.value)}
+              rows={12}
+              className="w-full bg-[#0d0d0d] border border-[#1e1e1e] text-slate-300 text-xs leading-relaxed rounded-xl px-3 py-3 outline-none resize-none focus:border-[#2a2a2a]"
+            />
+            <button onClick={handleCoverLetter} disabled={loadingLetter}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] text-slate-500 border border-[#252525] hover:border-[#333] hover:text-slate-300 transition-all disabled:opacity-40">
+              <FiZap size={9} /> Régénérer
+            </button>
+          </div>
+        )}
+      </section>
+
+      {/* ── Email de relance ── */}
+      {(card.status === "applied" || card.status === "interview") && (
+        <section className="border-t border-[#1e1e1e] pt-5">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-[10px] text-slate-600 font-semibold uppercase tracking-widest">Email de relance</p>
+          </div>
+
+          {!relanceOpen && (
+            <button onClick={handleRelanceEmail} disabled={loadingRelance}
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-medium border border-[#252525] text-slate-400 hover:text-white hover:border-[#333] transition-all disabled:opacity-40">
+              {loadingRelance ? <FiLoader size={11} className="animate-spin" /> : <FiMessageSquare size={11} />}
+              {loadingRelance ? "Génération…" : "Générer un email de relance"}
+            </button>
+          )}
+
+          {relanceOpen && relanceContent && (
+            <div className="space-y-2">
+              <textarea
+                value={relanceContent}
+                onChange={(e) => setRelanceContent(e.target.value)}
+                rows={6}
+                className="w-full bg-[#0d0d0d] border border-[#1e1e1e] text-slate-300 text-xs leading-relaxed rounded-xl px-3 py-3 outline-none resize-none focus:border-[#2a2a2a]"
+              />
+              <div className="flex gap-2">
+                <button onClick={() => copyText(relanceContent)}
+                  className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] text-slate-400 border border-[#252525] hover:border-[#333] hover:text-white transition-all">
+                  {copied ? <FiCheck size={9} className="text-emerald-400" /> : <FiClipboard size={9} />}
+                  {copied ? "Copié !" : "Copier"}
+                </button>
+                <a href={`mailto:?subject=Relance%20-%20${encodeURIComponent(card.title)}%20@%20${encodeURIComponent(card.company)}&body=${encodeURIComponent(relanceContent)}`}
+                  className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] text-slate-400 border border-[#252525] hover:border-[#333] hover:text-white transition-all">
+                  <FiExternalLink size={9} /> Ouvrir dans mail
+                </a>
+                <button onClick={handleRelanceEmail} disabled={loadingRelance}
+                  className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] text-slate-500 border border-[#252525] hover:border-[#333] hover:text-slate-300 transition-all ml-auto disabled:opacity-40">
+                  <FiZap size={9} /> Régénérer
+                </button>
+              </div>
+            </div>
+          )}
+        </section>
+      )}
+    </div>
+  );
+}
+
+// ─── Interview Calendar ───────────────────────────────────────────────────────
+
+interface InterviewCalendarProps {
+  interviews: Interview[];
+  applications: JobApplication[];
+  onAddInterview: (jobId: string) => void;
+  onEditInterview: (iv: Interview) => void;
+  onDeleteInterview: (id: string) => void;
+  onSendReminder: (iv: Interview) => void;
+  sendingRemind: string | null;
+}
+
+function InterviewCalendar({
+  interviews, applications, onAddInterview, onEditInterview, onDeleteInterview, onSendReminder, sendingRemind,
+}: InterviewCalendarProps) {
+  const today = new Date();
+  const todayStr = today.toISOString().split("T")[0];
+  const [currentMonth, setCurrentMonth] = useState(today.getMonth());
+  const [currentYear, setCurrentYear] = useState(today.getFullYear());
+  const [hoveredDay, setHoveredDay] = useState<string | null>(null);
+
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+  const firstDayOfWeek = (new Date(currentYear, currentMonth, 1).getDay() + 6) % 7;
+
+  const monthInterviews = interviews.filter((iv) => {
+    const d = new Date(iv.date);
+    return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+  });
+
+  const dayInterviewMap: Record<string, Interview[]> = {};
+  for (const iv of monthInterviews) {
+    const sorted = dayInterviewMap[iv.date] ?? [];
+    sorted.push(iv);
+    sorted.sort((a, b) => a.time.localeCompare(b.time));
+    dayInterviewMap[iv.date] = sorted;
+  }
+
+  const prevMonth = () => {
+    if (currentMonth === 0) { setCurrentMonth(11); setCurrentYear((y) => y - 1); }
+    else setCurrentMonth((m) => m - 1);
+  };
+  const nextMonth = () => {
+    if (currentMonth === 11) { setCurrentMonth(0); setCurrentYear((y) => y + 1); }
+    else setCurrentMonth((m) => m + 1);
+  };
+
+  const monthName = new Date(currentYear, currentMonth, 1).toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
+  const dayNames = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
+
+  const upcomingAll = interviews
+    .filter((iv) => new Date(`${iv.date}T${iv.time}`) >= new Date())
+    .sort((a, b) => `${a.date}${a.time}`.localeCompare(`${b.date}${b.time}`))
+    .slice(0, 4);
+
+  const typeColors: Record<InterviewType, string> = {
+    phone: "bg-blue-500/20 text-blue-300 border-blue-500/30",
+    video: "bg-violet-500/20 text-violet-300 border-violet-500/30",
+    onsite: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+    technical: "bg-amber-500/20 text-amber-300 border-amber-500/30",
+  };
+
+  return (
+    <div className="flex gap-4 h-full min-h-0">
+
+      {/* Left — calendar */}
+      <div className="flex-1 min-w-0 flex flex-col gap-3">
+
+      {/* Month nav */}
+      <div className="flex items-center justify-between flex-shrink-0">
+        <button onClick={prevMonth} className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-[#1a1a1a] transition-all">
+          <FiChevronLeft size={15} />
+        </button>
+        <h2 className="text-white font-semibold text-sm capitalize">{monthName}</h2>
+        <button onClick={nextMonth} className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-[#1a1a1a] transition-all">
+          <FiChevronRight size={15} />
+        </button>
+      </div>
+
+      {/* Day headers */}
+      <div className="grid grid-cols-7 border-b border-[#1a1a1a] pb-2 flex-shrink-0">
+        {dayNames.map((d) => (
+          <div key={d} className="text-center text-[10px] font-semibold text-slate-600 uppercase">{d}</div>
+        ))}
+      </div>
+
+      {/* Calendar grid — events inside cells */}
+      <div className="flex-1 grid grid-cols-7 grid-rows-6 gap-px bg-[#181818] rounded-2xl overflow-hidden border border-[#1a1a1a]">
+        {Array.from({ length: firstDayOfWeek }).map((_, i) => (
+          <div key={`empty-${i}`} className="bg-[#0d0d0d]" />
+        ))}
+
+        {Array.from({ length: daysInMonth }).map((_, i) => {
+          const day = i + 1;
+          const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+          const dayIvs = dayInterviewMap[dateStr] ?? [];
+          const isToday = dateStr === todayStr;
+          const isHovered = hoveredDay === dateStr;
+          const isPast = dateStr < todayStr;
+          const isWeekend = ((firstDayOfWeek + i) % 7) >= 5;
+
+          return (
+            <div
+              key={day}
+              className={`relative flex flex-col p-1.5 transition-colors ${
+                isPast ? "bg-[#0a0a0a]" : isWeekend ? "bg-[#0e0e0e]" : "bg-[#0d0d0d]"
+              } ${isHovered ? "bg-[#141414]" : ""}`}
+              onMouseEnter={() => setHoveredDay(dateStr)}
+              onMouseLeave={() => setHoveredDay(null)}
+            >
+              {/* Day number */}
+              <div className="flex items-center justify-between mb-1">
+                <span
+                  className={`text-[11px] font-semibold w-5 h-5 flex items-center justify-center rounded-full flex-shrink-0 ${
+                    isToday
+                      ? "text-white"
+                      : isPast
+                      ? "text-slate-700"
+                      : "text-slate-400"
+                  }`}
+                  style={isToday ? { backgroundColor: "var(--accent)" } : {}}
+                >
+                  {day}
+                </span>
+                {isHovered && !isPast && (
+                  <button
+                    onClick={() => applications.length > 0 && onAddInterview(applications[0].id!)}
+                    className="w-4 h-4 flex items-center justify-center rounded text-slate-600 hover:text-white hover:bg-[#252525] transition-all"
+                  >
+                    <FiPlus size={10} />
+                  </button>
+                )}
+              </div>
+
+              {/* Events */}
+              <div className="flex flex-col gap-0.5 overflow-hidden">
+                {dayIvs.slice(0, 2).map((iv) => {
+                  const app = applications.find((a) => a.id === iv.jobId);
+                  const label = iv.company || app?.company || iv.title || app?.title || "Entretien";
+                  return (
+                    <button
+                      key={iv.id}
+                      onClick={(e) => { e.stopPropagation(); onEditInterview(iv); }}
+                      className={`group/chip w-full flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium border truncate text-left transition-opacity hover:opacity-80 ${typeColors[iv.type]}`}
+                    >
+                      <span className="flex-shrink-0 opacity-70">{iv.time}</span>
+                      <span className="truncate">{label}</span>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); onDeleteInterview(iv.id!); }}
+                        className="ml-auto flex-shrink-0 opacity-0 group-hover/chip:opacity-100 transition-opacity text-current hover:opacity-60"
+                      >
+                        <FiX size={8} />
+                      </button>
+                    </button>
+                  );
+                })}
+                {dayIvs.length > 2 && (
+                  <span className="text-[9px] text-slate-600 pl-1">+{dayIvs.length - 2} autre{dayIvs.length - 2 > 1 ? "s" : ""}</span>
+                )}
+              </div>
+            </div>
+          );
+        })}
+
+        {/* Fill remaining cells to complete the 6-row grid */}
+        {Array.from({ length: 42 - firstDayOfWeek - daysInMonth }).map((_, i) => (
+          <div key={`end-${i}`} className="bg-[#0a0a0a]" />
+        ))}
+      </div>
+
+      </div> {/* end left column */}
+
+      {/* Right — upcoming sidebar */}
+      <div className="w-52 flex-shrink-0 flex flex-col gap-2 overflow-y-auto no-scrollbar">
+        <p className="text-[10px] text-slate-600 font-semibold uppercase tracking-widest flex-shrink-0">À venir</p>
+
+        {upcomingAll.length === 0 && (
+          <div className="flex flex-col items-center justify-center text-center py-8 flex-1">
+            <FiCalendar size={22} className="text-slate-700 mb-2" />
+            <p className="text-slate-600 text-xs">Aucun entretien à venir</p>
+          </div>
+        )}
+
+        {upcomingAll.map((iv) => {
+          const app = applications.find((a) => a.id === iv.jobId);
+          const d = new Date(`${iv.date}T${iv.time}`);
+          const diffDays = Math.ceil((d.getTime() - Date.now()) / 86400000);
+          const typeInfo = INTERVIEW_TYPES.find((t) => t.key === iv.type);
+          return (
+            <div key={iv.id}
+              className="bg-[#131313] border border-[#1e1e1e] hover:border-[#252525] rounded-xl px-3 py-2.5 group transition-colors flex-shrink-0">
+              <div className="flex items-center justify-between gap-1 mb-1">
+                <span className="text-[10px] text-slate-500 flex items-center gap-1">{typeInfo?.icon} {typeInfo?.label}</span>
+                <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${
+                  diffDays <= 1 ? "bg-red-500/15 text-red-400" :
+                  diffDays <= 3 ? "bg-amber-500/15 text-amber-400" :
+                  "bg-slate-700/20 text-slate-500"
+                }`}>
+                  {diffDays === 0 ? "Auj." : diffDays === 1 ? "Dem." : `J-${diffDays}`}
+                </span>
+              </div>
+              <p className="text-xs font-semibold text-white truncate">{iv.title || app?.title}</p>
+              <p className="text-[10px] text-slate-500 truncate">{iv.company || app?.company}</p>
+              <p className="text-[10px] text-slate-600 mt-1">
+                {d.toLocaleDateString("fr-FR", { weekday: "short", day: "numeric", month: "short" })} · {iv.time}
+              </p>
+              <div className="flex gap-1 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button onClick={() => onSendReminder(iv)} disabled={sendingRemind === iv.id}
+                  className="flex-1 flex items-center justify-center gap-1 py-1 rounded-lg text-[10px] text-amber-400 border border-amber-400/20 hover:border-amber-400/40 transition-all disabled:opacity-50">
+                  {sendingRemind === iv.id ? <FiLoader size={9} className="animate-spin" /> : <FiBell size={9} />} Rappel
+                </button>
+                <button onClick={() => onEditInterview(iv)}
+                  className="p-1 text-slate-500 hover:text-white hover:bg-[#1e1e1e] rounded-lg transition-all">
+                  <FiEdit2 size={10} />
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+    </div>
   );
 }
