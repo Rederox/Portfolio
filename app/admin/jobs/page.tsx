@@ -7,7 +7,8 @@ import {
   FiLink, FiImage, FiNavigation, FiSearch, FiCheck, FiClipboard,
   FiDownload, FiFileText, FiMessageSquare, FiFile, FiCalendar,
   FiZap, FiChevronLeft, FiChevronRight, FiBell, FiPhone,
-  FiVideo, FiMonitor, FiCode, FiLoader,
+  FiVideo, FiMonitor, FiCode, FiLoader, FiBarChart2,
+  FiTrendingUp, FiPrinter, FiTarget, FiHelpCircle,
 } from "react-icons/fi";
 import Modal from "@/components/admin/Modal";
 import ImageUpload from "@/components/admin/ImageUpload";
@@ -87,6 +88,61 @@ function exportToCSV(apps: JobApplication[], tabName: string) {
   URL.revokeObjectURL(url);
 }
 
+function exportJobToPDF(card: JobApplication, analysis: AIAnalysis | null) {
+  const statusLabel = JOB_STATUSES.find((s) => s.key === card.status)?.label ?? card.status;
+  const skillsHtml = analysis?.skills_required.map((s) => `<span class="chip">${s}</span>`).join("") ?? "";
+  const niceSkillsHtml = analysis?.skills_nice.map((s) => `<span class="chip muted">${s}</span>`).join("") ?? "";
+  const roadmapHtml = (analysis?.roadmap ?? []).map((r) =>
+    `<div class="step"><div class="step-num">${r.step}</div><div><strong>${r.title}</strong><p>${r.description}</p></div></div>`
+  ).join("");
+
+  const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8">
+<title>${card.title} — ${card.company}</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, Arial, sans-serif; color: #111; background: #fff; padding: 48px; max-width: 780px; margin: 0 auto; font-size: 13px; line-height: 1.6; }
+  h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+  .meta { color: #666; font-size: 13px; margin-bottom: 6px; }
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 100px; font-size: 11px; font-weight: 600; background: #f0f0f0; color: #555; }
+  .section { margin-top: 28px; }
+  .section-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #888; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 6px; }
+  p { color: #333; margin-top: 6px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .chip { background: #e8f0fe; color: #1a56db; padding: 3px 10px; border-radius: 100px; font-size: 11px; font-weight: 500; }
+  .chip.muted { background: #f3f4f6; color: #555; }
+  .step { display: flex; gap: 12px; margin-bottom: 12px; }
+  .step-num { width: 24px; height: 24px; border-radius: 50%; background: #1a56db; color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+  .cover-letter { white-space: pre-wrap; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; font-size: 13px; line-height: 1.8; margin-top: 8px; }
+  .summary-box { background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 16px; margin-top: 8px; }
+  @media print { body { padding: 24px; } }
+</style></head><body>
+  <h1>${card.title || card.company}</h1>
+  <div class="meta">${card.company}${card.location ? ` · ${card.location}` : ""} · <span class="badge">${statusLabel}</span></div>
+  ${card.link ? `<div class="meta"><a href="${card.link}" style="color:#1a56db">${card.link}</a></div>` : ""}
+
+  ${card.description ? `<div class="section"><div class="section-title">Description du poste</div><p>${card.description.replace(/\n/g, "<br>")}</p></div>` : ""}
+  ${card.notes ? `<div class="section"><div class="section-title">Mes notes</div><p>${card.notes.replace(/\n/g, "<br>")}</p></div>` : ""}
+
+  ${analysis ? `
+  <div class="section"><div class="section-title">Résumé IA</div>
+    <div class="summary-box"><p>${analysis.summary}</p>${analysis.salary_estimate ? `<p style="margin-top:8px;color:#059669;font-weight:600">${analysis.salary_estimate}</p>` : ""}</div>
+  </div>
+  ${analysis.skills_required.length ? `<div class="section"><div class="section-title">Compétences requises</div><div class="chips">${skillsHtml}</div></div>` : ""}
+  ${analysis.skills_nice.length ? `<div class="section"><div class="section-title">Compétences bonus</div><div class="chips">${niceSkillsHtml}</div></div>` : ""}
+  ${analysis.roadmap.length ? `<div class="section"><div class="section-title">Roadmap</div>${roadmapHtml}</div>` : ""}
+  ` : ""}
+
+  ${card.coverLetter ? `<div class="section"><div class="section-title">Lettre de motivation</div><div class="cover-letter">${card.coverLetter}</div></div>` : ""}
+</body></html>`;
+
+  const w = window.open("", "_blank");
+  if (!w) return;
+  w.document.write(html);
+  w.document.close();
+  w.focus();
+  setTimeout(() => w.print(), 400);
+}
+
 const EMPTY_FORM: Omit<JobApplication, "id" | "createdAt"> = {
   tabId: "", title: "", company: "", location: "",
   lat: undefined, lng: undefined, description: "", status: "wishlist",
@@ -144,7 +200,7 @@ export default function AdminJobs() {
   const [skills, setSkills] = useState<SkillCategory[]>([]);
   const [activeTabId, setActiveTabId] = useState<string | null>(null);
   const [selectedCard, setSelectedCard] = useState<JobApplication | null>(null);
-  const [view, setView] = useState<"kanban" | "calendar">("kanban");
+  const [view, setView] = useState<"kanban" | "calendar" | "dashboard">("kanban");
 
   const [cardModal, setCardModal] = useState(false);
   const [editingCard, setEditingCard] = useState<JobApplication | null>(null);
@@ -346,46 +402,52 @@ export default function AdminJobs() {
     <div className="flex flex-col h-full overflow-hidden">
 
       {/* Header */}
-      <div className="flex-shrink-0 flex items-center justify-between gap-4 px-5 pt-5 pb-3">
-        <div>
-          <h1 className="font-display font-bold text-2xl text-white">Candidatures</h1>
-          <p className="text-slate-500 text-xs mt-0.5">
+      <div className="flex-shrink-0 flex items-center justify-between gap-2 px-3 sm:px-5 pt-4 sm:pt-5 pb-3">
+        <div className="min-w-0">
+          <h1 className="font-display font-bold text-xl sm:text-2xl text-white">Candidatures</h1>
+          <p className="text-slate-500 text-xs mt-0.5 truncate">
             {tabApps.length} offre{tabApps.length !== 1 ? "s" : ""}
             {activeTab ? ` · ${activeTab.name}` : ""}
             {upcomingInterviews.length > 0 && (
-              <span className="ml-2 text-amber-400">· {upcomingInterviews.length} entretien{upcomingInterviews.length > 1 ? "s" : ""} à venir</span>
+              <span className="ml-2 text-amber-400 hidden sm:inline">· {upcomingInterviews.length} entretien{upcomingInterviews.length > 1 ? "s" : ""} à venir</span>
             )}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 flex-shrink-0">
           {/* View toggle */}
           <div className="flex items-center gap-0.5 bg-[#111] border border-[#1e1e1e] rounded-xl p-0.5">
             <button
               onClick={() => setView("kanban")}
-              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${view === "kanban" ? "bg-[#1e1e1e] text-white" : "text-slate-500 hover:text-slate-300"}`}
+              className={`flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${view === "kanban" ? "bg-[#1e1e1e] text-white" : "text-slate-500 hover:text-slate-300"}`}
             >
-              <FiClipboard size={11} /> Kanban
+              <FiClipboard size={11} /><span className="hidden sm:inline">Kanban</span>
             </button>
             <button
               onClick={() => setView("calendar")}
-              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${view === "calendar" ? "bg-[#1e1e1e] text-white" : "text-slate-500 hover:text-slate-300"}`}
+              className={`flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${view === "calendar" ? "bg-[#1e1e1e] text-white" : "text-slate-500 hover:text-slate-300"}`}
             >
-              <FiCalendar size={11} /> Calendrier
+              <FiCalendar size={11} /><span className="hidden sm:inline">Calendrier</span>
+            </button>
+            <button
+              onClick={() => setView("dashboard")}
+              className={`flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${view === "dashboard" ? "bg-[#1e1e1e] text-white" : "text-slate-500 hover:text-slate-300"}`}
+            >
+              <FiBarChart2 size={11} /><span className="hidden sm:inline">Dashboard</span>
             </button>
           </div>
           {tabApps.length > 0 && (
             <button
               onClick={() => exportToCSV(tabApps, activeTab?.name ?? "export")}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs text-slate-400 hover:text-white border border-[#1e1e1e] hover:border-[#2a2a2a] hover:bg-[#111] transition-all"
+              className="flex items-center gap-1.5 px-2.5 sm:px-3.5 py-2 rounded-xl text-xs text-slate-400 hover:text-white border border-[#1e1e1e] hover:border-[#2a2a2a] hover:bg-[#111] transition-all"
             >
-              <FiDownload size={12} /> Exporter
+              <FiDownload size={12} /><span className="hidden sm:inline">Exporter</span>
             </button>
           )}
         </div>
       </div>
 
       {/* Tabs bar */}
-      <div className="flex-shrink-0 flex items-center gap-2 px-5 pb-3 flex-wrap">
+      <div className="flex-shrink-0 flex items-center gap-2 px-3 sm:px-5 pb-3 overflow-x-auto no-scrollbar">
         {tabs.map((tab) => (
           <div key={tab.id} className="relative group">
             {editingTabId === tab.id ? (
@@ -454,7 +516,7 @@ export default function AdminJobs() {
 
       {/* ─── Calendar view ──────────────────────────────────────────────────────── */}
       {activeTabId && view === "calendar" && (
-        <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar px-5 pb-4">
+        <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar px-3 sm:px-5 pb-4">
           <InterviewCalendar
             interviews={interviews}
             applications={applications}
@@ -470,15 +532,22 @@ export default function AdminJobs() {
         </div>
       )}
 
+      {/* ─── Dashboard view ─────────────────────────────────────────────────────── */}
+      {view === "dashboard" && (
+        <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar">
+          <DashboardView applications={applications} interviews={interviews} tabs={tabs} />
+        </div>
+      )}
+
       {/* ─── Kanban board ───────────────────────────────────────────────────────── */}
       {activeTabId && view === "kanban" && (
-        <div className="flex-1 min-h-0 overflow-x-auto no-scrollbar px-5 pb-4">
-          <div className="flex gap-3 h-full" style={{ minWidth: `${JOB_STATUSES.length * 232}px` }}>
+        <div className="flex-1 min-h-0 overflow-y-auto sm:overflow-y-hidden sm:overflow-x-auto no-scrollbar px-3 sm:px-5 pb-4">
+          <div className="flex flex-col sm:flex-row gap-3 sm:h-full">
             {JOB_STATUSES.map((status) => {
               const cards = cardsByStatus(status.key);
               const isOver = dragOverStatus === status.key;
               return (
-                <div key={status.key} className="flex flex-col flex-1 min-w-[220px] rounded-2xl border transition-colors duration-150"
+                <div key={status.key} className="flex flex-col sm:flex-1 sm:min-w-[220px] rounded-2xl border transition-colors duration-150"
                   style={{ backgroundColor: isOver ? status.bg : "#0d0d0d", borderColor: isOver ? status.border : "#181818" }}
                   onDragOver={(e) => { e.preventDefault(); setDragOverStatus(status.key); }}
                   onDragLeave={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragOverStatus(null); }}
@@ -499,7 +568,7 @@ export default function AdminJobs() {
                     </button>
                   </div>
 
-                  <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar px-2 pb-2 space-y-1.5">
+                  <div className="sm:flex-1 sm:min-h-0 sm:overflow-y-auto no-scrollbar px-2 pb-2 space-y-1.5">
                     <AnimatePresence>
                       {cards.map((card) => {
                         const cardInterviews = interviews.filter((iv) => iv.jobId === card.id);
@@ -518,7 +587,7 @@ export default function AdminJobs() {
 
                     {cards.length === 0 && !isOver && (
                       <button onClick={() => openAddCard(status.key)}
-                        className="w-full h-12 flex items-center justify-center gap-1.5 rounded-xl border border-dashed border-[#1a1a1a] text-slate-700 hover:text-slate-500 hover:border-[#252525] transition-all text-xs">
+                        className="w-full h-10 flex items-center justify-center gap-1.5 rounded-xl border border-dashed border-[#1a1a1a] text-slate-700 hover:text-slate-500 hover:border-[#252525] transition-all text-xs">
                         <FiPlus size={11} /> Ajouter
                       </button>
                     )}
@@ -544,7 +613,7 @@ export default function AdminJobs() {
             <motion.aside
               initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 32, stiffness: 320 }}
-              className="fixed right-0 top-0 h-full z-50 w-full max-w-[500px] bg-[#0d0d0d] border-l border-[#1e1e1e] flex flex-col shadow-2xl overflow-hidden"
+              className="fixed right-0 top-0 h-full z-50 w-full sm:max-w-[500px] bg-[#0d0d0d] border-l border-[#1e1e1e] flex flex-col shadow-2xl overflow-hidden"
             >
               <DetailDrawer
                 card={selectedCard}
@@ -882,7 +951,7 @@ function DetailDrawer({
 }: DetailDrawerProps) {
   const status = JOB_STATUSES.find((s) => s.key === card.status)!;
   const [imgOpen, setImgOpen] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"details" | "ai" | "interviews">("details");
+  const [activeTab, setActiveTab] = useState<"details" | "ai" | "interviews" | "prep">("details");
   const [analyzing, setAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState<AIAnalysis | null>(card.aiAnalysis ?? null);
   const [analyzeError, setAnalyzeError] = useState<string | null>(null);
@@ -939,6 +1008,12 @@ function DetailDrawer({
             <button onClick={onEdit} className="p-1.5 text-slate-500 hover:text-white hover:bg-[#1a1a1a] rounded-lg transition-all">
               <FiEdit2 size={14} />
             </button>
+            <button
+              onClick={() => exportJobToPDF(card, analysis)}
+              title="Exporter en PDF"
+              className="p-1.5 text-slate-500 hover:text-white hover:bg-[#1a1a1a] rounded-lg transition-all">
+              <FiPrinter size={14} />
+            </button>
             <button onClick={onDelete} className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-all">
               <FiTrash2 size={14} />
             </button>
@@ -993,6 +1068,7 @@ function DetailDrawer({
             { key: "details", label: "Détails", icon: <FiFileText size={11} /> },
             { key: "ai", label: "Analyse IA", icon: <FiZap size={11} />, badge: analysis ? "✓" : undefined },
             { key: "interviews", label: "Entretiens", icon: <FiCalendar size={11} />, badge: interviews.length > 0 ? String(interviews.length) : undefined },
+            { key: "prep", label: "Préparer", icon: <FiHelpCircle size={11} /> },
           ].map((t) => (
             <button key={t.key} onClick={() => setActiveTab(t.key as typeof activeTab)}
               className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-[11px] font-medium transition-all relative ${
@@ -1116,6 +1192,11 @@ function DetailDrawer({
               </div>
             )}
           </>
+        )}
+
+        {/* ── Préparation entretien tab ── */}
+        {activeTab === "prep" && (
+          <InterviewPrepPanel card={card} />
         )}
 
         {/* ── Analyse IA tab ── */}
@@ -1726,7 +1807,7 @@ function InterviewCalendar({
   };
 
   return (
-    <div className="flex gap-4 h-full min-h-0">
+    <div className="flex flex-col sm:flex-row gap-4 sm:h-full min-h-0">
 
       {/* Left — calendar */}
       <div className="flex-1 min-w-0 flex flex-col gap-3">
@@ -1745,12 +1826,12 @@ function InterviewCalendar({
       {/* Day headers */}
       <div className="grid grid-cols-7 border-b border-[#1a1a1a] pb-2 flex-shrink-0">
         {dayNames.map((d) => (
-          <div key={d} className="text-center text-[10px] font-semibold text-slate-600 uppercase">{d}</div>
+          <div key={d} className="text-center text-[9px] sm:text-[10px] font-semibold text-slate-600 uppercase">{d}</div>
         ))}
       </div>
 
       {/* Calendar grid — events inside cells */}
-      <div className="flex-1 grid grid-cols-7 grid-rows-6 gap-px bg-[#181818] rounded-2xl overflow-hidden border border-[#1a1a1a]">
+      <div className="sm:flex-1 grid grid-cols-7 grid-rows-6 gap-px bg-[#181818] rounded-2xl overflow-hidden border border-[#1a1a1a]" style={{ minHeight: "260px" }}>
         {Array.from({ length: firstDayOfWeek }).map((_, i) => (
           <div key={`empty-${i}`} className="bg-[#0d0d0d]" />
         ))}
@@ -1767,21 +1848,17 @@ function InterviewCalendar({
           return (
             <div
               key={day}
-              className={`relative flex flex-col p-1.5 transition-colors ${
+              className={`relative flex flex-col p-0.5 sm:p-1.5 transition-colors ${
                 isPast ? "bg-[#0a0a0a]" : isWeekend ? "bg-[#0e0e0e]" : "bg-[#0d0d0d]"
               } ${isHovered ? "bg-[#141414]" : ""}`}
               onMouseEnter={() => setHoveredDay(dateStr)}
               onMouseLeave={() => setHoveredDay(null)}
             >
               {/* Day number */}
-              <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center justify-between mb-0.5 sm:mb-1">
                 <span
-                  className={`text-[11px] font-semibold w-5 h-5 flex items-center justify-center rounded-full flex-shrink-0 ${
-                    isToday
-                      ? "text-white"
-                      : isPast
-                      ? "text-slate-700"
-                      : "text-slate-400"
+                  className={`text-[9px] sm:text-[11px] font-semibold w-4 sm:w-5 h-4 sm:h-5 flex items-center justify-center rounded-full flex-shrink-0 ${
+                    isToday ? "text-white" : isPast ? "text-slate-700" : "text-slate-400"
                   }`}
                   style={isToday ? { backgroundColor: "var(--accent)" } : {}}
                 >
@@ -1790,14 +1867,14 @@ function InterviewCalendar({
                 {isHovered && !isPast && (
                   <button
                     onClick={() => applications.length > 0 && onAddInterview(applications[0].id!)}
-                    className="w-4 h-4 flex items-center justify-center rounded text-slate-600 hover:text-white hover:bg-[#252525] transition-all"
+                    className="hidden sm:flex w-4 h-4 items-center justify-center rounded text-slate-600 hover:text-white hover:bg-[#252525] transition-all"
                   >
                     <FiPlus size={10} />
                   </button>
                 )}
               </div>
 
-              {/* Events */}
+              {/* Events — hide label text on mobile, show only colored dot */}
               <div className="flex flex-col gap-0.5 overflow-hidden">
                 {dayIvs.slice(0, 2).map((iv) => {
                   const app = applications.find((a) => a.id === iv.jobId);
@@ -1806,13 +1883,15 @@ function InterviewCalendar({
                     <button
                       key={iv.id}
                       onClick={(e) => { e.stopPropagation(); onEditInterview(iv); }}
-                      className={`group/chip w-full flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium border truncate text-left transition-opacity hover:opacity-80 ${typeColors[iv.type]}`}
+                      className={`group/chip w-full flex items-center gap-1 px-0.5 sm:px-1.5 py-0.5 rounded text-[10px] font-medium border truncate text-left transition-opacity hover:opacity-80 ${typeColors[iv.type]}`}
                     >
-                      <span className="flex-shrink-0 opacity-70">{iv.time}</span>
-                      <span className="truncate">{label}</span>
+                      <span className="hidden sm:inline flex-shrink-0 opacity-70">{iv.time}</span>
+                      <span className="hidden sm:inline truncate">{label}</span>
+                      {/* Mobile: just a colored dot */}
+                      <span className="sm:hidden w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: "currentColor" }} />
                       <button
                         onClick={(e) => { e.stopPropagation(); onDeleteInterview(iv.id!); }}
-                        className="ml-auto flex-shrink-0 opacity-0 group-hover/chip:opacity-100 transition-opacity text-current hover:opacity-60"
+                        className="hidden sm:block ml-auto flex-shrink-0 opacity-0 group-hover/chip:opacity-100 transition-opacity text-current hover:opacity-60"
                       >
                         <FiX size={8} />
                       </button>
@@ -1820,7 +1899,10 @@ function InterviewCalendar({
                   );
                 })}
                 {dayIvs.length > 2 && (
-                  <span className="text-[9px] text-slate-600 pl-1">+{dayIvs.length - 2} autre{dayIvs.length - 2 > 1 ? "s" : ""}</span>
+                  <span className="hidden sm:block text-[9px] text-slate-600 pl-1">+{dayIvs.length - 2}</span>
+                )}
+                {dayIvs.length > 2 && (
+                  <span className="sm:hidden w-1.5 h-1.5 rounded-full bg-slate-600 self-start ml-0.5" />
                 )}
               </div>
             </div>
@@ -1835,12 +1917,12 @@ function InterviewCalendar({
 
       </div> {/* end left column */}
 
-      {/* Right — upcoming sidebar */}
-      <div className="w-52 flex-shrink-0 flex flex-col gap-2 overflow-y-auto no-scrollbar">
-        <p className="text-[10px] text-slate-600 font-semibold uppercase tracking-widest flex-shrink-0">À venir</p>
+      {/* Right — upcoming sidebar (scrollable on mobile as horizontal pills, vertical on desktop) */}
+      <div className="sm:w-52 flex-shrink-0 flex sm:flex-col flex-row flex-wrap sm:flex-nowrap gap-2 sm:overflow-y-auto no-scrollbar overflow-x-auto pb-1 sm:pb-0">
+        <p className="text-[10px] text-slate-600 font-semibold uppercase tracking-widest flex-shrink-0 hidden sm:block">À venir</p>
 
         {upcomingAll.length === 0 && (
-          <div className="flex flex-col items-center justify-center text-center py-8 flex-1">
+          <div className="hidden sm:flex flex-col items-center justify-center text-center py-8 flex-1">
             <FiCalendar size={22} className="text-slate-700 mb-2" />
             <p className="text-slate-600 text-xs">Aucun entretien à venir</p>
           </div>
@@ -1853,9 +1935,11 @@ function InterviewCalendar({
           const typeInfo = INTERVIEW_TYPES.find((t) => t.key === iv.type);
           return (
             <div key={iv.id}
-              className="bg-[#131313] border border-[#1e1e1e] hover:border-[#252525] rounded-xl px-3 py-2.5 group transition-colors flex-shrink-0">
+              className="bg-[#131313] border border-[#1e1e1e] hover:border-[#252525] rounded-xl group transition-colors flex-shrink-0
+                         sm:w-auto sm:px-3 sm:py-2.5
+                         px-2.5 py-2 min-w-[140px] max-w-[160px] sm:max-w-none">
               <div className="flex items-center justify-between gap-1 mb-1">
-                <span className="text-[10px] text-slate-500 flex items-center gap-1">{typeInfo?.icon} {typeInfo?.label}</span>
+                <span className="text-[10px] text-slate-500 flex items-center gap-1">{typeInfo?.icon} <span className="hidden sm:inline">{typeInfo?.label}</span></span>
                 <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${
                   diffDays <= 1 ? "bg-red-500/15 text-red-400" :
                   diffDays <= 3 ? "bg-amber-500/15 text-amber-400" :
@@ -1867,7 +1951,7 @@ function InterviewCalendar({
               <p className="text-xs font-semibold text-white truncate">{iv.title || app?.title}</p>
               <p className="text-[10px] text-slate-500 truncate">{iv.company || app?.company}</p>
               <p className="text-[10px] text-slate-600 mt-1">
-                {d.toLocaleDateString("fr-FR", { weekday: "short", day: "numeric", month: "short" })} · {iv.time}
+                {d.toLocaleDateString("fr-FR", { day: "numeric", month: "short" })} · {iv.time}
               </p>
               <div className="flex gap-1 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button onClick={() => onSendReminder(iv)} disabled={sendingRemind === iv.id}
@@ -1884,6 +1968,371 @@ function InterviewCalendar({
         })}
       </div>
 
+    </div>
+  );
+}
+
+// ─── Dashboard View ───────────────────────────────────────────────────────────
+
+interface DashboardViewProps {
+  applications: JobApplication[];
+  interviews: Interview[];
+  tabs: JobBoardTab[];
+}
+
+function DashboardView({ applications, interviews, tabs }: DashboardViewProps) {
+  const total = applications.length;
+  const byStatus = JOB_STATUSES.map((s) => ({
+    ...s,
+    count: applications.filter((a) => a.status === s.key).length,
+  }));
+
+  const appliedCount = applications.filter((a) => ["applied", "interview", "offer"].includes(a.status)).length;
+  const interviewCount = applications.filter((a) => ["interview", "offer"].includes(a.status)).length;
+  const offerCount = applications.filter((a) => a.status === "offer").length;
+  const rejectedCount = applications.filter((a) => a.status === "rejected").length;
+
+  const relanceAlerts = applications.filter((a) => getRelanceStatus(a).level === "alert").length;
+  const relanceWarnings = applications.filter((a) => getRelanceStatus(a).level === "warning").length;
+
+  const upcomingCount = interviews.filter((iv) => new Date(`${iv.date}T${iv.time}`) >= new Date()).length;
+  const responseRate = appliedCount > 0 ? Math.round((interviewCount / appliedCount) * 100) : 0;
+
+  const tabStats = tabs.map((tab) => ({
+    ...tab,
+    count: applications.filter((a) => a.tabId === tab.id).length,
+    interviews: interviews.filter((iv) =>
+      applications.some((a) => a.tabId === tab.id && a.id === iv.jobId)
+    ).length,
+  }));
+
+  const funnel = [
+    { label: "Wishlist",   value: byStatus.find(s => s.key === "wishlist")?.count ?? 0,  color: "#8b5cf6" },
+    { label: "Postulé",    value: appliedCount,   color: "#3b82f6" },
+    { label: "Entretien",  value: interviewCount, color: "#f59e0b" },
+    { label: "Offre",      value: offerCount,     color: "#10b981" },
+  ];
+  const funnelMax = Math.max(...funnel.map((f) => f.value), 1);
+
+  return (
+    <div className="px-3 sm:px-5 py-4 sm:py-5 space-y-4 sm:space-y-6">
+
+      {/* KPI row */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+        {[
+          { label: "Candidatures", value: total, icon: <FiClipboard size={14} />, color: "var(--accent)" },
+          { label: "Entretiens",   value: interviewCount, icon: <FiCalendar size={14} />, color: "#f59e0b" },
+          { label: "Offres",       value: offerCount, icon: <FiTarget size={14} />, color: "#10b981" },
+          { label: "Taux réponse", value: `${responseRate}%`, icon: <FiTrendingUp size={14} />, color: "#3b82f6" },
+        ].map((kpi) => (
+          <div key={kpi.label} className="bg-[#0d0d0d] border border-[#1a1a1a] rounded-2xl p-3 sm:p-4">
+            <div className="flex items-center justify-between mb-1.5 sm:mb-2">
+              <span className="text-xs text-slate-500">{kpi.label}</span>
+              <span style={{ color: kpi.color }}>{kpi.icon}</span>
+            </div>
+            <p className="text-xl sm:text-2xl font-bold text-white">{kpi.value}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+
+        {/* Status breakdown */}
+        <div className="bg-[#0d0d0d] border border-[#1a1a1a] rounded-2xl p-4">
+          <p className="text-[10px] text-slate-600 font-semibold uppercase tracking-widest mb-4">Répartition par statut</p>
+          {total === 0 ? (
+            <p className="text-slate-600 text-xs text-center py-4">Aucune candidature</p>
+          ) : (
+            <div className="space-y-3">
+              {byStatus.map((s) => (
+                <div key={s.key} className="flex items-center gap-3">
+                  <span className="text-xs text-slate-400 w-20 flex-shrink-0">{s.label}</span>
+                  <div className="flex-1 bg-[#1a1a1a] rounded-full h-2 overflow-hidden">
+                    <div className="h-full rounded-full transition-all duration-700"
+                      style={{ width: `${(s.count / total) * 100}%`, backgroundColor: s.color }} />
+                  </div>
+                  <span className="text-xs font-bold w-5 text-right" style={{ color: s.color }}>{s.count}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Funnel */}
+        <div className="bg-[#0d0d0d] border border-[#1a1a1a] rounded-2xl p-4">
+          <p className="text-[10px] text-slate-600 font-semibold uppercase tracking-widest mb-4">Entonnoir de conversion</p>
+          {total === 0 ? (
+            <p className="text-slate-600 text-xs text-center py-4">Aucune candidature</p>
+          ) : (
+            <div className="space-y-2">
+              {funnel.map((f, i) => (
+                <div key={f.label} className="flex items-center gap-3">
+                  <span className="text-xs text-slate-400 w-20 flex-shrink-0">{f.label}</span>
+                  <div className="flex-1 bg-[#1a1a1a] rounded-sm h-5 overflow-hidden relative">
+                    <div className="h-full rounded-sm transition-all duration-700 flex items-center"
+                      style={{ width: `${(f.value / funnelMax) * 100}%`, backgroundColor: f.color + "30", borderLeft: `3px solid ${f.color}` }}>
+                    </div>
+                  </div>
+                  <span className="text-xs font-bold w-5 text-right text-slate-300">{f.value}</span>
+                  {i > 0 && funnel[i - 1].value > 0 && (
+                    <span className="text-[10px] text-slate-600 w-9 text-right">
+                      {Math.round((f.value / funnel[i - 1].value) * 100)}%
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+
+        {/* Relance alerts */}
+        <div className="bg-[#0d0d0d] border border-[#1a1a1a] rounded-2xl p-4">
+          <p className="text-[10px] text-slate-600 font-semibold uppercase tracking-widest mb-3">Relances</p>
+          {relanceAlerts === 0 && relanceWarnings === 0 ? (
+            <div className="flex items-center gap-2 text-emerald-400 text-xs py-2">
+              <FiCheck size={13} /> Toutes les candidatures sont à jour
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {relanceAlerts > 0 && (
+                <div className="flex items-center justify-between bg-red-500/8 border border-red-500/20 rounded-xl px-3 py-2.5">
+                  <span className="text-xs text-red-400 font-medium">Relances urgentes</span>
+                  <span className="text-sm font-bold text-red-400">{relanceAlerts}</span>
+                </div>
+              )}
+              {relanceWarnings > 0 && (
+                <div className="flex items-center justify-between bg-amber-500/8 border border-amber-500/20 rounded-xl px-3 py-2.5">
+                  <span className="text-xs text-amber-400 font-medium">À relancer bientôt</span>
+                  <span className="text-sm font-bold text-amber-400">{relanceWarnings}</span>
+                </div>
+              )}
+              {rejectedCount > 0 && (
+                <div className="flex items-center justify-between bg-[#131313] border border-[#1e1e1e] rounded-xl px-3 py-2.5">
+                  <span className="text-xs text-slate-500">Refusées</span>
+                  <span className="text-sm font-bold text-slate-500">{rejectedCount}</span>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Upcoming interviews + per tab */}
+        <div className="bg-[#0d0d0d] border border-[#1a1a1a] rounded-2xl p-4">
+          <p className="text-[10px] text-slate-600 font-semibold uppercase tracking-widest mb-3">Entretiens à venir · {upcomingCount}</p>
+          {upcomingCount === 0 ? (
+            <p className="text-slate-600 text-xs py-2">Aucun entretien planifié</p>
+          ) : (
+            <div className="space-y-1.5">
+              {interviews
+                .filter((iv) => new Date(`${iv.date}T${iv.time}`) >= new Date())
+                .sort((a, b) => `${a.date}${a.time}`.localeCompare(`${b.date}${b.time}`))
+                .slice(0, 4)
+                .map((iv) => {
+                  const d = new Date(`${iv.date}T${iv.time}`);
+                  return (
+                    <div key={iv.id} className="flex items-center justify-between text-xs">
+                      <span className="text-slate-300 truncate">{iv.company} — {iv.title}</span>
+                      <span className="text-slate-500 flex-shrink-0 ml-2">
+                        {d.toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}
+                      </span>
+                    </div>
+                  );
+                })}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Per tab breakdown */}
+      {tabStats.length > 1 && (
+        <div className="bg-[#0d0d0d] border border-[#1a1a1a] rounded-2xl p-4">
+          <p className="text-[10px] text-slate-600 font-semibold uppercase tracking-widest mb-3">Par onglet</p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            {tabStats.map((tab) => (
+              <div key={tab.id} className="bg-[#131313] border border-[#1e1e1e] rounded-xl px-3 py-2.5">
+                <p className="text-xs font-semibold text-white truncate mb-1">{tab.name}</p>
+                <p className="text-[11px] text-slate-500">{tab.count} offre{tab.count !== 1 ? "s" : ""}
+                  {tab.interviews > 0 && <span className="text-amber-400 ml-2">{tab.interviews} entretien{tab.interviews !== 1 ? "s" : ""}</span>}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Interview Prep Panel ─────────────────────────────────────────────────────
+
+interface InterviewPrep {
+  pitch: string;
+  questions: string[];
+  answers_tips: string[];
+  questions_to_ask: string[];
+  tips: string[];
+}
+
+function InterviewPrepPanel({ card }: { card: JobApplication }) {
+  const [interviewType, setInterviewType] = useState<InterviewType>("phone");
+  const [prep, setPrep] = useState<InterviewPrep | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [openQ, setOpenQ] = useState<number | null>(null);
+  const [copiedPitch, setCopiedPitch] = useState(false);
+
+  const handleGenerate = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/jobs/interview-prep", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          job: { title: card.title, company: card.company, description: card.description },
+          interviewType,
+        }),
+      });
+      if (!res.ok) { setError("Erreur API"); return; }
+      setPrep(await res.json());
+    } catch { setError("Impossible de contacter l'API"); }
+    finally { setLoading(false); }
+  };
+
+  const copyPitch = () => {
+    if (!prep) return;
+    navigator.clipboard.writeText(prep.pitch);
+    setCopiedPitch(true);
+    setTimeout(() => setCopiedPitch(false), 2000);
+  };
+
+  return (
+    <div className="space-y-5">
+      {/* Type selector */}
+      <div>
+        <p className="text-[10px] text-slate-600 font-semibold uppercase tracking-widest mb-2">Type d&apos;entretien</p>
+        <div className="flex flex-wrap gap-1.5">
+          {INTERVIEW_TYPES.map((t) => (
+            <button key={t.key} onClick={() => setInterviewType(t.key)}
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-all ${
+                interviewType === t.key
+                  ? "text-white border-[rgba(var(--accent-rgb),0.4)]"
+                  : "text-slate-500 border-[#1e1e1e] hover:text-slate-300 hover:border-[#2a2a2a]"
+              }`}
+              style={interviewType === t.key ? { backgroundColor: "rgba(var(--accent-rgb),0.12)", borderColor: "rgba(var(--accent-rgb),0.4)" } : {}}>
+              {t.icon} {t.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Generate button */}
+      {!prep && !loading && (
+        <div className="flex flex-col items-center py-8 text-center">
+          <div className="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mb-4">
+            <FiHelpCircle size={22} className="text-blue-400" />
+          </div>
+          <p className="text-white font-semibold text-sm mb-1">Prépare ton entretien</p>
+          <p className="text-slate-500 text-xs mb-5 max-w-[260px] leading-relaxed">
+            Questions fréquentes, pitch, conseils personnalisés et questions à poser.
+          </p>
+          {error && <p className="text-red-400 text-xs mb-3 bg-red-400/10 border border-red-400/20 rounded-lg px-3 py-2">{error}</p>}
+          <button onClick={handleGenerate}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-85"
+            style={{ background: "linear-gradient(135deg, #3b82f6, #2563eb)" }}>
+            <FiHelpCircle size={14} /> Générer la préparation
+          </button>
+        </div>
+      )}
+
+      {loading && (
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <div className="w-10 h-10 rounded-full border-2 border-blue-400/20 border-t-blue-400 animate-spin mb-4" />
+          <p className="text-slate-400 text-sm">Préparation en cours…</p>
+        </div>
+      )}
+
+      {prep && !loading && (
+        <>
+          {/* Regen + type reminder */}
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] text-slate-600 capitalize">
+              {INTERVIEW_TYPES.find((t) => t.key === interviewType)?.label}
+            </span>
+            <button onClick={handleGenerate} disabled={loading}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] text-blue-400 border border-blue-400/20 hover:border-blue-400/40 hover:bg-blue-400/5 transition-all disabled:opacity-50">
+              <FiZap size={9} /> Régénérer
+            </button>
+          </div>
+
+          {/* Pitch */}
+          <section className="bg-[#131313] border border-[#1e1e1e] rounded-xl p-4">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-[10px] text-blue-400/70 font-semibold uppercase tracking-widest">Pitch 30 secondes</p>
+              <button onClick={copyPitch}
+                className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] text-slate-400 border border-[#252525] hover:border-[#333] hover:text-white transition-all">
+                {copiedPitch ? <FiCheck size={9} className="text-emerald-400" /> : <FiClipboard size={9} />}
+                {copiedPitch ? "Copié !" : "Copier"}
+              </button>
+            </div>
+            <p className="text-sm text-slate-300 leading-relaxed italic">&ldquo;{prep.pitch}&rdquo;</p>
+          </section>
+
+          {/* Questions accordion */}
+          <section>
+            <p className="text-[10px] text-slate-600 font-semibold uppercase tracking-widest mb-2">Questions fréquentes</p>
+            <div className="space-y-1.5">
+              {prep.questions.map((q, i) => (
+                <div key={i} className="border border-[#1e1e1e] rounded-xl overflow-hidden">
+                  <button
+                    onClick={() => setOpenQ(openQ === i ? null : i)}
+                    className="w-full flex items-center justify-between gap-2 px-3 py-2.5 text-left bg-[#131313] hover:bg-[#161616] transition-colors">
+                    <span className="text-xs text-slate-300 leading-snug">{q}</span>
+                    <FiChevronRight size={11} className={`flex-shrink-0 text-slate-600 transition-transform ${openQ === i ? "rotate-90" : ""}`} />
+                  </button>
+                  {openQ === i && prep.answers_tips[i] && (
+                    <div className="px-3 pb-3 pt-1 bg-[#0f0f0f] border-t border-[#1e1e1e]">
+                      <p className="text-[11px] text-amber-400/80 font-semibold uppercase tracking-widest mb-1">Conseil</p>
+                      <p className="text-xs text-slate-400 leading-relaxed">{prep.answers_tips[i]}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Tips */}
+          {prep.tips.length > 0 && (
+            <section>
+              <p className="text-[10px] text-slate-600 font-semibold uppercase tracking-widest mb-2">Conseils pratiques</p>
+              <ul className="space-y-1.5">
+                {prep.tips.map((tip, i) => (
+                  <li key={i} className="flex gap-2 text-xs text-slate-400 leading-relaxed">
+                    <span className="text-blue-400 flex-shrink-0 mt-0.5">→</span>{tip}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          {/* Questions to ask */}
+          {prep.questions_to_ask.length > 0 && (
+            <section>
+              <p className="text-[10px] text-slate-600 font-semibold uppercase tracking-widest mb-2">Questions à poser</p>
+              <ul className="space-y-1.5">
+                {prep.questions_to_ask.map((q, i) => (
+                  <li key={i} className="flex gap-2 text-xs text-slate-400 leading-relaxed">
+                    <span className="text-emerald-400 flex-shrink-0 mt-0.5">?</span>{q}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+        </>
+      )}
     </div>
   );
 }
