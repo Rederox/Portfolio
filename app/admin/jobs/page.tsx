@@ -8,7 +8,8 @@ import {
   FiDownload, FiFileText, FiMessageSquare, FiFile, FiCalendar,
   FiZap, FiChevronLeft, FiChevronRight, FiBell, FiPhone,
   FiVideo, FiMonitor, FiCode, FiLoader, FiBarChart2,
-  FiTrendingUp, FiPrinter, FiTarget, FiHelpCircle,
+  FiTrendingUp, FiPrinter, FiTarget, FiHelpCircle, FiFlag,
+  FiArrowUp, FiMinus, FiArrowDown, FiSliders,
 } from "react-icons/fi";
 import Modal from "@/components/admin/Modal";
 import ImageUpload from "@/components/admin/ImageUpload";
@@ -143,10 +144,25 @@ function exportJobToPDF(card: JobApplication, analysis: AIAnalysis | null) {
   setTimeout(() => w.print(), 400);
 }
 
+const PRIORITY_CONFIG = {
+  high:   { label: "Haute",   color: "#ef4444", bg: "rgba(239,68,68,0.1)",   border: "rgba(239,68,68,0.25)" },
+  medium: { label: "Moyenne", color: "#f59e0b", bg: "rgba(245,158,11,0.1)",  border: "rgba(245,158,11,0.25)" },
+  low:    { label: "Basse",   color: "#64748b", bg: "rgba(100,116,139,0.08)", border: "rgba(100,116,139,0.2)" },
+} as const;
+
+const SORT_OPTIONS = [
+  { key: "default",    label: "Ordre manuel" },
+  { key: "date_desc",  label: "Plus récent" },
+  { key: "date_asc",   label: "Plus ancien" },
+  { key: "az",         label: "A → Z" },
+  { key: "priority",   label: "Priorité" },
+] as const;
+type SortKey = typeof SORT_OPTIONS[number]["key"];
+
 const EMPTY_FORM: Omit<JobApplication, "id" | "createdAt"> = {
   tabId: "", title: "", company: "", location: "",
   lat: undefined, lng: undefined, description: "", status: "wishlist",
-  notes: "", screenshots: [], documents: [], link: "", order: 0,
+  notes: "", screenshots: [], documents: [], link: "", order: 0, priority: undefined,
 };
 
 const EMPTY_INTERVIEW: Omit<Interview, "id" | "createdAt"> = {
@@ -213,6 +229,10 @@ export default function AdminJobs() {
   const [editingTabId, setEditingTabId] = useState<string | null>(null);
   const [editingTabName, setEditingTabName] = useState("");
   const [deleteTabConfirm, setDeleteTabConfirm] = useState<string | null>(null);
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<SortKey>("default");
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; card: JobApplication } | null>(null);
 
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dragOverStatus, setDragOverStatus] = useState<JobStatus | null>(null);
@@ -285,7 +305,7 @@ export default function AdminJobs() {
       location: card.location, lat: card.lat, lng: card.lng,
       description: card.description, status: card.status, notes: card.notes,
       screenshots: card.screenshots, documents: card.documents ?? [],
-      link: card.link, order: card.order,
+      link: card.link, order: card.order, priority: card.priority,
     });
     setCardModal(true);
   };
@@ -388,8 +408,33 @@ export default function AdminJobs() {
 
   const activeTab = tabs.find((t) => t.id === activeTabId);
   const tabApps = applications.filter((a) => a.tabId === activeTabId);
-  const cardsByStatus = (status: JobStatus) =>
-    tabApps.filter((a) => a.status === status).sort((a, b) => a.order - b.order);
+
+  const PRIORITY_ORDER: Record<string, number> = { high: 0, medium: 1, low: 2, "": 3 };
+  const filteredTabApps = searchQuery.trim()
+    ? tabApps.filter((a) => {
+        const q = searchQuery.toLowerCase();
+        return a.title.toLowerCase().includes(q) || a.company.toLowerCase().includes(q) || (a.location ?? "").toLowerCase().includes(q);
+      })
+    : tabApps;
+
+  const cardsByStatus = (status: JobStatus) => {
+    const cards = filteredTabApps.filter((a) => a.status === status);
+    switch (sortBy) {
+      case "date_desc": return [...cards].sort((a, b) => {
+        const ta = a.createdAt && typeof a.createdAt === "object" && "seconds" in a.createdAt ? (a.createdAt as unknown as {seconds:number}).seconds : 0;
+        const tb = b.createdAt && typeof b.createdAt === "object" && "seconds" in b.createdAt ? (b.createdAt as unknown as {seconds:number}).seconds : 0;
+        return tb - ta;
+      });
+      case "date_asc": return [...cards].sort((a, b) => {
+        const ta = a.createdAt && typeof a.createdAt === "object" && "seconds" in a.createdAt ? (a.createdAt as unknown as {seconds:number}).seconds : 0;
+        const tb = b.createdAt && typeof b.createdAt === "object" && "seconds" in b.createdAt ? (b.createdAt as unknown as {seconds:number}).seconds : 0;
+        return ta - tb;
+      });
+      case "az": return [...cards].sort((a, b) => (a.company || a.title).localeCompare(b.company || b.title));
+      case "priority": return [...cards].sort((a, b) => (PRIORITY_ORDER[a.priority ?? ""] ?? 3) - (PRIORITY_ORDER[b.priority ?? ""] ?? 3));
+      default: return [...cards].sort((a, b) => a.order - b.order);
+    }
+  };
 
   const upcomingInterviews = interviews.filter((iv) => {
     const d = new Date(`${iv.date}T${iv.time}`);
@@ -500,6 +545,41 @@ export default function AdminJobs() {
         )}
       </div>
 
+      {/* Search + sort toolbar */}
+      {activeTabId && tabApps.length > 0 && view === "kanban" && (
+        <div className="flex-shrink-0 flex items-center gap-2 px-3 sm:px-5 pb-3">
+          <div className="relative flex-1 max-w-xs">
+            <FiSearch size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
+            <input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Rechercher..."
+              className="w-full bg-[#111] border border-[#1e1e1e] text-white placeholder-slate-600 rounded-xl pl-8 pr-3 py-1.5 text-xs outline-none focus:border-[#333] transition-colors"
+            />
+            {searchQuery && (
+              <button onClick={() => setSearchQuery("")} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-600 hover:text-slate-400">
+                <FiX size={11} />
+              </button>
+            )}
+          </div>
+          <div className="flex items-center gap-1 flex-shrink-0">
+            <FiSliders size={11} className="text-slate-600" />
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as SortKey)}
+              className="bg-[#111] border border-[#1e1e1e] text-slate-400 rounded-xl px-2.5 py-1.5 text-xs outline-none focus:border-[#333] cursor-pointer transition-colors appearance-none"
+            >
+              {SORT_OPTIONS.map((o) => <option key={o.key} value={o.key}>{o.label}</option>)}
+            </select>
+          </div>
+          {searchQuery && (
+            <span className="text-[10px] text-slate-600 flex-shrink-0">
+              {filteredTabApps.length} résultat{filteredTabApps.length !== 1 ? "s" : ""}
+            </span>
+          )}
+        </div>
+      )}
+
       {/* Empty state */}
       {tabs.length === 0 && (
         <div className="flex-1 flex flex-col items-center justify-center text-center px-4">
@@ -580,6 +660,7 @@ export default function AdminJobs() {
                             onDelete={() => setDeleteConfirm(card.id!)}
                             onDragStart={() => setDraggingId(card.id!)}
                             onDragEnd={() => setDraggingId(null)}
+                            onContextMenu={(e) => setContextMenu({ x: e.clientX, y: e.clientY, card })}
                           />
                         );
                       })}
@@ -635,6 +716,87 @@ export default function AdminJobs() {
         )}
       </AnimatePresence>
 
+      {/* ─── Context Menu ─────────────────────────────────────────────────────── */}
+      <AnimatePresence>
+        {contextMenu && (
+          <>
+            <div className="fixed inset-0 z-[60]" onClick={() => setContextMenu(null)} onContextMenu={(e) => { e.preventDefault(); setContextMenu(null); }} />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.96, y: -4 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.96, y: -4 }}
+              transition={{ duration: 0.1, ease: "easeOut" }}
+              className="fixed z-[61] w-56 bg-[#131313] border border-[#222] rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.6)] overflow-hidden"
+              style={{ left: Math.min(contextMenu.x, window.innerWidth - 232), top: Math.min(contextMenu.y, window.innerHeight - 380) }}
+            >
+              {/* Header */}
+              <div className="px-3.5 pt-3 pb-2.5 border-b border-[#1e1e1e]">
+                {contextMenu.card.company && (
+                  <p className="text-[10px] text-slate-600 font-semibold uppercase tracking-widest truncate mb-0.5">{contextMenu.card.company}</p>
+                )}
+                <p className="text-[13px] text-white font-semibold leading-tight truncate">{contextMenu.card.title || contextMenu.card.company}</p>
+                {contextMenu.card.priority && (() => {
+                  const cfg = PRIORITY_CONFIG[contextMenu.card.priority];
+                  return <span className="inline-flex items-center gap-1 mt-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-md" style={{ color: cfg.color, backgroundColor: cfg.bg }}><FiFlag size={8} />{cfg.label}</span>;
+                })()}
+              </div>
+
+              {/* Primary actions */}
+              <div className="p-1.5 border-b border-[#1e1e1e]">
+                <CtxItem icon={<FiExternalLink size={13} />} label="Voir les détails" onClick={() => { setSelectedCard(contextMenu.card); setContextMenu(null); }} />
+                <CtxItem icon={<FiEdit2 size={13} />} label="Modifier" onClick={() => { openEditCard(contextMenu.card); setContextMenu(null); }} />
+                {contextMenu.card.link && (
+                  <CtxItem icon={<FiLink size={13} />} label="Ouvrir l'offre" href={contextMenu.card.link} onClick={() => setContextMenu(null)} />
+                )}
+              </div>
+
+              {/* Importance */}
+              <div className="p-1.5 border-b border-[#1e1e1e]">
+                <p className="px-2 pt-0.5 pb-1.5 text-[10px] text-slate-600 font-semibold uppercase tracking-widest">Importance</p>
+                {(["high", "medium", "low"] as const).map((p) => {
+                  const cfg = PRIORITY_CONFIG[p];
+                  const active = contextMenu.card.priority === p;
+                  const Icon = p === "high" ? FiArrowUp : p === "medium" ? FiMinus : FiArrowDown;
+                  return (
+                    <CtxItem key={p}
+                      icon={<Icon size={13} style={{ color: active ? cfg.color : undefined }} />}
+                      label={cfg.label}
+                      active={active}
+                      activeColor={cfg.color}
+                      activeBg={cfg.bg}
+                      onClick={() => { updateJobApplication(contextMenu.card.id!, { priority: active ? undefined : p }); setContextMenu(null); }}
+                    />
+                  );
+                })}
+              </div>
+
+              {/* Status */}
+              <div className="p-1.5 border-b border-[#1e1e1e]">
+                <p className="px-2 pt-0.5 pb-1.5 text-[10px] text-slate-600 font-semibold uppercase tracking-widest">Statut</p>
+                {JOB_STATUSES.map((s) => {
+                  const active = contextMenu.card.status === s.key;
+                  return (
+                    <CtxItem key={s.key}
+                      icon={<span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: s.color }} />}
+                      label={s.label}
+                      active={active}
+                      activeColor={s.color}
+                      activeBg={s.bg}
+                      onClick={() => { updateJobApplication(contextMenu.card.id!, { status: s.key }); setContextMenu(null); }}
+                    />
+                  );
+                })}
+              </div>
+
+              {/* Delete */}
+              <div className="p-1.5">
+                <CtxItem icon={<FiTrash2 size={13} />} label="Supprimer" danger onClick={() => { setDeleteConfirm(contextMenu.card.id!); setContextMenu(null); }} />
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
       {/* ─── Add / Edit Card Modal ─────────────────────────────────────────────── */}
       <Modal open={cardModal} onClose={() => setCardModal(false)}
         title={editingCard ? "Modifier l'offre" : "Nouvelle offre"} size="xl">
@@ -667,6 +829,26 @@ export default function AdminJobs() {
                   {s.label}
                 </button>
               ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs text-slate-500 font-medium mb-1.5">Importance</label>
+            <div className="flex gap-1.5">
+              {(["high", "medium", "low"] as const).map((p) => {
+                const cfg = PRIORITY_CONFIG[p];
+                const active = form.priority === p;
+                return (
+                  <button key={p} type="button" onClick={() => setForm({ ...form, priority: active ? undefined : p })}
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-all"
+                    style={active
+                      ? { backgroundColor: cfg.bg, color: cfg.color, borderColor: cfg.border }
+                      : { backgroundColor: "transparent", color: "#64748b", borderColor: "#252525" }}>
+                    <FiFlag size={10} style={active ? { color: cfg.color } : {}} />
+                    {cfg.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -836,6 +1018,45 @@ export default function AdminJobs() {
 
 // ─── Kanban Card ──────────────────────────────────────────────────────────────
 
+// ─── Context menu item ────────────────────────────────────────────────────────
+
+interface CtxItemProps {
+  icon: React.ReactNode;
+  label: string;
+  onClick: () => void;
+  href?: string;
+  active?: boolean;
+  activeColor?: string;
+  activeBg?: string;
+  danger?: boolean;
+}
+
+function CtxItem({ icon, label, onClick, href, active, activeColor, activeBg, danger }: CtxItemProps) {
+  const base = "w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-xl text-xs font-medium transition-colors text-left select-none";
+  const style = active
+    ? { color: activeColor, backgroundColor: activeBg }
+    : danger
+    ? undefined
+    : undefined;
+
+  const content = (
+    <>
+      <span className="w-4 flex items-center justify-center flex-shrink-0">{icon}</span>
+      <span className="flex-1 truncate">{label}</span>
+      {active && <FiCheck size={11} className="flex-shrink-0" style={{ color: activeColor }} />}
+    </>
+  );
+
+  const cls = `${base} ${active ? "" : danger ? "text-red-400 hover:bg-red-400/10" : "text-slate-400 hover:bg-[#1e1e1e] hover:text-white"}`;
+
+  if (href) {
+    return <a href={href} target="_blank" rel="noopener noreferrer" onClick={onClick} className={cls} style={style}>{content}</a>;
+  }
+  return <button onClick={onClick} className={cls} style={style}>{content}</button>;
+}
+
+// ─── Kanban card ──────────────────────────────────────────────────────────────
+
 interface KanbanCardProps {
   card: JobApplication;
   isDragging: boolean;
@@ -845,9 +1066,10 @@ interface KanbanCardProps {
   onDelete: () => void;
   onDragStart: () => void;
   onDragEnd: () => void;
+  onContextMenu: (e: React.MouseEvent) => void;
 }
 
-function KanbanCard({ card, isDragging, interviewCount, onOpen, onEdit, onDelete, onDragStart, onDragEnd }: KanbanCardProps) {
+function KanbanCard({ card, isDragging, interviewCount, onOpen, onEdit, onDelete, onDragStart, onDragEnd, onContextMenu }: KanbanCardProps) {
   const status = JOB_STATUSES.find((s) => s.key === card.status)!;
   const relance = getRelanceStatus(card);
   const relanceBorder = relance.level === "alert" ? "#ef4444" : relance.level === "warning" ? "#f59e0b" : null;
@@ -855,13 +1077,25 @@ function KanbanCard({ card, isDragging, interviewCount, onOpen, onEdit, onDelete
     <motion.div layout initial={{ opacity: 0, y: 6 }} animate={{ opacity: isDragging ? 0.35 : 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.96 }} transition={{ duration: 0.12 }}
       draggable onDragStart={onDragStart} onDragEnd={onDragEnd} onClick={onOpen}
+      onContextMenu={(e) => { e.preventDefault(); onContextMenu(e); }}
       className="group bg-[#131313] border border-[#1c1c1c] hover:border-[#262626] rounded-xl p-2.5 cursor-pointer active:cursor-grabbing transition-all select-none"
       style={{ borderLeft: `2px solid ${relanceBorder ?? status.color + "40"}` }}
     >
       <div className="mb-1.5">
-        {card.company && (
-          <p className="text-[10px] text-slate-500 font-medium uppercase tracking-wide truncate leading-none mb-0.5">{card.company}</p>
-        )}
+        <div className="flex items-start justify-between gap-1 mb-0.5">
+          {card.company && (
+            <p className="text-[10px] text-slate-500 font-medium uppercase tracking-wide truncate leading-none flex-1">{card.company}</p>
+          )}
+          {card.priority && (() => {
+            const cfg = PRIORITY_CONFIG[card.priority];
+            const Icon = card.priority === "high" ? FiArrowUp : card.priority === "medium" ? FiMinus : FiArrowDown;
+            return (
+              <span className="flex-shrink-0 flex items-center gap-0.5 text-[9px] font-bold px-1 py-0.5 rounded" style={{ color: cfg.color, backgroundColor: cfg.bg }}>
+                <Icon size={8} />{cfg.label}
+              </span>
+            );
+          })()}
+        </div>
         <p className="text-sm text-white font-semibold leading-snug truncate">{card.title || card.company}</p>
       </div>
 

@@ -11,9 +11,18 @@ import {
   orderBy,
   onSnapshot,
   serverTimestamp,
+  deleteField,
   type Unsubscribe,
   type CollectionReference,
 } from "firebase/firestore";
+
+function sanitizeForAdd(data: Record<string, unknown>): Record<string, unknown> {
+  return Object.fromEntries(Object.entries(data).filter(([, v]) => v !== undefined));
+}
+
+function sanitizeForUpdate(data: Record<string, unknown>): Record<string, unknown> {
+  return Object.fromEntries(Object.entries(data).map(([k, v]) => [k, v === undefined ? deleteField() : v]));
+}
 import { getDb } from "./firebase";
 import { DEFAULT_SETTINGS, type ThemeKey, type ThemeSettings, type BgStyle } from "./themes";
 
@@ -220,6 +229,7 @@ export interface JobApplication {
   relanceCount?: number;
   coverLetter?: string;
   coverLetterGeneratedAt?: string;
+  priority?: "low" | "medium" | "high";
 }
 
 export type InterviewType = "phone" | "video" | "onsite" | "technical";
@@ -256,10 +266,10 @@ export const subscribeJobApplications = (cb: (apps: JobApplication[]) => void): 
   );
 
 export const addJobApplication = (data: Omit<JobApplication, "id">) =>
-  addDoc(col("jobApplications"), { ...data, createdAt: serverTimestamp() });
+  addDoc(col("jobApplications"), sanitizeForAdd({ ...data, createdAt: serverTimestamp() } as Record<string, unknown>));
 
 export const updateJobApplication = (id: string, data: Partial<JobApplication>) =>
-  updateDoc(doc(getDb(), "jobApplications", id), data as Record<string, unknown>);
+  updateDoc(doc(getDb(), "jobApplications", id), sanitizeForUpdate(data as Record<string, unknown>));
 
 export const deleteJobApplication = (id: string) =>
   deleteDoc(doc(getDb(), "jobApplications", id));
