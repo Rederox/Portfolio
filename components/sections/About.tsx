@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
+import { FiZap, FiTrendingUp, FiTool } from "react-icons/fi";
 import Image from "next/image";
 import { personal } from "@/data/portfolio";
 
@@ -13,9 +14,9 @@ const facts = [
 ];
 
 const stats = [
-  { value: "3+",  label: "Ans d'expérience", icon: "⚡" },
-  { value: "15+", label: "Projets réalisés",  icon: "🚀" },
-  { value: "5",   label: "Stacks maîtrisées", icon: "🛠" },
+  { value: "3+",  label: "Ans d'expérience", icon: FiZap },
+  { value: "15+", label: "Projets réalisés",  icon: FiTrendingUp },
+  { value: "5",   label: "Stacks maîtrisées", icon: FiTool },
 ];
 
 const fadeUp = (delay = 0) => ({
@@ -43,12 +44,12 @@ export default function About() {
           viewport={{ once: true }}
           className="flex items-center gap-4 mb-10 sm:mb-14"
         >
-          <span className="font-display font-bold text-[0.7rem] tracking-[0.3em] uppercase"
+          <h2 className="font-display font-bold text-xs tracking-[0.3em] uppercase"
             style={{ color: "var(--text-primary)" }}>
             À Propos
-          </span>
+          </h2>
           <div className="flex-1 h-px" style={{ backgroundColor: "var(--card-border)" }} />
-          <span className="font-mono text-[0.7rem]" style={{ color: "var(--accent)" }}>01</span>
+          <span className="font-mono-jb text-[0.7rem]" style={{ color: "var(--accent)" }}>01</span>
         </motion.div>
 
         {/* ── Bento Grid ───────────────────────────────────────────────────── */}
@@ -159,22 +160,22 @@ export default function About() {
             viewport={{ once: true }}
             className="sm:col-span-1 lg:col-span-8 grid grid-cols-3 gap-3 sm:gap-4"
           >
-            {stats.map(({ value, label, icon }, i) => (
+            {stats.map(({ value, label, icon: Icon }) => (
               <motion.div
                 key={label}
                 whileHover={{ scale: 1.03, y: -2 }}
                 whileTap={{ scale: 0.97 }}
                 className="bento-cell p-5 flex flex-col gap-3 cursor-default"
               >
-                <span className="text-2xl">{icon}</span>
+                <Icon size={22} style={{ color: "var(--accent)" }} />
                 <div>
                   <p
-                    className="font-display font-extrabold text-3xl leading-none"
+                    className="font-mono-jb font-bold text-3xl leading-none"
                     style={{ color: "var(--accent)" }}
                   >
                     {value}
                   </p>
-                  <p className="text-[0.68rem] mt-1 leading-tight" style={{ color: "var(--text-secondary)" }}>
+                  <p className="text-[0.68rem] mt-1 leading-tight font-mono-jb" style={{ color: "var(--text-secondary)" }}>
                     {label}
                   </p>
                 </div>

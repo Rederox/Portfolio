@@ -12,28 +12,6 @@ export const metadata: Metadata = {
   title: "Theivathan Thevaraj — Développeur Lead Full Stack",
   description:
     "Développeur Lead Full Stack basé à Argenteuil (95), France. Spécialisé en React, Next.js, Node.js, TypeScript, IA et DevOps. 3 ans d'expérience. Disponible pour un poste.",
-  keywords: [
-    "Theivathan Thevaraj",
-    "Thevaraj",
-    "Theivathan",
-    "Développeur Full Stack",
-    "Full Stack Developer",
-    "Développeur Lead",
-    "React",
-    "Next.js",
-    "TypeScript",
-    "Node.js",
-    "DevOps",
-    "Intelligence Artificielle",
-    "IA",
-    "Docker",
-    "Développeur Web",
-    "France",
-    "Argenteuil",
-    "Ile-de-France",
-    "Portfolio",
-    "Alternance",
-  ],
   authors: [{ name: "Theivathan Thevaraj", url: BASE_URL }],
   creator: "Theivathan Thevaraj",
   robots: {
@@ -77,6 +55,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fr" className="scroll-smooth" suppressHydrationWarning>
+      <head>
+        <meta name="theme-color" content="#0a0a0a" />
+      </head>
       <body>
         <ModeProvider>
           <ThemeProvider>

@@ -20,7 +20,6 @@ const stats = [
   { value: "5",   label: "stacks" },
 ];
 
-const DOT_ROWS = [3, 5, 7, 5, 3];
 
 // ── Fond animé — rendu React (garanti de fonctionner) ─────────────────────────
 
@@ -85,42 +84,42 @@ export default function Hero() {
   const { settings } = useTheme();
   const { scrollY } = useScroll();
 
-  const bgY      = useTransform(scrollY, [0, 700], [0, 140]);
-  const arcY     = useTransform(scrollY, [0, 700], [0, 80]);
-  const dotY     = useTransform(scrollY, [0, 700], [0, 50]);
-  const vertY    = useTransform(scrollY, [0, 700], [0, 110]);
-  const photoY   = useTransform(scrollY, [0, 700], [0, 60]);
+  const bgY    = useTransform(scrollY, [0, 700], [0, 140]);
+  const photoY = useTransform(scrollY, [0, 700], [0, 60]);
 
   return (
     <section id="home" className="relative min-h-screen flex flex-col overflow-hidden">
 
-      {/* ── Ambient blobs OLED ───────────────────────────────────────────── */}
+      {/* ── Aurora blobs OLED ────────────────────────────────────────────── */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden>
+        {/* Blob vert (accent) — en haut centre */}
         <div
           className="blob-1 absolute rounded-full"
           style={{
-            width: 600, height: 600,
-            top: "-15%", left: "30%",
-            background: `radial-gradient(circle, rgba(var(--accent-rgb), 0.09) 0%, transparent 70%)`,
-            filter: "blur(60px)",
+            width: 700, height: 700,
+            top: "-20%", left: "25%",
+            background: `radial-gradient(circle, rgba(var(--accent-rgb), 0.08) 0%, transparent 65%)`,
+            filter: "blur(70px)",
           }}
         />
+        {/* Blob bleu/indigo — droite milieu */}
         <div
-          className="blob-2 absolute rounded-full"
+          className="aurora-blob absolute rounded-full"
           style={{
-            width: 500, height: 500,
-            top: "20%", right: "-10%",
-            background: `radial-gradient(circle, rgba(var(--accent-rgb), 0.06) 0%, transparent 70%)`,
+            width: 550, height: 550,
+            top: "15%", right: "-8%",
+            background: "radial-gradient(circle, rgba(99,102,241,0.07) 0%, transparent 65%)",
             filter: "blur(80px)",
           }}
         />
+        {/* Blob violet — bas gauche */}
         <div
           className="blob-3 absolute rounded-full"
           style={{
-            width: 400, height: 400,
-            bottom: "10%", left: "-5%",
-            background: `radial-gradient(circle, rgba(var(--accent-rgb), 0.05) 0%, transparent 70%)`,
-            filter: "blur(70px)",
+            width: 450, height: 450,
+            bottom: "5%", left: "-5%",
+            background: "radial-gradient(circle, rgba(139,92,246,0.05) 0%, transparent 65%)",
+            filter: "blur(75px)",
           }}
         />
       </div>
@@ -131,57 +130,6 @@ export default function Hero() {
       {/* ── Fond contrôlé depuis l'admin ──────────────────────────────────── */}
       <motion.div className="absolute inset-0 pointer-events-none" style={{ y: bgY }}>
         <HeroBg style={settings.bgStyle} />
-      </motion.div>
-
-      {/* ── Arcs concentriques — coin haut-droite ─────────────────────────── */}
-      <motion.div className="absolute top-0 right-0 w-[55vw] h-[55vw] max-w-[700px] max-h-[700px] pointer-events-none overflow-hidden" style={{ y: arcY }}>
-        {[
-          { offset: "0%",  size: "60%",  opacity: 0.07 },
-          { offset: "8%",  size: "78%",  opacity: 0.045 },
-          { offset: "16%", size: "96%",  opacity: 0.025 },
-        ].map((arc, i) => (
-          <div
-            key={i}
-            className="absolute rounded-full"
-            style={{
-              right:  `-${arc.offset}`,
-              top:    `-${arc.offset}`,
-              width:   arc.size,
-              height:  arc.size,
-              border: `1px solid rgba(var(--accent-rgb), ${arc.opacity})`,
-            }}
-          />
-        ))}
-        <div
-          className="absolute top-[18%] right-[18%] w-1.5 h-1.5 rounded-full"
-          style={{ backgroundColor: "rgba(var(--accent-rgb), 0.5)" }}
-        />
-      </motion.div>
-
-      {/* ── Cluster de points — bas-gauche ────────────────────────────────── */}
-      <motion.div className="absolute bottom-28 left-10 pointer-events-none hidden lg:flex flex-col gap-2" style={{ y: dotY }}>
-        {DOT_ROWS.map((count, row) => (
-          <div key={row} className="flex gap-2 justify-center">
-            {Array.from({ length: count }).map((_, col) => (
-              <div
-                key={col}
-                className="w-[3px] h-[3px] rounded-full"
-                style={{ backgroundColor: "rgba(var(--accent-rgb), 0.18)" }}
-              />
-            ))}
-          </div>
-        ))}
-      </motion.div>
-
-      {/* ── Texte vertical — bord droit ───────────────────────────────────── */}
-      <motion.div
-        className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none select-none hidden xl:block"
-        style={{ writingMode: "vertical-rl", y: vertY }}
-      >
-        <span className="text-[0.55rem] tracking-[0.55em] font-mono uppercase"
-          style={{ color: "rgba(var(--accent-rgb), 0.25)" }}>
-          Full·Stack·Developer·{new Date().getFullYear()}
-        </span>
       </motion.div>
 
       {/* ── Ligne décorative sous la nav ──────────────────────────────────── */}
@@ -212,7 +160,7 @@ export default function Hero() {
               Disponible
             </span>
           )}
-          <span className="text-[0.7rem] tracking-[0.2em] font-mono ml-auto" style={{ color: "var(--text-secondary)" }}>
+          <span className="text-[0.7rem] tracking-[0.2em] font-mono-jb ml-auto" style={{ color: "var(--text-secondary)" }}>
             {new Date().getFullYear()}
           </span>
         </motion.div>
@@ -226,7 +174,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="text-xs tracking-[0.3em] uppercase font-medium mb-5"
+              className="text-[0.7rem] tracking-[0.35em] uppercase font-mono-jb mb-5"
               style={{ color: "var(--text-secondary)" }}
             >
               Développeur Lead Full Stack
@@ -238,7 +186,7 @@ export default function Hero() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
                 className="font-display font-extrabold leading-[0.86] uppercase"
-                style={{ fontSize: "clamp(3.2rem, 8vw, 7.5rem)", color: "var(--text-primary)" }}
+                style={{ fontSize: "clamp(3.8rem, 9vw, 8.5rem)", color: "var(--text-primary)", letterSpacing: "-0.03em" }}
               >
                 <span className="block tracking-[-0.02em]">
                   {personal.firstName}
@@ -376,7 +324,7 @@ export default function Hero() {
             >
               <FiArrowDown size={13} />
             </motion.div>
-            <span className="text-[0.65rem] tracking-[0.25em] font-medium uppercase">Scroll</span>
+            <span className="text-[0.65rem] tracking-[0.25em] font-mono-jb uppercase">Scroll</span>
           </div>
 
           <div className="flex-1 h-px" style={{ backgroundColor: "var(--border-subtle)" }} />
@@ -386,10 +334,10 @@ export default function Hero() {
               <div key={i} className="flex items-center gap-5">
                 {i > 0 && <div className="w-px h-5" style={{ backgroundColor: "var(--card-border)" }} />}
                 <div className="text-right">
-                  <p className="font-display font-extrabold text-base leading-none" style={{ color: "var(--accent)" }}>
+                  <p className="font-mono-jb font-bold text-base leading-none" style={{ color: "var(--accent)" }}>
                     {s.value}
                   </p>
-                  <p className="text-[0.65rem] mt-0.5" style={{ color: "var(--text-secondary)" }}>{s.label}</p>
+                  <p className="text-[0.65rem] mt-0.5 font-mono-jb" style={{ color: "var(--text-secondary)" }}>{s.label}</p>
                 </div>
               </div>
             ))}

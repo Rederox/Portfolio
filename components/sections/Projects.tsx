@@ -30,7 +30,7 @@ function ImageCarousel({ images, title }: { images: string[]; title: string }) {
         <motion.img
           key={idx}
           src={images[idx]}
-          alt={`${title} ${idx + 1}`}
+          alt={idx === 0 ? `${title} — aperçu de l'interface` : `${title} — capture d'écran ${idx + 1}`}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -259,11 +259,6 @@ function ProjectRow({ project, index }: { project: Project; index: number }) {
             <FiExternalLink size={14} /> Voir en live
           </motion.a>
         )}
-        {!project.github && !project.live && (
-          <span className="text-xs" style={{ color: "var(--text-secondary)" }}>
-            Aucun lien disponible
-          </span>
-        )}
       </div>
     </div>
   );
@@ -304,14 +299,14 @@ export default function Projects() {
           transition={{ duration: 0.5 }}
           className="flex items-center gap-4 mb-10 sm:mb-16"
         >
-          <span className="font-display font-bold text-[0.7rem] tracking-[0.3em] uppercase" style={{ color: "var(--text-primary)" }}>
+          <h2 className="font-display font-bold text-xs tracking-[0.3em] uppercase" style={{ color: "var(--text-primary)" }}>
             Projets
-          </span>
+          </h2>
           <div className="flex-1 h-px" style={{ backgroundColor: "var(--border-subtle)" }} />
-          <span className="font-mono text-[0.65rem]" style={{ color: "var(--text-secondary)" }}>
+          <span className="font-mono-jb text-[0.65rem]" style={{ color: "var(--text-secondary)" }}>
             {sorted.length} projets
           </span>
-          <span className="font-mono text-[0.7rem]" style={{ color: "var(--accent)" }}>04</span>
+          <span className="font-mono-jb text-[0.7rem]" style={{ color: "var(--accent)" }}>04</span>
         </motion.div>
 
         {/* Liste horizontale */}

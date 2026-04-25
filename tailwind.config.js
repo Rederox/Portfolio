@@ -9,6 +9,7 @@ module.exports = {
       fontFamily: {
         sans: ["Inter", "sans-serif"],
         display: ["Syne", "sans-serif"],
+        mono: ["JetBrains Mono", "Fira Code", "monospace"],
       },
       colors: {
         // Référencent les CSS variables — dynamiques, changent avec le mode et le thème

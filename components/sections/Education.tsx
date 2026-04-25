@@ -22,12 +22,12 @@ export default function Education() {
           transition={{ duration: 0.5 }}
           className="flex items-center gap-4 mb-10 sm:mb-14"
         >
-          <span className="font-display font-bold text-[0.7rem] tracking-[0.3em] uppercase"
+          <h2 className="font-display font-bold text-xs tracking-[0.3em] uppercase"
             style={{ color: "var(--text-primary)" }}>
             Formation
-          </span>
+          </h2>
           <div className="flex-1 h-px" style={{ backgroundColor: "var(--border-subtle)" }} />
-          <span className="font-mono text-[0.7rem]" style={{ color: "var(--accent)" }}>05</span>
+          <span className="font-mono-jb text-[0.7rem]" style={{ color: "var(--accent)" }}>05</span>
         </motion.div>
 
         {/* ── Cards ────────────────────────────────────────────────────────── */}
@@ -103,7 +103,7 @@ export default function Education() {
                             </span>
                           )}
                         </div>
-                        <span className="text-[0.72rem] font-mono flex-shrink-0"
+                        <span className="text-[0.72rem] font-mono-jb flex-shrink-0"
                           style={{ color: "var(--text-secondary)" }}>
                           {edu.period}
                         </span>

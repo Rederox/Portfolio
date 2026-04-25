@@ -11,7 +11,7 @@ export const personal = {
   linkedin: "https://www.linkedin.com/in/theivathan/",
   instagram: "https://www.instagram.com/theivathan14/",
   cv: "/CV_Thevaraj_Theivathan.pdf",
-  bio: "Développeur Lead Full Stack passionné par la création d'expériences web modernes et performantes. Spécialisé en IA, DevOps et architectures scalables, j'aime transformer des idées complexes en solutions concrètes, en autonomie comme en équipe.",
+  bio: "Je conçois et déploie des applications full stack en production — de l'architecture au cloud. Spécialisé en IA intégrée, DevOps et interfaces React performantes. Autonome, rigoureux, orienté impact.",
   available: true,
   age: 24,
   languages: ["Français (Bilingue)", "Anglais (C1)", "Tamoul (Bilingue)"],
