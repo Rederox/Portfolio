@@ -7,9 +7,9 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Inter", "sans-serif"],
-        display: ["Syne", "sans-serif"],
-        mono: ["JetBrains Mono", "Fira Code", "monospace"],
+        sans:    ["Inter", "sans-serif"],
+        display: ["Space Grotesk", "sans-serif"],
+        mono:    ["JetBrains Mono", "Fira Code", "monospace"],
       },
       colors: {
         // Référencent les CSS variables — dynamiques, changent avec le mode et le thème

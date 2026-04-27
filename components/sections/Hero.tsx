@@ -90,36 +90,36 @@ export default function Hero() {
   return (
     <section id="home" className="relative min-h-screen flex flex-col overflow-hidden">
 
-      {/* ── Aurora blobs OLED ────────────────────────────────────────────── */}
+      {/* ── Aurora blobs — Warm Gold ─────────────────────────────────────── */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden>
-        {/* Blob vert (accent) — en haut centre */}
+        {/* Blob or principal — haut centre */}
         <div
           className="blob-1 absolute rounded-full"
           style={{
-            width: 700, height: 700,
-            top: "-20%", left: "25%",
-            background: `radial-gradient(circle, rgba(var(--accent-rgb), 0.08) 0%, transparent 65%)`,
-            filter: "blur(70px)",
-          }}
-        />
-        {/* Blob bleu/indigo — droite milieu */}
-        <div
-          className="aurora-blob absolute rounded-full"
-          style={{
-            width: 550, height: 550,
-            top: "15%", right: "-8%",
-            background: "radial-gradient(circle, rgba(99,102,241,0.07) 0%, transparent 65%)",
+            width: 800, height: 800,
+            top: "-25%", left: "20%",
+            background: "radial-gradient(circle, rgba(201,169,110,0.07) 0%, transparent 60%)",
             filter: "blur(80px)",
           }}
         />
-        {/* Blob violet — bas gauche */}
+        {/* Blob ambré — droite */}
+        <div
+          className="aurora-blob absolute rounded-full"
+          style={{
+            width: 600, height: 600,
+            top: "10%", right: "-10%",
+            background: "radial-gradient(circle, rgba(180,130,60,0.05) 0%, transparent 65%)",
+            filter: "blur(90px)",
+          }}
+        />
+        {/* Blob or pâle — bas gauche */}
         <div
           className="blob-3 absolute rounded-full"
           style={{
-            width: 450, height: 450,
-            bottom: "5%", left: "-5%",
-            background: "radial-gradient(circle, rgba(139,92,246,0.05) 0%, transparent 65%)",
-            filter: "blur(75px)",
+            width: 500, height: 500,
+            bottom: "0%", left: "-8%",
+            background: "radial-gradient(circle, rgba(220,180,90,0.04) 0%, transparent 65%)",
+            filter: "blur(85px)",
           }}
         />
       </div>
@@ -155,8 +155,15 @@ export default function Hero() {
           className="flex items-center justify-between mb-10 lg:mb-0"
         >
           {personal.available && (
-            <span className="accent-badge inline-flex items-center gap-2 text-[0.7rem] rounded-full px-3 py-1 font-semibold tracking-[0.12em] uppercase">
-              <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: "var(--accent)" }} />
+            <span
+              className="inline-flex items-center gap-2 text-[0.68rem] rounded-full px-3.5 py-1 font-mono-jb tracking-[0.14em] uppercase"
+              style={{
+                color: "var(--accent)",
+                backgroundColor: "rgba(201,169,110,0.08)",
+                border: "1px solid rgba(201,169,110,0.2)",
+              }}
+            >
+              <span className="w-1 h-1 rounded-full animate-pulse" style={{ backgroundColor: "var(--accent)" }} />
               Disponible
             </span>
           )}
@@ -184,14 +191,14 @@ export default function Hero() {
               <motion.h1
                 initial={{ opacity: 0, y: 60 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-                className="font-display font-extrabold leading-[0.86] uppercase"
-                style={{ fontSize: "clamp(3.8rem, 9vw, 8.5rem)", color: "var(--text-primary)", letterSpacing: "-0.03em" }}
+                transition={{ duration: 0.9, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+                className="font-display font-bold leading-[0.88] uppercase"
+                style={{ fontSize: "clamp(4rem, 10vw, 9rem)", letterSpacing: "-0.04em" }}
               >
-                <span className="block tracking-[-0.02em]">
+                <span className="block" style={{ color: "var(--text-primary)" }}>
                   {personal.firstName}
                 </span>
-                <span className="block hero-name-outlined tracking-[-0.02em]">
+                <span className="block hero-name-outlined">
                   {personal.lastName}.
                 </span>
               </motion.h1>
@@ -217,16 +224,23 @@ export default function Hero() {
                 href={personal.cv}
                 download
                 onClick={() => trackEvent("cv_download")}
-                className="inline-flex items-center gap-2 accent-bg accent-glow text-white font-bold px-6 py-3 rounded-full text-sm transition-all hover:opacity-88"
+                className="inline-flex items-center gap-2 font-semibold px-7 py-3 rounded-xl text-sm transition-all"
+                style={{
+                  backgroundColor: "var(--accent)",
+                  color: "#0A0806",
+                  transition: "opacity 0.2s ease, box-shadow 0.2s ease",
+                }}
+                onMouseEnter={e => { e.currentTarget.style.opacity = "0.88"; e.currentTarget.style.boxShadow = "0 0 32px rgba(201,169,110,0.3)"; }}
+                onMouseLeave={e => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.boxShadow = "none"; }}
               >
                 <FiDownload size={14} />
                 Télécharger CV
               </a>
               <a
                 href="#contact"
-                className="inline-flex items-center gap-2 font-semibold px-6 py-3 rounded-full text-sm transition-all"
+                className="inline-flex items-center gap-2 font-medium px-7 py-3 rounded-xl text-sm transition-all"
                 style={{ border: "1px solid var(--card-border)", color: "var(--text-secondary)" }}
-                onMouseEnter={e => { e.currentTarget.style.color = "var(--text-primary)"; e.currentTarget.style.borderColor = "var(--text-secondary)"; }}
+                onMouseEnter={e => { e.currentTarget.style.color = "var(--accent)"; e.currentTarget.style.borderColor = "rgba(201,169,110,0.4)"; }}
                 onMouseLeave={e => { e.currentTarget.style.color = "var(--text-secondary)"; e.currentTarget.style.borderColor = "var(--card-border)"; }}
               >
                 Me contacter

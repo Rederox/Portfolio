@@ -117,7 +117,7 @@ export default function Contact() {
               initial="hidden"
               whileInView="show"
               viewport={{ once: true }}
-              className="font-display font-extrabold text-4xl sm:text-5xl lg:text-6xl leading-[1.0] mb-5"
+              className="font-display font-bold text-4xl sm:text-5xl lg:text-[3.5rem] leading-[1.0] mb-5"
               style={{ color: "var(--text-primary)" }}
             >
               Travaillons<br />ensemble.
