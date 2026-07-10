@@ -3,10 +3,11 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { HiX, HiMenuAlt3 } from "react-icons/hi";
-import { FiSun, FiMoon } from "react-icons/fi";
+import { FiSun, FiMoon, FiChevronDown, FiFileText, FiZap } from "react-icons/fi";
 import { personal } from "@/data/portfolio";
 import { trackEvent } from "@/lib/analytics";
 import { useMode } from "@/lib/mode-context";
+import CvDownloadMenu from "@/components/CvDownloadMenu";
 
 const navLinks = [
   { label: "Profil",     href: "#about" },
@@ -195,14 +196,18 @@ export default function Navigation() {
             {mode === "light" ? <FiMoon size={14} /> : <FiSun size={14} />}
           </button>
 
-          <a
-            href={personal.cv}
-            download
-            onClick={() => trackEvent("cv_download")}
-            className="inline-flex items-center gap-2 text-[0.83rem] font-bold text-white px-5 py-2.5 rounded-full accent-bg accent-glow transition-all hover:opacity-88"
-          >
-            CV ↓
-          </a>
+          <CvDownloadMenu
+            align="right"
+            trigger={({ toggle }) => (
+              <button
+                onClick={toggle}
+                className="inline-flex items-center gap-1.5 text-[0.83rem] font-bold text-white px-5 py-2.5 rounded-full accent-bg accent-glow transition-all hover:opacity-88"
+              >
+                CV ↓
+                <FiChevronDown size={12} />
+              </button>
+            )}
+          />
         </motion.div>
       </div>
 
@@ -244,7 +249,21 @@ export default function Navigation() {
                 onClick={() => { setMobileOpen(false); trackEvent("cv_download"); }}
                 className="flex items-center justify-center gap-2 accent-bg text-white font-bold text-sm py-3 px-4 rounded-xl transition-opacity hover:opacity-88"
               >
-                Télécharger CV ↓
+                <FiFileText size={14} />
+                CV Classique ↓
+              </a>
+              <a
+                href={personal.cvAts}
+                download
+                onClick={() => { setMobileOpen(false); trackEvent("cv_download"); }}
+                className={`flex items-center justify-center gap-2 font-bold text-sm py-3 px-4 mt-1.5 rounded-xl border transition-colors ${
+                  mode === "light"
+                    ? "border-black/10 text-[#555] hover:bg-black/5"
+                    : "border-[#242424] text-slate-300 hover:bg-white/5"
+                }`}
+              >
+                <FiZap size={14} />
+                CV ATS ↓
               </a>
             </div>
           </motion.div>

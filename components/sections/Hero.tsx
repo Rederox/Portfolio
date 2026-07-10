@@ -1,11 +1,12 @@
 "use client";
 
 import { motion, useScroll, useTransform } from "framer-motion";
-import { FiGithub, FiLinkedin, FiInstagram, FiMail, FiArrowDown, FiDownload } from "react-icons/fi";
+import { FiGithub, FiLinkedin, FiInstagram, FiMail, FiArrowDown, FiDownload, FiChevronDown } from "react-icons/fi";
 import Image from "next/image";
 import { personal } from "@/data/portfolio";
 import { trackEvent, type EventType } from "@/lib/analytics";
 import { useTheme } from "@/lib/theme-context";
+import CvDownloadMenu from "@/components/CvDownloadMenu";
 
 const socials: { icon: React.ElementType; href: string; label: string; event: EventType }[] = [
   { icon: FiGithub,    href: personal.github,              label: "GitHub",    event: "github_click" },
@@ -220,22 +221,26 @@ export default function Hero() {
               transition={{ duration: 0.6, delay: 0.6 }}
               className="flex flex-wrap items-center gap-3 mt-8"
             >
-              <a
-                href={personal.cv}
-                download
-                onClick={() => trackEvent("cv_download")}
-                className="inline-flex items-center gap-2 font-semibold px-7 py-3 rounded-xl text-sm transition-all"
-                style={{
-                  backgroundColor: "var(--accent)",
-                  color: "#0A0806",
-                  transition: "opacity 0.2s ease, box-shadow 0.2s ease",
-                }}
-                onMouseEnter={e => { e.currentTarget.style.opacity = "0.88"; e.currentTarget.style.boxShadow = "0 0 32px rgba(201,169,110,0.3)"; }}
-                onMouseLeave={e => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.boxShadow = "none"; }}
-              >
-                <FiDownload size={14} />
-                Télécharger CV
-              </a>
+              <CvDownloadMenu
+                align="left"
+                trigger={({ toggle }) => (
+                  <button
+                    onClick={toggle}
+                    className="inline-flex items-center gap-2 font-semibold px-7 py-3 rounded-xl text-sm transition-all"
+                    style={{
+                      backgroundColor: "var(--accent)",
+                      color: "#0A0806",
+                      transition: "opacity 0.2s ease, box-shadow 0.2s ease",
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.opacity = "0.88"; e.currentTarget.style.boxShadow = "0 0 32px rgba(201,169,110,0.3)"; }}
+                    onMouseLeave={e => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.boxShadow = "none"; }}
+                  >
+                    <FiDownload size={14} />
+                    Télécharger CV
+                    <FiChevronDown size={12} />
+                  </button>
+                )}
+              />
               <a
                 href="#contact"
                 className="inline-flex items-center gap-2 font-medium px-7 py-3 rounded-xl text-sm transition-all"

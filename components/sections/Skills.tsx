@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { getIconByKey } from "@/lib/iconMap";
 import { useSkills } from "@/hooks/useFirestore";
 
@@ -149,9 +150,12 @@ export default function Skills() {
                               style={{ color: "var(--text-secondary)" }}
                             />
                           ) : skill.imageUrl ? (
-                            <img
+                            <Image
                               src={skill.imageUrl}
                               alt={skill.name}
+                              width={24}
+                              height={24}
+                              unoptimized
                               className="w-6 h-6 object-contain opacity-55 group-hover/skill:opacity-100 transition-opacity"
                             />
                           ) : (

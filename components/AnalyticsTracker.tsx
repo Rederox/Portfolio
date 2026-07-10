@@ -55,7 +55,7 @@ export default function AnalyticsTracker() {
       document.removeEventListener("visibilitychange", onVisibility);
       window.removeEventListener("pagehide", save);
     };
-  }, []);
+  }, [pathname]);
 
   return null;
 }

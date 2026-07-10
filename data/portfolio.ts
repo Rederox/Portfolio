@@ -11,6 +11,7 @@ export const personal = {
   linkedin: "https://www.linkedin.com/in/theivathan/",
   instagram: "https://www.instagram.com/theivathan14/",
   cv: "/CV_Thevaraj_Theivathan.pdf",
+  cvAts: "/CV_THEIVATHAN_THEVARAJ_ATS.pdf",
   bio: "Je conçois et déploie des applications full stack en production — de l'architecture au cloud. Spécialisé en IA intégrée, DevOps et interfaces React performantes. Autonome, rigoureux, orienté impact.",
   available: true,
   age: 24,
