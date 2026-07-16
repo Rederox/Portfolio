@@ -12,18 +12,32 @@ const jsonLd = {
   "@context": "https://schema.org",
   "@type": "Person",
   name: "Theivathan Thevaraj",
-  url: "https://theivathan.fr",
+  url: "https://www.theivathan.fr",
   email: "theivathan14@gmail.com",
-  jobTitle: "Développeur Lead Full Stack",
+  telephone: "+33784968840",
+  jobTitle: "Développeur Full Stack",
   description:
-    "Développeur Lead Full Stack passionné par la création d'expériences web modernes et performantes. Spécialisé en IA, DevOps et architectures scalables.",
-  image: "https://theivathan.fr/me.jpg",
+    "Développeur Full Stack spécialisé React/Next.js, IA intégrée et DevOps. Marketplace créée de A à Z, 3 000+ clics SEO organiques/mois, automatisations qui économisent 3 h de travail par jour.",
+  image: "https://www.theivathan.fr/me.jpg",
   address: {
     "@type": "PostalAddress",
     addressLocality: "Argenteuil",
     postalCode: "95100",
     addressCountry: "FR",
   },
+  worksFor: {
+    "@type": "Organization",
+    name: "IDLA — Investir dans l'ancien",
+    url: "https://investirdanslancien.fr",
+  },
+  alumniOf: [
+    {
+      "@type": "EducationalOrganization",
+      name: "ENSITECH",
+      description: "Master Développeur Lead Full Stack, option Intelligence Artificielle (2025)",
+    },
+  ],
+  knowsLanguage: ["fr", "en", "ta"],
   sameAs: [
     "https://github.com/Rederox",
     "https://www.linkedin.com/in/theivathan/",
@@ -31,6 +45,7 @@ const jsonLd = {
   knowsAbout: [
     "React", "Next.js", "TypeScript", "Node.js", "PHP", "Python",
     "Docker", "DevOps", "Intelligence Artificielle", "PostgreSQL",
+    "SEO technique", "Automatisation", "Mistral AI",
   ],
 };
 

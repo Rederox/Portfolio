@@ -16,6 +16,8 @@ import {
   SiSocketdotio, SiNestjs, SiFastify,
   SiZapier, SiGnubash, SiGoogle, SiMeta,
   SiCanva,
+  SiClaude, SiMistralai, SiN8N, SiSpringboot, SiDiscord, SiRaspberrypi,
+  SiElastic, SiJsonwebtokens, SiOpenjdk, SiApollographql,
 } from "react-icons/si";
 import type { IconType } from "react-icons";
 
@@ -40,6 +42,8 @@ export const iconRegistry: Record<string, IconType> = {
   SiSocketdotio, SiNestjs, SiFastify,
   SiZapier, SiGnubash, SiGoogle, SiMeta,
   SiCanva,
+  SiClaude, SiMistralai, SiN8N, SiSpringboot, SiDiscord, SiRaspberrypi,
+  SiElastic, SiJsonwebtokens, SiOpenjdk, SiApollographql,
 };
 
 // ─── Normalized name → icon lookup (for Projects & Experience tech tags) ──────
@@ -154,6 +158,28 @@ const nameToIcon: Record<string, IconType> = {
   "sea google/meta": SiMeta,
   meta: SiMeta,
   facebook: SiMeta,
+  claude: SiClaude,
+  mistral: SiMistralai,
+  "mistral ai": SiMistralai,
+  n8n: SiN8N,
+  "spring boot": SiSpringboot,
+  springboot: SiSpringboot,
+  websocket: SiSocketdotio,
+  websockets: SiSocketdotio,
+  jwt: SiJsonwebtokens,
+  "elk stack": SiElastic,
+  elk: SiElastic,
+  elasticsearch: SiElastic,
+  java: SiOpenjdk,
+  discord: SiDiscord,
+  "discord.js": SiDiscord,
+  "raspberry pi": SiRaspberrypi,
+  raspberrypi: SiRaspberrypi,
+  "apollo client": SiApollographql,
+  apollo: SiApollographql,
+  "openai api": SiOpenai,
+  "graphql codegen": SiGraphql,
+  firestore: SiFirebase,
 };
 
 /**

@@ -60,6 +60,7 @@ export default function Education() {
                     className={`flex items-start gap-4 sm:gap-5 px-5 sm:px-6 py-5 ${hasDesc ? "cursor-pointer" : ""}`}
                     onClick={() => hasDesc && setExpanded(isOpen ? null : id)}
                     role={hasDesc ? "button" : undefined}
+                    aria-expanded={hasDesc ? isOpen : undefined}
                     tabIndex={hasDesc ? 0 : undefined}
                     onKeyDown={(e) => e.key === "Enter" && hasDesc && setExpanded(isOpen ? null : id)}
                   >

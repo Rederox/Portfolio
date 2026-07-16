@@ -8,6 +8,7 @@ import { getTechIcon } from "@/lib/iconMap";
 
 const TYPE_COLORS: Record<string, { color: string; bg: string; border: string }> = {
   CDI:        { color: "#34d399", bg: "rgba(52,211,153,0.08)",  border: "rgba(52,211,153,0.2)"  },
+  "Alternance → CDI": { color: "#34d399", bg: "rgba(52,211,153,0.08)", border: "rgba(52,211,153,0.2)" },
   CDD:        { color: "#60a5fa", bg: "rgba(96,165,250,0.08)",  border: "rgba(96,165,250,0.2)"  },
   Stage:      { color: "#a78bfa", bg: "rgba(167,139,250,0.08)", border: "rgba(167,139,250,0.2)" },
   Alternance: { color: "#fbbf24", bg: "rgba(251,191,36,0.08)",  border: "rgba(251,191,36,0.2)"  },
@@ -91,6 +92,8 @@ export default function Experience() {
                   >
                     <button
                       onClick={() => setExpanded(isOpen ? null : id)}
+                      aria-expanded={isOpen}
+                      aria-label={`${exp.role} chez ${exp.company} — ${isOpen ? "replier" : "voir"} le détail`}
                       className="w-full text-left px-5 sm:px-6 py-5 flex items-start gap-4"
                     >
                       {/* Contenu principal */}

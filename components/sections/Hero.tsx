@@ -3,7 +3,7 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { FiGithub, FiLinkedin, FiInstagram, FiMail, FiArrowDown, FiDownload, FiChevronDown } from "react-icons/fi";
 import Image from "next/image";
-import { personal } from "@/data/portfolio";
+import { personal, stats as sharedStats } from "@/data/portfolio";
 import { trackEvent, type EventType } from "@/lib/analytics";
 import { useTheme } from "@/lib/theme-context";
 import CvDownloadMenu from "@/components/CvDownloadMenu";
@@ -15,11 +15,7 @@ const socials: { icon: React.ElementType; href: string; label: string; event: Ev
   { icon: FiMail,      href: `mailto:${personal.email}`,   label: "Email",     event: "email_click" },
 ];
 
-const stats = [
-  { value: "3+",  label: "ans d'exp." },
-  { value: "15+", label: "projets" },
-  { value: "5",   label: "stacks" },
-];
+const stats = sharedStats.map(({ value, short }) => ({ value, label: short }));
 
 
 // ── Fond animé — rendu React (garanti de fonctionner) ─────────────────────────
@@ -185,7 +181,7 @@ export default function Hero() {
               className="text-[0.7rem] tracking-[0.35em] uppercase font-mono-jb mb-5"
               style={{ color: "var(--text-secondary)" }}
             >
-              Développeur Lead Full Stack
+              {personal.role}
             </motion.p>
 
             <div className="overflow-hidden">

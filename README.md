@@ -94,11 +94,13 @@ npm run start    # Lancer le build de production
 npm run lint     # Vérification ESLint
 ```
 
-Seed Firestore (import des données initiales depuis `data/portfolio.ts`) :
+Seed Firestore (synchronise `data/portfolio.ts` → Firestore, y compris les projets) :
 
 ```bash
-node scripts/seed-firestore.mjs
+npx tsx scripts/seed-firestore.mjs
 ```
+
+> À relancer après chaque modification de `data/portfolio.ts`, sinon le site en ligne continue de servir les anciennes données Firestore.
 
 ---
 

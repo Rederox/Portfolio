@@ -10,6 +10,7 @@ import { useProjects } from "@/hooks/useFirestore";
 import type { Project } from "@/lib/firestore";
 import { getTechIcon } from "@/lib/iconMap";
 import { trackEvent } from "@/lib/analytics";
+import { personal } from "@/data/portfolio";
 
 // ─── Mini carousel ────────────────────────────────────────────────────────────
 
@@ -336,7 +337,7 @@ export default function Projects() {
           className="mt-16 flex justify-center"
         >
           <a
-            href="https://github.com/Rederox"
+            href={personal.github}
             target="_blank"
             rel="noopener noreferrer"
             onClick={() => trackEvent("github_click")}

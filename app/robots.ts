@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       disallow: "/admin/",
     },
-    sitemap: "https://theivathan.fr/sitemap.xml",
+    sitemap: "https://www.theivathan.fr/sitemap.xml",
   };
 }

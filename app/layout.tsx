@@ -26,13 +26,17 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
-const BASE_URL = "https://theivathan.fr";
+const BASE_URL = "https://www.theivathan.fr";
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
-  title: "Theivathan Thevaraj — Développeur Lead Full Stack",
+  title: "Theivathan Thevaraj — Développeur Full Stack · React, Next.js, IA & DevOps",
   description:
-    "Développeur Lead Full Stack basé à Argenteuil (95), France. Spécialisé en React, Next.js, Node.js, TypeScript, IA et DevOps. 3 ans d'expérience. Disponible pour un poste.",
+    "Développeur Full Stack (React, Next.js, TypeScript, Node.js) spécialisé IA & DevOps. Marketplace créée de A à Z, 3 000+ clics SEO/mois, automatisations IA. Basé à Argenteuil (95) — disponible.",
+  keywords: [
+    "développeur full stack", "React", "Next.js", "TypeScript", "Node.js",
+    "IA", "DevOps", "Docker", "développeur Argenteuil", "développeur Île-de-France",
+  ],
   authors: [{ name: "Theivathan Thevaraj", url: BASE_URL }],
   creator: "Theivathan Thevaraj",
   robots: {
@@ -44,28 +48,19 @@ export const metadata: Metadata = {
     canonical: BASE_URL,
   },
   openGraph: {
-    title: "Theivathan Thevaraj — Développeur Lead Full Stack",
+    title: "Theivathan Thevaraj — Développeur Full Stack · IA & DevOps",
     description:
-      "Développeur Lead Full Stack basé à Argenteuil, France. Spécialisé en React, Next.js, Node.js, TypeScript, IA et DevOps. Disponible pour un poste.",
+      "Marketplace créée de A à Z, 3 000+ clics SEO/mois, automatisations IA qui économisent 3 h/jour. React, Next.js, TypeScript, Docker. Disponible.",
     url: BASE_URL,
     siteName: "Theivathan Thevaraj — Portfolio",
     type: "website",
     locale: "fr_FR",
-    images: [
-      {
-        url: "/me.jpg",
-        width: 800,
-        height: 1067,
-        alt: "Theivathan Thevaraj — Développeur Lead Full Stack",
-      },
-    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Theivathan Thevaraj — Développeur Lead Full Stack",
+    title: "Theivathan Thevaraj — Développeur Full Stack · IA & DevOps",
     description:
-      "Développeur Lead Full Stack basé à Argenteuil, France. React, Next.js, IA, DevOps. Disponible pour un poste.",
-    images: ["/me.jpg"],
+      "Marketplace créée de A à Z, 3 000+ clics SEO/mois, automatisations IA. React, Next.js, TypeScript. Disponible.",
   },
 };
 

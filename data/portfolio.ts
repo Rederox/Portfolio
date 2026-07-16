@@ -3,7 +3,7 @@ export const personal = {
   firstName: "Theivathan",
   lastName: "Thevaraj",
   name: "Theivathan Thevaraj",
-  role: "Développeur Lead Full Stack",
+  role: "Développeur Full Stack · IA & DevOps",
   email: "theivathan14@gmail.com",
   phone: "+33 7 84 96 88 40",
   location: "Argenteuil, France",
@@ -12,7 +12,7 @@ export const personal = {
   instagram: "https://www.instagram.com/theivathan14/",
   cv: "/CV_Thevaraj_Theivathan.pdf",
   cvAts: "/CV_THEIVATHAN_THEVARAJ_ATS.pdf",
-  bio: "Je conçois et déploie des applications full stack en production — de l'architecture au cloud. Spécialisé en IA intégrée, DevOps et interfaces React performantes. Autonome, rigoureux, orienté impact.",
+  bio: "Je conçois et déploie des applications full stack en production : marketplace créée de A à Z avec CRM interne, migration WordPress → Next.js générant 3 000+ clics SEO par mois, automatisations IA qui économisent 3 h de travail par jour. Recruté en alternance, embauché en CDI.",
   available: true,
   age: 24,
   languages: ["Français (Bilingue)", "Anglais (C1)", "Tamoul (Bilingue)"],
@@ -27,6 +27,13 @@ export const personal = {
     { emoji: "⚡", label: "Électronique" },
   ],
 };
+
+// ─── Stats — chiffres vérifiables, alignés sur le CV ─────────────────────────
+export const stats = [
+  { value: "5 ans",  label: "d'expérience en entreprise", short: "d'expérience" },
+  { value: "3 000+", label: "clics SEO organiques / mois", short: "clics SEO/mois" },
+  { value: "3 h/j",  label: "économisées par automatisation", short: "automatisées" },
+];
 
 // ─── Skills ───────────────────────────────────────────────────────────────────
 export const skillCategories = [
@@ -57,11 +64,12 @@ export const skillCategories = [
     order: 1,
     items: [
       { name: "OpenAI", icon: "SiOpenai" },
-      { name: "Mistral AI", icon: "", imageUrl: "https://mistral.ai/favicon.ico" },
+      { name: "Mistral AI", icon: "SiMistralai" },
+      { name: "Claude", icon: "SiClaude" },
       { name: "Gemini", icon: "", imageUrl: "https://www.gstatic.com/lamda/images/gemini_favicon_f069958c85030456e93de685481c559f160ea06.svg" },
       { name: "Big Data", icon: "", imageUrl: "https://cdn.simpleicons.org/apachehadoop" },
       { name: "No-Code / Low-Code", icon: "" },
-      { name: "n8n", icon: "", imageUrl: "https://n8n.io/favicon.ico" },
+      { name: "n8n", icon: "SiN8N" },
       { name: "Zapier", icon: "SiZapier" },
       { name: "Pipedrive", icon: "", imageUrl: "https://www.pipedrive.com/favicon.ico" },
       { name: "SEO Technique", icon: "SiGoogle" },
@@ -116,16 +124,16 @@ export const experiences = [
   {
     company: "IDLA — Investir dans l'ancien",
     role: "Développeur Full Stack & DevOps",
-    type: "Alternance",
-    period: "09/2023 – 03/2026",
+    type: "Alternance → CDI",
+    period: "09/2023 – Aujourd'hui",
     description: [
-      "Pilotage & Coordination : Rôle de Chef de Projet technique, assurant la mise en relation et le suivi de plusieurs prestataires externes (experts SEO/SEA, design, rédaction) pour l'alignement des objectifs business et techniques.",
-      "Refonte & Performance : Développement complet (Front/Back) de la Marketplace et du site vitrine avec une optimisation avancée du SEO technique.",
-      "IA & Data : Intégration de l'IA (Mistral) pour l'automatisation de calculs financiers complexes (taxes, loyers) et d'analyses de zones.",
-      "Automation : Optimisation des flux métier (facturation, notifications) via Pipedrive et Zapier.",
-      "Conversion & CRM : Mise en place d'un système de tri intelligent des prospects (Lead Scoring) et déploiement de scénarios de relances automatiques multicanaux pour optimiser le taux de transformation.",
-      "Marketing & Growth : Gestion et optimisation des campagnes SEA (Google & Meta) pour accroître la visibilité de la plateforme.",
-      "Qualité : Application de standards de code élevés, revues de code et création d'un Backoffice interactif.",
+      "Recruté en alternance puis embauché en CDI. Création de A à Z d'une marketplace Next.js / TypeScript (front + back), incluant un CRM interne pour la gestion des prospects et des équipes métier.",
+      "Migration complète du site vitrine WordPress → Next.js avec optimisation SEO technique (Core Web Vitals, structure, indexation) : plus de 3 000 clics organiques générés par mois.",
+      "Intégration IA (Mistral) pour automatiser des calculs financiers complexes (taxes, rentabilité locative) et des analyses de zones d'investissement.",
+      "Automatisation des flux métier (facturation, notifications, relances) via Pipedrive et Zapier : plus de 3 heures de travail manuel économisées par jour pour les équipes.",
+      "Conversion : Lead Scoring et scénarios de relances automatiques multicanaux (email, SMS), contribuant à une centaine de conversions par mois.",
+      "Pilotage technique : coordination de plusieurs prestataires externes (SEO/SEA, design, rédaction) et alignement des objectifs business et techniques — rôle de chef de projet technique.",
+      "Acquisition : gestion et optimisation des campagnes SEA (Google Ads, Meta Ads). Qualité : revues de code, standards de développement et documentation technique.",
     ],
     technologies: ["Next.js", "React", "TypeScript", "Tailwind CSS", "Prisma", "Node.js", "PHP"],
     current: true,
@@ -164,29 +172,106 @@ export const experiences = [
 export const projects = [
   {
     title: "IDLA — Marketplace Immobilière",
-    shortDesc: "Marketplace et site vitrine pour l'investissement dans l'immobilier ancien.",
+    shortDesc: "Marketplace d'investissement immobilier créée de A à Z — en production.",
     description:
-      "Refonte complète (Front/Back) de la marketplace et du site vitrine avec optimisation SEO avancée. Intégration de l'IA Mistral pour l'automatisation de calculs financiers (taxes, loyers) et analyses de zones. Système de Lead Scoring, CRM automatisé et campagnes SEA.",
-    images: [],
+      "Création complète de la marketplace (front + back) et migration du site vitrine WordPress → Next.js. Résultats mesurés : 3 000+ clics SEO organiques/mois, une centaine de conversions/mois via Lead Scoring et relances automatiques, 3 h/jour économisées grâce aux automatisations (Pipedrive, Zapier). IA Mistral intégrée pour les calculs financiers (taxes, rentabilité locative) et l'analyse de zones d'investissement.",
+    images: ["/projects/idla.jpg"],
     video: "",
     technologies: ["Next.js", "React", "TypeScript", "Tailwind CSS", "Prisma", "Node.js", "PHP"],
     github: "",
-    live: "",
+    live: "https://investirdanslancien.fr",
     featured: true,
     order: 0,
   },
   {
-    title: "Fab Lab",
-    shortDesc: "Plateforme de gestion d'un espace de fabrication collaborative.",
+    title: "Comusphere",
+    shortDesc: "Réseau social communautaire permettant de créer, rejoindre et animer des espaces d'échange autour de centres d'intérêt communs.",
     description:
-      "Plateforme web pour la gestion et présentation d'un espace de fabrication collaborative. Interface moderne, gestion des membres, projets et ressources.",
-    images: ["/Fab_Lab.png"],
+      "Comusphere est une plateforme communautaire full-stack développée en solo dans le cadre du Master Lead Full Stack. Elle permet aux utilisateurs de créer ou rejoindre des communautés thématiques, de publier du contenu (texte, images), de commenter, réagir, et d'échanger via une messagerie en temps réel.\n\nDéfis techniques : architecture microservices (Spring Boot + Node.js WebSocket), authentification JWT stateless avec Spring Security, gestion des rôles (membre / modérateur / admin), intégration de la stack ELK pour la surveillance des logs, et déploiement cloud hybride (Vercel + VPS Hetzner + Azure MySQL + MongoDB Atlas).\n\nRésultats : MVP fonctionnel et déployé, indexation de 5 000 logs/seconde via ELK, interface responsive mobile-first, conformité RGPD.",
+    images: [
+      "https://firebasestorage.googleapis.com/v0/b/theivathan-e067a.firebasestorage.app/o/projects%2F1776351105821_Gemini_Generated_Image_oyf1btoyf1btoyf1_(1).png?alt=media&token=1652137d-3a59-46b3-9063-b2d24ba36f3b",
+      "https://firebasestorage.googleapis.com/v0/b/theivathan-e067a.firebasestorage.app/o/projects%2F1776351114046_Gemini_Generated_Image_xgbk5gxgbk5gxgbk_(1).png?alt=media&token=e4366240-71b9-4f54-a023-745956c3d31b",
+    ],
     video: "",
-    technologies: ["Next.js", "React", "TypeScript", "Tailwind CSS"],
-    github: "https://github.com/Rederox",
+    technologies: ["Next.js", "TypeScript", "Tailwind CSS", "Redux", "Java", "Spring Boot", "Node.js", "WebSocket", "MySQL", "MongoDB", "JWT", "Docker", "ELK Stack", "Nginx"],
+    github: "https://github.com/Comusphere",
     live: "",
     featured: true,
     order: 1,
+  },
+  {
+    title: "Portfolio & Admin CMS",
+    shortDesc: "Ce site — avec son back-office complet développé sur mesure.",
+    description:
+      "Ce portfolio est lui-même un projet full stack : back-office Firebase (Auth, Firestore, Storage) avec gestion CRUD de tout le contenu, analytics maison (visites par pays et appareil, heatmap mondiale, tracking d'événements), personnalisation du thème en temps réel, formulaire de contact SMTP et suivi de candidatures assisté par IA (Mistral) avec notifications push.",
+    images: [
+      "https://firebasestorage.googleapis.com/v0/b/theivathan-e067a.firebasestorage.app/o/projects%2F1775512573922_Capture_d'%C3%A9cran_2026-04-06_235606.png?alt=media&token=bd6b5cdf-b1a9-403a-853b-18656b4ea77c",
+    ],
+    video: "",
+    technologies: ["Next.js", "TypeScript", "Firebase", "Tailwind CSS", "Framer Motion", "Nodemailer", "Recharts", "Vercel"],
+    github: "",
+    live: "https://www.theivathan.fr",
+    featured: false,
+    order: 2,
+  },
+  {
+    title: "Arène Pokémon",
+    shortDesc: "Simulation d'arène Pokémon tour par tour développée en moins de 24h, avec sélection de Pokémon, système d'éléments et combats contre des boss.",
+    description:
+      "Projet réalisé en moins de 24 heures, Arène Pokémon est une simulation de combat inspirée du système de jeu Pokémon, développée en React et TypeScript. Le joueur choisit parmi 4 Pokémon (types Plante, Eau, Feu, Électrique), sélectionne une carte et une musique, puis affronte l'un des 3 boss de difficulté croissante : Mewtwo, Rayquaza ou Arceus. Les combats se déroulent au tour par tour avec un système de cooldown sur certaines attaques, des faiblesses/résistances élémentaires, un affichage des dégâts en temps réel et un historique détaillé des actions à chaque tour.",
+    images: [
+      "https://firebasestorage.googleapis.com/v0/b/theivathan-e067a.firebasestorage.app/o/projects%2F1775511791578_Capture_d'%C3%A9cran_2026-04-06_234250.png?alt=media&token=9f4b8036-2312-4177-a3e4-0f7ea62647ee",
+    ],
+    video: "",
+    technologies: ["React", "NextJS", "TypeScript", "Tailwind CSS", "SCSS"],
+    github: "https://github.com/Rederox/rpg",
+    live: "https://pokearena-silk.vercel.app/",
+    featured: false,
+    order: 3,
+  },
+  {
+    title: "Socifun",
+    shortDesc: "Plateforme de jeux en ligne moderne avec catalogue, filtres par catégories/tags, profils utilisateurs et avatars personnalisables.",
+    description:
+      "Socifun est une application web construite avec Next.js offrant une expérience complète de découverte de jeux en ligne. Elle intègre un catalogue étendu filtrable par catégories et tags, des pages de jeu détaillées, ainsi que des profils utilisateurs avec avatars entièrement personnalisables. Les données de jeux sont récupérées via l'API Gamedistribution grâce à une intégration GraphQL avec Apollo Client et GraphQL Codegen pour des types TypeScript auto-générés. L'interface est responsive et inclut une pagination dynamique pour naviguer efficacement dans le contenu.",
+    images: [
+      "/projects/socifun.jpg",
+      "https://firebasestorage.googleapis.com/v0/b/theivathan-e067a.firebasestorage.app/o/projects%2F1775511415654_logoFullBlack_(2).png?alt=media&token=3b775dc0-9678-4d22-a5e8-77e0dc41a689",
+    ],
+    video: "",
+    technologies: ["Next.js", "React", "TypeScript", "GraphQL", "Apollo Client", "Node.js", "GraphQL Codegen"],
+    github: "https://github.com/Rederox/socifun",
+    live: "https://socifun.theivathan.fr/",
+    featured: false,
+    order: 4,
+  },
+  {
+    title: "Chatbot IA Discord",
+    shortDesc: "Bot Discord intelligent capable de répondre en texte et en voix, propulsé par l'IA OpenAI et intégrant Google Text-to-Speech en français.",
+    description:
+      "Ce chatbot IA pour Discord utilise le modèle text-davinci-003 d'OpenAI pour générer des réponses contextuelles en français. Il peut rejoindre et quitter des salons vocaux, synthétiser des réponses audio via gTTS, et interagir naturellement lorsqu'il est mentionné. Le principal défi technique a été l'intégration de @discordjs/voice avec le pipeline audio gTTS pour une restitution fluide en salon vocal. Le bot gère également les flux de conversation multi-tours et filtre les réponses avant diffusion.",
+    images: [],
+    video: "",
+    technologies: ["Node.js", "Discord.js", "OpenAI API", "gTTS", "@discordjs/voice", "@discordjs/opus"],
+    github: "",
+    live: "",
+    featured: false,
+    order: 5,
+  },
+  {
+    title: "FabLab",
+    shortDesc: "Système de gestion d'un FabLab : accès par badge NFC, contrôle des machines, IHM d'administration et statistiques d'utilisation.",
+    description:
+      "Ce projet consiste en l'installation d'un système de gestion complet pour un FabLab. \n\nIl permet de gérer l'accès aux locaux via une porte connectée et des badges NFC remis à l'inscription. \n\nUne fois à l'intérieur, les membres peuvent allumer les machines et consulter leurs notices d'utilisation grâce à la technologie NFC. Un système d'appel interne facilite la communication entre le personnel. L'administrateur dispose d'une IHM web pour gérer les adhérents (ajout/suppression/remplacement de badge), les données téléphoniques, l'activation des services serveur, ainsi que les statistiques d'activité et de consommation électrique des machines. \n\nL'architecture repose sur des Raspberry Pi en réseau local, avec des serveurs UDP codés en C++ côté Raspberry et des clients UDP intégrés en PHP dans l'interface web.",
+    images: [
+      "https://firebasestorage.googleapis.com/v0/b/theivathan-e067a.firebasestorage.app/o/projects%2F1775509960755_C-est-quoi-un-fablab-TITRE.webp?alt=media&token=fab2ae5f-80c6-4c37-9392-2f1315ea65e7",
+    ],
+    video: "",
+    technologies: ["Raspberry Pi", "C++", "PHP", "NFC", "HTML/CSS", "MySQL", "JavaScript", "Socket UDP"],
+    github: "https://github.com/Rederox/FabLab_Final",
+    live: "",
+    featured: false,
+    order: 6,
   },
 ];
 
@@ -196,7 +281,7 @@ export const education = [
     degree: "Master — Développeur Lead Full Stack Option IA",
     school: "ENSITECH",
     location: "Cergy",
-    period: "2023 – 2025",
+    period: "2023 – 2025 · Diplômé",
     description:
       "Formation avancée en développement Full Stack avec spécialisation en Intelligence Artificielle. Architecture logicielle, microservices, gestion de projets et DevOps.",
     current: false,

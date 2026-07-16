@@ -4,20 +4,17 @@ import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { FiZap, FiTrendingUp, FiTool } from "react-icons/fi";
 import Image from "next/image";
-import { personal } from "@/data/portfolio";
+import { personal, stats as sharedStats } from "@/data/portfolio";
 
 const facts = [
   { label: "Âge",          value: `${personal.age} ans`        },
   { label: "Localisation", value: "Argenteuil · France"        },
-  { label: "Langues",      value: "Français · Anglais · Tamoul" },
+  { label: "Langues",      value: "Français · Anglais (C1) · Tamoul" },
   { label: "Mobilité",     value: "Permis B · Véhiculé"        },
 ];
 
-const stats = [
-  { value: "3+",  label: "Ans d'expérience", icon: FiZap },
-  { value: "15+", label: "Projets réalisés",  icon: FiTrendingUp },
-  { value: "5",   label: "Stacks maîtrisées", icon: FiTool },
-];
+const statIcons = [FiZap, FiTrendingUp, FiTool];
+const stats = sharedStats.map(({ value, label }, i) => ({ value, label, icon: statIcons[i % statIcons.length] }));
 
 const fadeUp = (delay = 0) => ({
   hidden: { opacity: 0, y: 24 },
@@ -68,7 +65,7 @@ export default function About() {
                 className="text-[0.6rem] tracking-[0.45em] uppercase font-semibold mb-5"
                 style={{ color: "rgba(var(--accent-rgb), 0.8)" }}
               >
-                Développeur Lead Full Stack
+                {personal.role}
               </p>
               <p
                 className="text-base sm:text-[1.2rem] leading-relaxed font-light"
