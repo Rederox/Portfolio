@@ -113,10 +113,11 @@ export default function About() {
           >
             <div className="relative w-full h-full min-h-[280px] sm:min-h-[320px]">
               <Image
-                src="/me.jpg"
+                src="/about.jpg"
                 alt={personal.name}
                 fill
-                className="object-cover object-center"
+                className="object-cover"
+                style={{ objectPosition: "50% 30%" }}
               />
               <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 to-transparent" />
 
