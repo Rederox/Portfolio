@@ -50,7 +50,7 @@ export const skillCategories = [
       { name: "Node.js", icon: "SiNodedotjs" },
       { name: "PHP / Symfony", icon: "SiPhp" },
       { name: "Python", icon: "SiPython" },
-      { name: "Java", icon: "", imageUrl: "https://cdn.simpleicons.org/openjdk" },
+      { name: "Java", icon: "SiOpenjdk" },
       { name: "PostgreSQL", icon: "SiPostgresql" },
       { name: "Supabase", icon: "SiSupabase" },
       { name: "Firebase", icon: "SiFirebase" },
@@ -66,8 +66,8 @@ export const skillCategories = [
       { name: "OpenAI", icon: "SiOpenai" },
       { name: "Mistral AI", icon: "SiMistralai" },
       { name: "Claude", icon: "SiClaude" },
-      { name: "Gemini", icon: "", imageUrl: "https://www.gstatic.com/lamda/images/gemini_favicon_f069958c85030456e93de685481c559f160ea06.svg" },
-      { name: "Big Data", icon: "", imageUrl: "https://cdn.simpleicons.org/apachehadoop" },
+      { name: "Gemini", icon: "SiGooglegemini" },
+      { name: "Big Data", icon: "SiApachehadoop" },
       { name: "No-Code / Low-Code", icon: "" },
       { name: "n8n", icon: "SiN8N" },
       { name: "Zapier", icon: "SiZapier" },
@@ -94,14 +94,15 @@ export const skillCategories = [
     order: 3,
     items: [
       { name: "Docker", icon: "SiDocker" },
-      { name: "AWS", icon: "", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/9/93/Amazon_Web_Services_Logo.svg" },
+      { name: "AWS", icon: "FaAws" },
+      { name: "ELK Stack", icon: "SiElastic" },
       { name: "Git", icon: "SiGit" },
       { name: "GitHub", icon: "SiGithub" },
       { name: "Linux", icon: "SiLinux" },
       { name: "Bash", icon: "SiGnubash" },
       { name: "DNS", icon: "" },
-      { name: "pfSense", icon: "", imageUrl: "https://cdn.simpleicons.org/pfsense" },
-      { name: "NAS / Synology", icon: "", imageUrl: "https://cdn.simpleicons.org/synology" },
+      { name: "pfSense", icon: "SiPfsense" },
+      { name: "NAS / Synology", icon: "SiSynology" },
       { name: "Postman", icon: "SiPostman" },
     ],
   },
@@ -111,10 +112,10 @@ export const skillCategories = [
     order: 4,
     items: [
       { name: "Figma", icon: "SiFigma" },
-      { name: "Adobe XD", icon: "", imageUrl: "https://cdn.simpleicons.org/adobexd" },
+      { name: "Adobe XD", icon: "", imageUrl: "https://api.iconify.design/logos/adobe-xd.svg" },
       { name: "Canva", icon: "SiCanva" },
-      { name: "Photoshop", icon: "", imageUrl: "https://cdn.simpleicons.org/adobephotoshop" },
-      { name: "Premiere Pro", icon: "", imageUrl: "https://cdn.simpleicons.org/adobepremierepro" },
+      { name: "Photoshop", icon: "", imageUrl: "https://api.iconify.design/logos/adobe-photoshop.svg" },
+      { name: "Premiere Pro", icon: "", imageUrl: "https://api.iconify.design/logos/adobe-premiere.svg" },
     ],
   },
 ];
@@ -197,6 +198,19 @@ export const projects = [
     order: 1,
   },
   {
+    title: "IDLA — Back Office & CRM",
+    shortDesc: "Outil interne de pilotage utilisé quotidiennement par les équipes commerciales et marketing d'IDLA.",
+    description:
+      "Back-office développé de A à Z pour piloter toute l'activité : dashboard analytics (ventes, DCF créés/envoyés, top villes, types de biens), CRM complet avec pipelines prospects et clients en drag & drop, gestion des dossiers d'investissement (DCF) avec suivi d'ouverture, et campagnes email automatisées via SendGrid (séquences, relances, webhooks entrants, historique). Génération d'emails commerciaux et de descriptions de biens par IA (Mistral Large). CMS intégré pour le site vitrine : articles, guides, FAQ, lexique, témoignages, réalisations et pages « Où investir » par ville. Exports PDF / Excel, système de parrainage, logs d'audit et gestion des rôles et accès (Firebase Auth).",
+    images: [],
+    video: "",
+    technologies: ["Next.js", "TypeScript", "Prisma", "Firebase", "SendGrid", "Mistral AI", "Chart.js", "Mapbox"],
+    github: "",
+    live: "",
+    featured: false,
+    order: 2,
+  },
+  {
     title: "Comusphere",
     shortDesc: "Réseau social communautaire permettant de créer, rejoindre et animer des espaces d'échange autour de centres d'intérêt communs.",
     description:
@@ -210,7 +224,7 @@ export const projects = [
     github: "https://github.com/Comusphere",
     live: "",
     featured: false,
-    order: 2,
+    order: 3,
   },
   {
     title: "Portfolio & Admin CMS",
@@ -225,7 +239,7 @@ export const projects = [
     github: "",
     live: "https://www.theivathan.fr",
     featured: false,
-    order: 3,
+    order: 4,
   },
   {
     title: "Arène Pokémon",
@@ -240,7 +254,7 @@ export const projects = [
     github: "https://github.com/Rederox/rpg",
     live: "https://pokearena-silk.vercel.app/",
     featured: false,
-    order: 4,
+    order: 5,
   },
   {
     title: "Socifun",
@@ -256,7 +270,7 @@ export const projects = [
     github: "https://github.com/Rederox/socifun",
     live: "https://socifun.theivathan.fr/",
     featured: false,
-    order: 5,
+    order: 6,
   },
   {
     title: "Chatbot IA Discord",
@@ -269,7 +283,7 @@ export const projects = [
     github: "",
     live: "",
     featured: false,
-    order: 6,
+    order: 7,
   },
   {
     title: "FabLab",
@@ -284,7 +298,7 @@ export const projects = [
     github: "https://github.com/Rederox/FabLab_Final",
     live: "",
     featured: false,
-    order: 7,
+    order: 8,
   },
 ];
 

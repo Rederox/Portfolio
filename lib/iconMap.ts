@@ -18,7 +18,10 @@ import {
   SiCanva,
   SiClaude, SiMistralai, SiN8N, SiSpringboot, SiDiscord, SiRaspberrypi,
   SiElastic, SiJsonwebtokens, SiOpenjdk, SiApollographql, SiMapbox,
+  SiGooglegemini, SiApachehadoop, SiPfsense, SiSynology, SiSendgrid,
+  SiChartdotjs,
 } from "react-icons/si";
+import { FaAws } from "react-icons/fa";
 import type { IconType } from "react-icons";
 
 // ─── Canonical icon registry (Si icon name → component) ──────────────────────
@@ -44,6 +47,8 @@ export const iconRegistry: Record<string, IconType> = {
   SiCanva,
   SiClaude, SiMistralai, SiN8N, SiSpringboot, SiDiscord, SiRaspberrypi,
   SiElastic, SiJsonwebtokens, SiOpenjdk, SiApollographql, SiMapbox,
+  SiGooglegemini, SiApachehadoop, SiPfsense, SiSynology, SiSendgrid,
+  SiChartdotjs, FaAws,
 };
 
 // ─── Normalized name → icon lookup (for Projects & Experience tech tags) ──────
@@ -181,6 +186,12 @@ const nameToIcon: Record<string, IconType> = {
   "graphql codegen": SiGraphql,
   firestore: SiFirebase,
   mapbox: SiMapbox,
+  gemini: SiGooglegemini,
+  aws: FaAws,
+  sendgrid: SiSendgrid,
+  "mistral ai (mistral large)": SiMistralai,
+  "chart.js": SiChartdotjs,
+  chartjs: SiChartdotjs,
 };
 
 /**
