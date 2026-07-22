@@ -1,232 +1,184 @@
-# Project Mockup Prompts — Theivathan Portfolio
+# Mockups projets — prompts avec captures d'écran
 
-Prompts AI personnalisés pour chaque projet, cohérents avec l'esthétique du portfolio.
-Compatibles **Midjourney**, **DALL·E 3**, **Leonardo AI**, **Adobe Firefly**.
+Workflow : **capture d'écran réelle → IA d'édition d'image → mockup stylisé**.
+Tu joins ta capture au prompt ; l'IA construit la mise en scène autour (device, fond, glow).
+Compatible **Gemini (Nano Banana)**, **GPT-4o images**, **Firefly**. C'est la méthode utilisée pour Comusphere.
 
----
-
-## 1 — Comusphere
-*Réseau social communautaire · Next.js + Spring Boot + WebSocket + ELK*
-
-### Prompt A — Hero shot multi-device
-```
-Ultra-clean dark UI mockup, MacBook Pro 16 + iPhone 15 Pro side by side, both showing 
-a dark community social platform interface — feed of posts with user avatars, reactions, 
-comment threads, left sidebar with community list, OLED background #080c10, emerald 
-accent glow #10b981, glassmorphism cards, thin white border 6% opacity, ambient 
-blurred blob top-left, studio lighting, photorealistic, 8K, --ar 16:9 --style raw
-```
-
-### Prompt B — Dashboard microservices (admin view)
-```
-Dark SaaS dashboard mockup, browser window floating on OLED black background #080c10, 
-real-time logs monitoring panel (ELK stack aesthetic), left sidebar navigation, 
-top stats bar showing 5000 logs/sec metric, data charts, dark glassmorphism cards, 
-blue accent glow #38bdf8, monospace font, minimal clutter, Blender render quality, 
---ar 16:9 --q 2
-```
-
-### Prompt C — Messagerie temps réel
-```
-Dark chat interface UI mockup, browser frame centered on OLED black void, real-time 
-messaging layout — left panel with conversation list, right panel with message bubbles 
-(dark and accent-colored), typing indicator, online presence dots in green #10b981, 
-glassmorphism sidebar, thin border white 6%, soft ambient glow, editorial tech style, 
-8K sharp, --ar 16:9
-```
+> ⚠️ Règle d'or : l'IA ne doit **jamais réinventer l'interface** — la capture reste telle quelle,
+> seul l'habillage est généré. C'est ce qui rend le mockup crédible face à un recruteur.
+> Chaque prompt contient une instruction explicite en ce sens.
 
 ---
 
-## 2 — Portfolio
-*Portfolio + CMS + Analytics · Next.js + Firebase + Framer Motion*
+## Style de série (commun à tous)
 
-### Prompt A — Split admin / public view
-```
-Premium dark web app mockup, two browser windows side by side floating in void — 
-left shows a dark portfolio public page with hero section and bento grid cards, 
-right shows an admin dashboard with analytics charts and real-time visitor stats, 
-OLED background #0d0d0d, indigo-violet accent glow #6366f1, glassmorphism panels, 
-symmetrical composition, backdrop blur, 8K, --ar 16:9
-```
+Pour que les 9 cartes projets soient cohérentes, tous les prompts partagent ce suffixe :
 
-### Prompt B — Analytics dashboard close-up
 ```
-Dark analytics dashboard UI detail, browser window showing real-time visitor stats — 
-world map heatmap, line charts with smooth curves, stat cards (country, device, OS, 
-referrer), dark glassmorphism aesthetic, purple accent #818cf8, monospace numbers, 
-sharp pixel-perfect render, depth of field on edges, editorial style, --ar 16:9 --q 2
+STYLE — Keep the screenshot pixel-perfect and unmodified, do not redraw or invent any
+UI element. Place it on a deep charcoal background (#0a0a0a) with a soft warm-gold
+ambient glow (#C9A96E, ~10% opacity) blooming from behind the device. Subtle film
+grain, faint diagonal light streak top-right, premium tech-editorial photography look.
+Landscape 16:10, high resolution.
 ```
 
-### Prompt C — Theme customizer feature
+Ratio recommandé : **16:10 ou 16:9** (les cartes projets font ~480×280, `object-contain`).
+
+---
+
+## 1 — IDLA Marketplace *(a déjà un vrai screenshot : `/projects/idla-marketplace.jpg`)*
+
+**Capture source :** celle en place (annonces + carte), ou une nouvelle sur `marketplace.investirdanslancien.fr` (pleine page, 1440px).
+
 ```
-Dark admin theme customizer UI mockup, browser centered on OLED void, panel showing 
-6 accent color swatches with glowing active state, live preview card on right side, 
-glassmorphism interface, custom color picker open, smooth gradient transitions visible, 
-emerald active selection glow, minimal labels in monospace font, studio render, 
---ar 4:3
+Take this real-estate marketplace screenshot and present it inside a sleek MacBook Pro
+16" frame, three-quarter angle, floating over the background. Add a subtle reflection
+of the screen on an invisible glass floor. Do not alter the screenshot content.
++ STYLE
+```
+
+**Variante duo desktop + mobile** (prends aussi une capture mobile 390px de large) :
+```
+Compose these two screenshots — desktop marketplace view inside a thin dark browser
+window on the left, mobile view inside an iPhone 15 Pro frame slightly overlapping
+on the right. Both screens stay pixel-perfect. + STYLE
 ```
 
 ---
 
-## 3 — Arène Pokémon
-*Simulation combat tour par tour · React + TypeScript · fait en < 24h*
+## 2 — IDLA Site Vitrine *(a déjà `/projects/idla.jpg`)*
 
-### Prompt A — Battle screen hero
-```
-Dark gaming UI mockup, browser window showing a turn-based battle interface — 
-two Pokémon facing each other with HP bars, move selection panel at bottom, 
-battle log history on right, dark atmospheric background with subtle particle effects, 
-orange-red accent glow #fb923c, glassmorphism battle cards, dramatic lighting, 
-game aesthetic meets modern web design, 8K, --ar 16:9
-```
+**Capture source :** hero de `investirdanslancien.fr` (celle en place est bien : "+600 projets, 4.9★").
 
-### Prompt B — Sélection de Pokémon
 ```
-Dark game selection screen UI mockup, grid of 4 Pokémon cards floating on OLED 
-black background — each card with Pokémon illustration, type badge (Feu, Eau, Plante, 
-Électrique), glassmorphism card design, elemental color accents (red, blue, green, 
-yellow), hover glow effect on one selected card, minimal dark UI, studio render, 
---ar 16:9 --style raw
-```
-
-### Prompt C — Mobile portrait, battle log
-```
-iPhone 15 Pro mockup, floating on OLED black, showing dark Pokémon battle interface 
-in portrait mode — compact HP bars at top, attack buttons grid, scrolling battle log 
-with damage numbers, elemental type colors, glassmorphism components, dramatic 
-gaming atmosphere, luxury product photography style, --ar 9:16
+Place this website screenshot inside a minimal dark browser window (thin traffic-light
+dots, no toolbar clutter), floating at a slight 5° tilt. Behind it, add a large
+out-of-focus duplicate of the same screenshot as ambient depth. Screenshot must remain
+unmodified. + STYLE
 ```
 
 ---
 
-## 4 — Socifun
-*Plateforme de jeux en ligne · Next.js + GraphQL + Apollo*
+## 3 — IDLA Back Office & CRM *(aucune image — priorité n°1)*
 
-### Prompt A — Game catalog grid
-```
-Dark gaming platform UI mockup, MacBook Pro frame showing a game catalog interface — 
-grid of game cards with thumbnails, category filter chips at top, search bar, 
-pagination at bottom, dark OLED background #080c10, blue accent glow #38bdf8, 
-glassmorphism card hover effect, clean minimal layout, editorial composition, 
-8K sharp, --ar 16:9
-```
+**Capture source :** lance l'admin en local et capture **le dashboard analytics** et/ou
+**le pipeline en kanban**. ⚠️ **Données clients réelles → utilise une base de dev, ou floute
+noms/emails/téléphones AVANT de générer le mockup** (l'IA ne doit pas servir d'anonymiseur).
 
-### Prompt B — Game detail page
 ```
-Dark web app mockup, browser window showing a game detail page — large game preview 
-area center, tags and category badges, description panel, related games row below, 
-OLED dark theme, indigo accent #6366f1, glassmorphism sidebar, smooth gradient 
-overlay on game preview, premium SaaS aesthetic, studio render, --ar 16:9 --q 2
+Present this internal CRM dashboard screenshot inside a dark browser frame, straight-on
+view, floating above the background. Around the browser, add 2–3 small glassmorphism
+satellite cards (blank chart shapes only, no readable text) to suggest a rich analytics
+suite. The screenshot itself stays pixel-perfect. + STYLE
 ```
 
-### Prompt C — User profile with custom avatar
+**Variante pipeline :**
 ```
-Dark social platform profile UI mockup, browser frame floating in void, user profile 
-page — custom avatar builder panel open with color options, profile stats (games played, 
-favorites), dark glassmorphism cards, emerald accent highlight, clean typography, 
-minimal clutter, depth of field background, --ar 4:3
+Show this kanban pipeline screenshot inside a MacBook Pro frame at a slight angle,
+with a soft golden glow tracing the column edges. Do not modify the screenshot. + STYLE
 ```
 
 ---
 
-## 5 — Chatbot IA Discord
-*Bot Discord · OpenAI API + gTTS + discordjs/voice*
+## 4 — Portfolio & Admin CMS *(capture d'avril à rafraîchir)*
 
-### Prompt A — Discord interface with AI bot
-```
-Dark Discord interface UI mockup, MacBook browser showing Discord app — dark server 
-sidebar, chat channel with AI bot responses in styled message bubbles, code blocks 
-with syntax highlighting, bot avatar with glowing online indicator in green, 
-voice channel panel showing bot connected with audio waveform, OLED dark #080c10, 
-blurple Discord accent #5865F2, glassmorphism overlay, 8K, --ar 16:9
-```
+**Capture source :** refais 2 captures à jour — le hero public de `www.theivathan.fr` + une vue admin (`/admin` dashboard ou analytics avec la heatmap monde).
 
-### Prompt B — Developer terminal + bot architecture
 ```
-Dark developer aesthetic mockup, split layout — left side VS Code showing Node.js 
-bot code with syntax highlighting (green/blue tokens), right side Discord interface 
-preview with bot message, OLED background #0d1117, terminal green glow, monospace 
-font, AI response bubble with OpenAI branding color, subtle scanline overlay, 
-editorial composition, --ar 16:9 --style raw
-```
-
-### Prompt C — Architecture diagram aesthetic
-```
-Abstract dark tech diagram mockup, floating nodes connected by glowing lines — 
-Discord logo node → Node.js node → OpenAI API node → gTTS node → Voice output node, 
-OLED black void background, each node a glassmorphism pill, accent colors cycling 
-(blurple, green, orange), soft glow on connection lines, minimal labels in monospace, 
-Blender render quality, --ar 16:9 --q 2
+Compose a split mockup with these two screenshots: left, the public portfolio dark
+hero in a browser window; right, the admin analytics dashboard in a second browser
+window slightly behind and lower. Symmetric composition, both screenshots untouched.
++ STYLE
 ```
 
 ---
 
-## 6 — FabLab
-*Gestion FabLab · Raspberry Pi + C++ + PHP + NFC + MySQL*
+## 5 — Arène Pokémon *(a déjà une capture — mockup pour l'unifier au style)*
 
-### Prompt A — Admin IHM dashboard
-```
-Dark industrial IoT dashboard UI mockup, browser showing FabLab management interface — 
-machine status grid with on/off toggles, NFC badge scan log, member list with access 
-levels, electricity consumption chart, OLED dark background, orange accent glow #fb923c, 
-glassmorphism cards, industrial-meets-modern-web aesthetic, 8K sharp, --ar 16:9
-```
+**Capture source :** l'écran de combat sur `pokearena-silk.vercel.app`.
 
-### Prompt B — NFC access control panel
 ```
-Dark embedded system UI mockup, tablet interface showing access control panel — 
-NFC badge scan animation with green confirmation ring, member name display, door 
-lock status indicator, machine activation toggles, Raspberry Pi aesthetic, 
-dark glassmorphism, green accent #10b981, minimal industrial design, 
-editorial tech photography, --ar 4:3 --q 2
-```
-
-### Prompt C — Split Raspberry Pi + Web interface
-```
-Dark developer aesthetic mockup, split layout — left side showing Raspberry Pi board 
-with NFC reader attached, soft component lighting, right side browser showing PHP web 
-admin panel with member management table and stats, OLED background, orange-green 
-accent, hardware-meets-software aesthetic, photorealistic components left, clean UI right, 
---ar 16:9 --style raw
+Place this game battle screenshot inside a dark browser window, floating with a slight
+3D tilt. Add faint elemental particle sparks (ember orange, electric yellow) drifting
+around the frame edges only — never over the screen. Screenshot stays pixel-perfect.
++ STYLE
 ```
 
 ---
 
-## Récapitulatif par projet
+## 6 — Socifun *(a déjà `/projects/socifun.jpg` + logo)*
 
-| Projet           | Prompt A                    | Prompt B                     | Prompt C                   |
-|------------------|-----------------------------|------------------------------|----------------------------|
-| Comusphere       | Multi-device hero           | Dashboard ELK                | Chat temps réel            |
-| Portfolio        | Split admin/public          | Analytics close-up           | Theme customizer           |
-| Arène Pokémon    | Battle screen               | Sélection Pokémon            | Mobile battle log          |
-| Socifun          | Game catalog grid           | Game detail page             | User profile avatar        |
-| Chatbot Discord  | Discord interface           | Terminal + architecture      | Nodes diagram              |
-| FabLab           | Admin dashboard             | NFC access panel             | Pi + Web split             |
+**Capture source :** le catalogue de jeux (celle en place) ; éventuellement une page jeu en plus.
 
----
-
-## Palette de référence du portfolio
-
-| Variable        | Dark mode      | Usage                  |
-|-----------------|----------------|------------------------|
-| Background      | `#080c10`      | Fond principal OLED    |
-| Surface         | `#0d1117`      | Cartes / panels        |
-| Border          | `rgba(255,255,255,0.06)` | Bordures subtiles |
-| Accent default  | `#10b981`      | Emerald (défaut)       |
-| Accent alt 1    | `#6366f1`      | Indigo                 |
-| Accent alt 2    | `#38bdf8`      | Blue                   |
-| Accent alt 3    | `#fb923c`      | Orange                 |
+```
+Present this gaming platform screenshot inside a MacBook Pro frame, front view, with
+the platform's logo (second attached image) floating as a small glass badge at the
+top-left corner of the composition. Do not alter the screenshots. + STYLE
+```
 
 ---
 
-## Alternatives sans IA (mockups avec vraies captures)
+## 7 — Chatbot IA Discord *(aucune image)*
 
-| Outil            | Usage                              |
-|------------------|------------------------------------|
-| shots.so         | Mockup navigateur/device premium   |
-| screely.com      | Navigateur propre en 1 clic        |
-| mockuphone.com   | Device frame mobile/desktop        |
-| brandbird.app    | Fond glassmorphism + export        |
+**Capture source :** ouvre Discord, une conversation où le bot répond (mentionne-le), idéalement avec le bot connecté en vocal visible dans la sidebar. Floute les pseudos si besoin (avant génération).
 
-**Workflow recommandé :**
-`capture d'écran → Screely (frame navigateur) → Brandbird (fond dark + glow)`
+```
+Place this Discord chat screenshot inside a dark desktop app window frame, floating
+over the background. Add a subtle audio-waveform motif glowing softly under the window
+(suggesting the bot's voice output), Discord blurple (#5865F2) as a secondary accent
+in the glow. Screenshot must stay pixel-perfect. + STYLE
+```
+
+*Pas de capture possible ?* Fallback génératif honnête : un **diagramme d'architecture** plutôt qu'une fausse UI :
+```
+Minimal dark architecture diagram: five glassmorphism pill nodes connected by thin
+glowing lines — "Discord" → "Node.js bot" → "OpenAI API" → "gTTS" → "Voice channel".
+Monospace labels, warm-gold glow on the connections. + STYLE
+```
+
+---
+
+## 8 — FabLab *(image générique actuelle à remplacer)*
+
+**Capture source :** si l'IHM PHP tourne encore quelque part, capture la table de gestion des adhérents ou les stats machines. Sinon, photo réelle du matériel (Raspberry Pi + lecteur NFC) si tu l'as.
+
+```
+Split composition: left, this web admin screenshot in a dark browser frame; right,
+this photo of a Raspberry Pi with NFC reader, softly lit. A thin glowing golden line
+connects the two, suggesting hardware-software communication. Neither image may be
+altered. + STYLE
+```
+
+*Fallback sans aucune capture* (diagramme, pas de fausse UI) :
+```
+Minimal dark IoT architecture diagram: glassmorphism nodes "NFC badge" → "Raspberry Pi
+(C++ UDP server)" → "PHP web admin" → "MySQL", connected by glowing lines, small door
+and machine icons, warm-gold accent. Monospace labels. + STYLE
+```
+
+---
+
+## Récap priorités
+
+| Projet | État image | Action |
+|---|---|---|
+| IDLA Back Office | ❌ aucune | **Priorité 1** — capture locale (données anonymisées) |
+| Chatbot Discord | ❌ aucune | Capture Discord ou diagramme |
+| FabLab | ⚠️ image générique | Capture IHM / photo matériel / diagramme |
+| Portfolio & CMS | ⚠️ capture d'avril | Refaire les captures (nouveau design) |
+| Marketplace, Vitrine, Pokémon, Socifun | ✓ vraie capture | Mockup optionnel pour unifier le style |
+
+Une fois générés : upload via **`/admin/projects`** (Firebase Storage) — ne pas committer
+dans `public/` pour ceux-là, l'admin gère très bien les images distantes.
+
+---
+
+## Alternatives sans IA (rendu propre en 2 minutes)
+
+| Outil | Usage |
+|---|---|
+| shots.so | Mockup navigateur/device premium |
+| screely.com | Frame navigateur en 1 clic |
+| brandbird.app | Fond + glow personnalisés |
+
+Workflow : `capture → Screely (frame) → Brandbird (fond #0a0a0a + glow gold)`.
