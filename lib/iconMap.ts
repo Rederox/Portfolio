@@ -19,7 +19,7 @@ import {
   SiClaude, SiMistralai, SiN8N, SiSpringboot, SiDiscord, SiRaspberrypi,
   SiElastic, SiJsonwebtokens, SiOpenjdk, SiApollographql, SiMapbox,
   SiGooglegemini, SiApachehadoop, SiPfsense, SiSynology, SiSendgrid,
-  SiChartdotjs,
+  SiChartdotjs, SiOpenssl, SiGoogleads,
 } from "react-icons/si";
 import { FaAws } from "react-icons/fa";
 import type { IconType } from "react-icons";
@@ -48,7 +48,7 @@ export const iconRegistry: Record<string, IconType> = {
   SiClaude, SiMistralai, SiN8N, SiSpringboot, SiDiscord, SiRaspberrypi,
   SiElastic, SiJsonwebtokens, SiOpenjdk, SiApollographql, SiMapbox,
   SiGooglegemini, SiApachehadoop, SiPfsense, SiSynology, SiSendgrid,
-  SiChartdotjs, FaAws,
+  SiChartdotjs, SiOpenssl, SiGoogleads, FaAws,
 };
 
 // ─── Normalized name → icon lookup (for Projects & Experience tech tags) ──────
@@ -192,6 +192,11 @@ const nameToIcon: Record<string, IconType> = {
   "mistral ai (mistral large)": SiMistralai,
   "chart.js": SiChartdotjs,
   chartjs: SiChartdotjs,
+  pfsense: SiPfsense,
+  synology: SiSynology,
+  "nas / synology": SiSynology,
+  openssl: SiOpenssl,
+  "sea (google ads, meta ads)": SiGoogleads,
 };
 
 /**
