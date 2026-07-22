@@ -174,14 +174,27 @@ export const projects = [
     title: "IDLA — Marketplace Immobilière",
     shortDesc: "Marketplace d'investissement immobilier créée de A à Z — en production.",
     description:
-      "Création complète de la marketplace (front + back) et migration du site vitrine WordPress → Next.js. Résultats mesurés : 3 000+ clics SEO organiques/mois, une centaine de conversions/mois via Lead Scoring et relances automatiques, 3 h/jour économisées grâce aux automatisations (Pipedrive, Zapier). IA Mistral intégrée pour les calculs financiers (taxes, rentabilité locative) et l'analyse de zones d'investissement.",
-    images: ["/projects/idla.jpg"],
+      "Création complète (front + back) de la marketplace d'investissement locatif : annonces avec calculs de rentabilité (brute / nette), recherche sur carte interactive, espace investisseur et CRM interne pour les équipes métier. IA Mistral intégrée pour l'automatisation des calculs financiers (taxes, rentabilité locative) et l'analyse de zones d'investissement. Lead Scoring et relances automatiques multicanaux (email, SMS) contribuant à une centaine de conversions par mois ; automatisations Pipedrive / Zapier économisant 3 h de travail manuel par jour.",
+    images: ["/projects/idla-marketplace.jpg"],
     video: "",
-    technologies: ["Next.js", "React", "TypeScript", "Tailwind CSS", "Prisma", "Node.js", "PHP"],
+    technologies: ["Next.js", "React", "TypeScript", "Tailwind CSS", "Prisma", "Node.js", "Mapbox"],
     github: "",
-    live: "https://investirdanslancien.fr",
+    live: "https://marketplace.investirdanslancien.fr/",
     featured: true,
     order: 0,
+  },
+  {
+    title: "IDLA — Site Vitrine",
+    shortDesc: "Migration WordPress → Next.js avec SEO technique avancé : 3 000+ clics organiques/mois.",
+    description:
+      "Migration complète du site vitrine de WordPress vers Next.js avec optimisation avancée du SEO technique (Core Web Vitals, structure, indexation) : plus de 3 000 clics organiques générés par mois et une centaine de conversions mensuelles. Refonte des parcours de conversion (prise de RDV, exploration de la marketplace) et gestion des campagnes d'acquisition SEA (Google Ads, Meta Ads).",
+    images: ["/projects/idla.jpg"],
+    video: "",
+    technologies: ["Next.js", "React", "TypeScript", "Tailwind CSS", "Node.js", "SEO Technique"],
+    github: "",
+    live: "https://investirdanslancien.fr/",
+    featured: true,
+    order: 1,
   },
   {
     title: "Comusphere",
@@ -196,8 +209,8 @@ export const projects = [
     technologies: ["Next.js", "TypeScript", "Tailwind CSS", "Redux", "Java", "Spring Boot", "Node.js", "WebSocket", "MySQL", "MongoDB", "JWT", "Docker", "ELK Stack", "Nginx"],
     github: "https://github.com/Comusphere",
     live: "",
-    featured: true,
-    order: 1,
+    featured: false,
+    order: 2,
   },
   {
     title: "Portfolio & Admin CMS",
@@ -212,7 +225,7 @@ export const projects = [
     github: "",
     live: "https://www.theivathan.fr",
     featured: false,
-    order: 2,
+    order: 3,
   },
   {
     title: "Arène Pokémon",
@@ -227,7 +240,7 @@ export const projects = [
     github: "https://github.com/Rederox/rpg",
     live: "https://pokearena-silk.vercel.app/",
     featured: false,
-    order: 3,
+    order: 4,
   },
   {
     title: "Socifun",
@@ -243,7 +256,7 @@ export const projects = [
     github: "https://github.com/Rederox/socifun",
     live: "https://socifun.theivathan.fr/",
     featured: false,
-    order: 4,
+    order: 5,
   },
   {
     title: "Chatbot IA Discord",
@@ -256,7 +269,7 @@ export const projects = [
     github: "",
     live: "",
     featured: false,
-    order: 5,
+    order: 6,
   },
   {
     title: "FabLab",
@@ -271,7 +284,7 @@ export const projects = [
     github: "https://github.com/Rederox/FabLab_Final",
     live: "",
     featured: false,
-    order: 6,
+    order: 7,
   },
 ];
 

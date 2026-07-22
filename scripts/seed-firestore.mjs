@@ -10,7 +10,7 @@ import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-// ─── Load .env.local (fallback .env) ─────────────────────────────────────────
+// ─── Load .env puis .env.local (le second surcharge le premier) ──────────────
 function loadEnv(file) {
   const envContent = readFileSync(resolve(__dirname, "..", file), "utf-8");
   for (const line of envContent.split("\n")) {
@@ -25,15 +25,18 @@ function loadEnv(file) {
   console.log(`✓ ${file} loaded`);
 }
 
-try {
-  loadEnv(".env.local");
-} catch {
+let envLoaded = false;
+for (const file of [".env", ".env.local"]) {
   try {
-    loadEnv(".env");
+    loadEnv(file);
+    envLoaded = true;
   } catch {
-    console.error("✗ Neither .env.local nor .env found");
-    process.exit(1);
+    /* fichier absent — ignoré */
   }
+}
+if (!envLoaded) {
+  console.error("✗ Neither .env nor .env.local found");
+  process.exit(1);
 }
 
 // ─── Firebase init ────────────────────────────────────────────────────────────

@@ -19,7 +19,7 @@ function loadEnv(file) {
     process.env[trimmed.slice(0, eqIdx).trim()] = trimmed.slice(eqIdx + 1).trim().replace(/^["']|["']$/g, "");
   }
 }
-try { loadEnv(".env.local"); } catch { loadEnv(".env"); }
+for (const f of [".env", ".env.local"]) { try { loadEnv(f); } catch { /* absent */ } }
 
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, getDocs } from "firebase/firestore";

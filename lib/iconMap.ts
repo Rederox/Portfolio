@@ -17,7 +17,7 @@ import {
   SiZapier, SiGnubash, SiGoogle, SiMeta,
   SiCanva,
   SiClaude, SiMistralai, SiN8N, SiSpringboot, SiDiscord, SiRaspberrypi,
-  SiElastic, SiJsonwebtokens, SiOpenjdk, SiApollographql,
+  SiElastic, SiJsonwebtokens, SiOpenjdk, SiApollographql, SiMapbox,
 } from "react-icons/si";
 import type { IconType } from "react-icons";
 
@@ -43,7 +43,7 @@ export const iconRegistry: Record<string, IconType> = {
   SiZapier, SiGnubash, SiGoogle, SiMeta,
   SiCanva,
   SiClaude, SiMistralai, SiN8N, SiSpringboot, SiDiscord, SiRaspberrypi,
-  SiElastic, SiJsonwebtokens, SiOpenjdk, SiApollographql,
+  SiElastic, SiJsonwebtokens, SiOpenjdk, SiApollographql, SiMapbox,
 };
 
 // ─── Normalized name → icon lookup (for Projects & Experience tech tags) ──────
@@ -180,6 +180,7 @@ const nameToIcon: Record<string, IconType> = {
   "openai api": SiOpenai,
   "graphql codegen": SiGraphql,
   firestore: SiFirebase,
+  mapbox: SiMapbox,
 };
 
 /**
