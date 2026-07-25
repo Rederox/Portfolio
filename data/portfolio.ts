@@ -284,7 +284,7 @@ export const projects = [
     shortDesc: "Bot Discord intelligent capable de répondre en texte et en voix, propulsé par l'IA OpenAI et intégrant Google Text-to-Speech en français.",
     description:
       "Ce chatbot IA pour Discord utilise le modèle text-davinci-003 d'OpenAI pour générer des réponses contextuelles en français. Il peut rejoindre et quitter des salons vocaux, synthétiser des réponses audio via gTTS, et interagir naturellement lorsqu'il est mentionné. Le principal défi technique a été l'intégration de @discordjs/voice avec le pipeline audio gTTS pour une restitution fluide en salon vocal. Le bot gère également les flux de conversation multi-tours et filtre les réponses avant diffusion.",
-    images: [],
+    images: ["/projects/chatbot-discord.png"],
     video: "",
     technologies: ["Node.js", "Discord.js", "OpenAI API", "gTTS", "@discordjs/voice", "@discordjs/opus"],
     github: "",
@@ -297,9 +297,7 @@ export const projects = [
     shortDesc: "Système de gestion d'un FabLab : accès par badge NFC, contrôle des machines, IHM d'administration et statistiques d'utilisation.",
     description:
       "Ce projet consiste en l'installation d'un système de gestion complet pour un FabLab. \n\nIl permet de gérer l'accès aux locaux via une porte connectée et des badges NFC remis à l'inscription. \n\nUne fois à l'intérieur, les membres peuvent allumer les machines et consulter leurs notices d'utilisation grâce à la technologie NFC. Un système d'appel interne facilite la communication entre le personnel. L'administrateur dispose d'une IHM web pour gérer les adhérents (ajout/suppression/remplacement de badge), les données téléphoniques, l'activation des services serveur, ainsi que les statistiques d'activité et de consommation électrique des machines. \n\nL'architecture repose sur des Raspberry Pi en réseau local, avec des serveurs UDP codés en C++ côté Raspberry et des clients UDP intégrés en PHP dans l'interface web.",
-    images: [
-      "https://firebasestorage.googleapis.com/v0/b/theivathan-e067a.firebasestorage.app/o/projects%2F1775509960755_C-est-quoi-un-fablab-TITRE.webp?alt=media&token=fab2ae5f-80c6-4c37-9392-2f1315ea65e7",
-    ],
+    images: ["/projects/fablab-diagram.png"],
     video: "",
     technologies: ["Raspberry Pi", "C++", "PHP", "NFC", "HTML/CSS", "MySQL", "JavaScript", "Socket UDP"],
     github: "https://github.com/Rederox/FabLab_Final",
