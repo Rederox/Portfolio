@@ -15,9 +15,7 @@ const jsonLd = {
   url: "https://www.theivathan.fr",
   email: "theivathan14@gmail.com",
   telephone: "+33784968840",
-  jobTitle: "Développeur Full Stack",
-  description:
-    "Développeur Full Stack spécialisé React/Next.js, IA intégrée et DevOps. Marketplace créée de A à Z, 3 000+ clics SEO organiques/mois, automatisations qui économisent 3 h de travail par jour.",
+  jobTitle: "Tech Lead & Développeur Full Stack",
   image: "https://www.theivathan.fr/me.jpg",
   address: {
     "@type": "PostalAddress",
@@ -27,8 +25,7 @@ const jsonLd = {
   },
   worksFor: {
     "@type": "Organization",
-    name: "IDLA — Investir dans l'ancien",
-    url: "https://investirdanslancien.fr",
+    name: "Vectorive",
   },
   alumniOf: [
     {
@@ -43,9 +40,8 @@ const jsonLd = {
     "https://www.linkedin.com/in/theivathan/",
   ],
   knowsAbout: [
-    "React", "Next.js", "TypeScript", "Node.js", "PHP", "Python",
-    "Docker", "DevOps", "Intelligence Artificielle", "PostgreSQL",
-    "SEO technique", "Automatisation", "Mistral AI",
+    "React", "Next.js", "TypeScript", "Node.js", "Go", "Python",
+    "MongoDB", "Docker", "AWS", "Intelligence Artificielle",
   ],
 };
 

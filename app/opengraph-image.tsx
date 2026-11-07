@@ -71,7 +71,7 @@ export default function OgImage() {
             {personal.role}
           </div>
           <div style={{ display: "flex", marginTop: 14, fontSize: 24, color: "#8a8a8a" }}>
-            React · Next.js · TypeScript · Node.js · Docker · Mistral AI
+            React · Next.js · TypeScript · Go · Python · Docker
           </div>
         </div>
 

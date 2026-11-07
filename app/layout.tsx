@@ -30,37 +30,26 @@ const BASE_URL = "https://www.theivathan.fr";
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
-  title: "Theivathan Thevaraj — Développeur Full Stack · React, Next.js, IA & DevOps",
+  title: "Theivathan Thevaraj — Tech Lead & Développeur Full Stack",
   description:
-    "Développeur Full Stack (React, Next.js, TypeScript, Node.js) spécialisé IA & DevOps. Marketplace créée de A à Z, 3 000+ clics SEO/mois, automatisations IA. Basé à Argenteuil (95) — disponible.",
-  keywords: [
-    "développeur full stack", "React", "Next.js", "TypeScript", "Node.js",
-    "IA", "DevOps", "Docker", "développeur Argenteuil", "développeur Île-de-France",
-  ],
+    "Portfolio de Theivathan Thevaraj, Tech Lead et développeur full stack (React, Next.js, Go, Python). Expériences, projets et contact.",
   authors: [{ name: "Theivathan Thevaraj", url: BASE_URL }],
   creator: "Theivathan Thevaraj",
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: { index: true, follow: true },
-  },
   alternates: {
     canonical: BASE_URL,
   },
   openGraph: {
-    title: "Theivathan Thevaraj — Développeur Full Stack · IA & DevOps",
-    description:
-      "Marketplace créée de A à Z, 3 000+ clics SEO/mois, automatisations IA qui économisent 3 h/jour. React, Next.js, TypeScript, Docker. Disponible.",
+    title: "Theivathan Thevaraj — Tech Lead & Développeur Full Stack",
+    description: "Tech Lead et développeur full stack (React, Next.js, Go, Python). Expériences, projets et contact.",
     url: BASE_URL,
-    siteName: "Theivathan Thevaraj — Portfolio",
+    siteName: "Theivathan Thevaraj",
     type: "website",
     locale: "fr_FR",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Theivathan Thevaraj — Développeur Full Stack · IA & DevOps",
-    description:
-      "Marketplace créée de A à Z, 3 000+ clics SEO/mois, automatisations IA. React, Next.js, TypeScript. Disponible.",
+    title: "Theivathan Thevaraj — Tech Lead & Développeur Full Stack",
+    description: "Tech Lead et développeur full stack (React, Next.js, Go, Python). Expériences, projets et contact.",
   },
 };
 
