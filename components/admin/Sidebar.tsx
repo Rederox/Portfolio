@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import {
   FiGrid, FiFolder, FiBriefcase, FiBookOpen, FiCode,
   FiDroplet, FiBarChart2, FiLogOut, FiExternalLink, FiX,
-  FiClipboard, FiChevronsLeft, FiChevronsRight,
+  FiClipboard, FiFileText, FiChevronsLeft, FiChevronsRight,
 } from "react-icons/fi";
 import { useAuth } from "@/lib/auth-context";
 
@@ -15,6 +15,7 @@ const navItems = [
   { label: "Expérience",    href: "/admin/experience", icon: FiBriefcase },
   { label: "Formation",     href: "/admin/education",  icon: FiBookOpen },
   { label: "Compétences",   href: "/admin/skills",     icon: FiCode },
+  { label: "CV",            href: "/admin/cv",         icon: FiFileText },
   { label: "Thème",         href: "/admin/theme",      icon: FiDroplet },
   { label: "Analytics",     href: "/admin/analytics",  icon: FiBarChart2 },
   { label: "Candidatures",  href: "/admin/jobs",       icon: FiClipboard },

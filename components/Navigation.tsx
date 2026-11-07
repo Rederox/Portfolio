@@ -4,10 +4,10 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { HiX, HiMenuAlt3 } from "react-icons/hi";
 import { FiSun, FiMoon, FiChevronDown, FiFileText, FiZap } from "react-icons/fi";
-import { personal } from "@/data/portfolio";
 import { trackEvent } from "@/lib/analytics";
 import { useMode } from "@/lib/mode-context";
 import CvDownloadMenu from "@/components/CvDownloadMenu";
+import { useCv } from "@/hooks/useFirestore";
 
 const navLinks = [
   { label: "Profil",     href: "#about" },
@@ -23,6 +23,7 @@ export default function Navigation() {
   const [progress,    setProgress]   = useState(0);
   const [activeHash,  setActiveHash] = useState("#home");
   const { mode, toggleMode }         = useMode();
+  const cv                           = useCv();
 
   useEffect(() => {
     const onScroll = () => {
@@ -244,8 +245,10 @@ export default function Navigation() {
               ))}
               <div className={`mx-4 my-2 h-px ${mode === "light" ? "bg-black/8" : "bg-[#1e1e1e]"}`} />
               <a
-                href={personal.cv}
+                href={cv.classic}
                 download
+                target="_blank"
+                rel="noopener noreferrer"
                 onClick={() => { setMobileOpen(false); trackEvent("cv_download"); }}
                 className="flex items-center justify-center gap-2 accent-bg text-white font-bold text-sm py-3 px-4 rounded-xl transition-opacity hover:opacity-88"
               >
@@ -253,8 +256,10 @@ export default function Navigation() {
                 CV Classique ↓
               </a>
               <a
-                href={personal.cvAts}
+                href={cv.ats}
                 download
+                target="_blank"
+                rel="noopener noreferrer"
                 onClick={() => { setMobileOpen(false); trackEvent("cv_download"); }}
                 className={`flex items-center justify-center gap-2 font-bold text-sm py-3 px-4 mt-1.5 rounded-xl border transition-colors ${
                   mode === "light"

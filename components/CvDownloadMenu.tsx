@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiFileText, FiZap } from "react-icons/fi";
-import { personal } from "@/data/portfolio";
+import { useCv } from "@/hooks/useFirestore";
 import { trackEvent } from "@/lib/analytics";
 import { useMode } from "@/lib/mode-context";
 
@@ -12,14 +12,12 @@ const CV_OPTIONS = [
     key: "classic",
     label: "CV Classique",
     desc: "Version design, à envoyer directement",
-    href: personal.cv,
     icon: FiFileText,
   },
   {
     key: "ats",
     label: "CV ATS",
     desc: "Optimisé pour les logiciels de tri (ATS)",
-    href: personal.cvAts,
     icon: FiZap,
   },
 ] as const;
@@ -34,6 +32,7 @@ export default function CvDownloadMenu({
   const [open, setOpen] = useState(false);
   const { mode } = useMode();
   const rootRef = useRef<HTMLDivElement>(null);
+  const cv = useCv();
 
   useEffect(() => {
     if (!open) return;
@@ -65,11 +64,13 @@ export default function CvDownloadMenu({
                 : "bg-[#0d0d0d]/98 backdrop-blur-2xl border-[#1e1e1e]"
             }`}
           >
-            {CV_OPTIONS.map(({ key, label, desc, href, icon: Icon }) => (
+            {CV_OPTIONS.map(({ key, label, desc, icon: Icon }) => (
               <a
                 key={key}
-                href={href}
+                href={cv[key]}
                 download
+                target="_blank"
+                rel="noopener noreferrer"
                 onClick={() => {
                   trackEvent("cv_download");
                   setOpen(false);
