@@ -6,6 +6,8 @@ import {
   subscribeExperience,
   subscribeEducation,
   subscribeSkills,
+  subscribeCvSettings,
+  type CvSettings,
   type Project,
   type Experience,
   type Education,
@@ -17,6 +19,7 @@ import {
   experiences as localExperiences,
   education as localEducation,
   skillCategories as localSkills,
+  personal,
 } from "@/data/portfolio";
 
 // ─── Projects ─────────────────────────────────────────────────────────────────
@@ -89,4 +92,26 @@ export function useSkills() {
   }, []);
 
   return { data, loading };
+}
+
+// ─── CV ───────────────────────────────────────────────────────────────────────
+
+/** URLs des CV à télécharger : Firestore (uploadés depuis l'admin) ou PDF statiques par défaut */
+export function useCv() {
+  const [settings, setSettings] = useState<CvSettings>({});
+
+  useEffect(() => {
+    if (!isFirebaseConfigured) return;
+    try {
+      return subscribeCvSettings(setSettings);
+    } catch {
+      // Firestore indisponible → on garde les PDF statiques
+    }
+  }, []);
+
+  return {
+    classic: settings.classic?.url ?? personal.cv,
+    ats: settings.ats?.url ?? personal.cvAts,
+    settings,
+  };
 }

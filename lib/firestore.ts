@@ -318,3 +318,27 @@ export const saveThemeSettings = (s: ThemeSettings) => {
   if (s.customAccent !== undefined) data.customAccent = s.customAccent;
   return setDoc(doc(getDb(), "settings", "theme"), data, { merge: true });
 };
+
+// ─── CV ───────────────────────────────────────────────────────────────────────
+
+export type CvKind = "classic" | "ats";
+
+export interface CvFile {
+  url: string;
+  name: string;
+  updatedAt: string;
+}
+
+export type CvSettings = Partial<Record<CvKind, CvFile>>;
+
+export const subscribeCvSettings = (cb: (s: CvSettings) => void): Unsubscribe =>
+  onSnapshot(doc(getDb(), "settings", "cv"), (snap) =>
+    cb(snap.exists() ? (snap.data() as CvSettings) : {})
+  );
+
+export const saveCvFile = (kind: CvKind, file: CvFile) =>
+  setDoc(doc(getDb(), "settings", "cv"), { [kind]: file }, { merge: true });
+
+/** Revient au PDF statique par défaut (dans /public) */
+export const resetCvFile = (kind: CvKind) =>
+  setDoc(doc(getDb(), "settings", "cv"), { [kind]: deleteField() }, { merge: true });
