@@ -208,7 +208,7 @@ export default function Hero() {
               className="mt-7 max-w-md leading-relaxed text-sm"
               style={{ color: "var(--text-secondary)" }}
             >
-              {personal.bio}
+              {personal.tagline}
             </motion.p>
 
             <motion.div
