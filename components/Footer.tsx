@@ -12,9 +12,9 @@ const socials: { icon: React.ElementType; href: string; label: string; event: Ev
 
 const navLinks = [
   { label: "Profil",     href: "#about" },
-  { label: "Skills",     href: "#skills" },
   { label: "Expérience", href: "#experience" },
   { label: "Projets",    href: "#projects" },
+  { label: "Skills",     href: "#skills" },
   { label: "Contact",    href: "#contact" },
 ];
 
@@ -78,7 +78,7 @@ export default function Footer() {
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
             aria-label="Retour en haut"
-            className="w-7 h-7 rounded-full flex items-center justify-center transition-all"
+            className="w-7 h-7 rounded-full flex items-center justify-center transition-colors duration-150"
             style={{
               border: "1px solid var(--card-border)",
               color:  "var(--text-secondary)",

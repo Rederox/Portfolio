@@ -38,6 +38,11 @@
 
   /* Alias border */
   --border-subtle: rgba(255, 248, 235, 0.05);
+
+  /* Surfaces légèrement teintées (cartes, puces, survols) */
+  --tint-1: rgba(255, 248, 235, 0.02);
+  --tint-2: rgba(255, 248, 235, 0.03);
+  --tint-3: rgba(255, 248, 235, 0.04);
 }
 
 /* ── Reset ─────────────────────────────────────────────────────────────────── */
@@ -241,7 +246,6 @@ a, button, [role="button"] { cursor: pointer; }
 .hero-name-outlined {
   -webkit-text-stroke: 1px rgba(201, 169, 110, 0.5);
   color: transparent;
-  text-shadow: 0 0 120px rgba(var(--accent-rgb), 0.15);
 }
 
 /* ── JetBrains Mono utility ─────────────────────────────────────────────────── */
@@ -435,6 +439,9 @@ textarea.input-float:not(:placeholder-shown) + .input-float-label {
   --text-primary:   #1A1714;
   --text-secondary: #7A7068;
   --border-subtle:  rgba(26, 23, 20, 0.07);
+  --tint-1: rgba(26, 23, 20, 0.02);
+  --tint-2: rgba(26, 23, 20, 0.03);
+  --tint-3: rgba(26, 23, 20, 0.045);
 }
 
 [data-mode="light"] body {

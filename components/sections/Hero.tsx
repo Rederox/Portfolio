@@ -1,7 +1,7 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
-import { FiGithub, FiLinkedin, FiInstagram, FiMail, FiArrowDown, FiDownload, FiChevronDown } from "react-icons/fi";
+import { motion } from "framer-motion";
+import { FiGithub, FiLinkedin, FiInstagram, FiMail, FiDownload, FiChevronDown } from "react-icons/fi";
 import Image from "next/image";
 import { personal, stats as sharedStats } from "@/data/portfolio";
 import { trackEvent, type EventType } from "@/lib/analytics";
@@ -79,61 +79,14 @@ function HeroBg({ style }: { style: string }) {
 
 export default function Hero() {
   const { settings } = useTheme();
-  const { scrollY } = useScroll();
-
-  const bgY    = useTransform(scrollY, [0, 700], [0, 140]);
-  const photoY = useTransform(scrollY, [0, 700], [0, 60]);
 
   return (
     <section id="home" className="relative min-h-screen flex flex-col overflow-hidden">
 
-      {/* ── Aurora blobs — Warm Gold ─────────────────────────────────────── */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden>
-        {/* Blob or principal — haut centre */}
-        <div
-          className="blob-1 absolute rounded-full"
-          style={{
-            width: 800, height: 800,
-            top: "-25%", left: "20%",
-            background: "radial-gradient(circle, rgba(201,169,110,0.07) 0%, transparent 60%)",
-            filter: "blur(80px)",
-          }}
-        />
-        {/* Blob ambré — droite */}
-        <div
-          className="aurora-blob absolute rounded-full"
-          style={{
-            width: 600, height: 600,
-            top: "10%", right: "-10%",
-            background: "radial-gradient(circle, rgba(180,130,60,0.05) 0%, transparent 65%)",
-            filter: "blur(90px)",
-          }}
-        />
-        {/* Blob or pâle — bas gauche */}
-        <div
-          className="blob-3 absolute rounded-full"
-          style={{
-            width: 500, height: 500,
-            bottom: "0%", left: "-8%",
-            background: "radial-gradient(circle, rgba(220,180,90,0.04) 0%, transparent 65%)",
-            filter: "blur(85px)",
-          }}
-        />
-      </div>
-
-      {/* ── Ambient glow (classique) ──────────────────────────────────────── */}
-      <div className="hero-glow" />
-
       {/* ── Fond contrôlé depuis l'admin ──────────────────────────────────── */}
-      <motion.div className="absolute inset-0 pointer-events-none" style={{ y: bgY }}>
+      <div className="absolute inset-0 pointer-events-none">
         <HeroBg style={settings.bgStyle} />
-      </motion.div>
-
-      {/* ── Ligne décorative sous la nav ──────────────────────────────────── */}
-      <div
-        className="absolute top-[72px] inset-x-0 h-px pointer-events-none"
-        style={{ background: "linear-gradient(90deg, transparent 0%, rgba(var(--accent-rgb),0.06) 40%, rgba(var(--accent-rgb),0.06) 60%, transparent 100%)" }}
-      />
+      </div>
 
       {/* ── Bottom fade ───────────────────────────────────────────────────── */}
       <div
@@ -153,20 +106,13 @@ export default function Hero() {
         >
           {personal.available && (
             <span
-              className="inline-flex items-center gap-2 text-[0.68rem] rounded-full px-3.5 py-1 font-mono-jb tracking-[0.14em] uppercase"
-              style={{
-                color: "var(--accent)",
-                backgroundColor: "rgba(201,169,110,0.08)",
-                border: "1px solid rgba(201,169,110,0.2)",
-              }}
+              className="inline-flex items-center gap-2 text-xs font-mono-jb"
+              style={{ color: "var(--text-secondary)" }}
             >
-              <span className="w-1 h-1 rounded-full animate-pulse" style={{ backgroundColor: "var(--accent)" }} />
-              Disponible
+              <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "var(--accent)" }} />
+              Disponible pour un poste
             </span>
           )}
-          <span className="text-[0.7rem] tracking-[0.2em] font-mono-jb ml-auto" style={{ color: "var(--text-secondary)" }}>
-            {new Date().getFullYear()}
-          </span>
         </motion.div>
 
         {/* ── Contenu principal ─────────────────────────────────────────────── */}
@@ -178,7 +124,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="text-[0.7rem] tracking-[0.35em] uppercase font-mono-jb mb-5"
+              className="text-sm font-mono-jb mb-5"
               style={{ color: "var(--text-secondary)" }}
             >
               {personal.role}
@@ -205,7 +151,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.45 }}
-              className="mt-7 max-w-md leading-relaxed text-sm"
+              className="mt-8 max-w-lg leading-relaxed text-[15px]"
               style={{ color: "var(--text-secondary)" }}
             >
               {personal.bio}
@@ -233,10 +179,7 @@ export default function Hero() {
               />
               <a
                 href="#contact"
-                className="inline-flex items-center gap-2 font-medium px-7 py-3 rounded-xl text-sm transition-all"
-                style={{ border: "1px solid var(--card-border)", color: "var(--text-secondary)" }}
-                onMouseEnter={e => { e.currentTarget.style.color = "var(--accent)"; e.currentTarget.style.borderColor = "rgba(201,169,110,0.4)"; }}
-                onMouseLeave={e => { e.currentTarget.style.color = "var(--text-secondary)"; e.currentTarget.style.borderColor = "var(--card-border)"; }}
+                className="inline-flex items-center gap-2 font-medium px-7 py-3 rounded-xl text-sm transition-colors duration-150 text-[var(--text-primary)] border border-[var(--card-border)] hover:bg-[var(--tint-3)]"
               >
                 Me contacter
               </a>
@@ -251,10 +194,7 @@ export default function Hero() {
                   rel="noopener noreferrer"
                   aria-label={label}
                   onClick={() => trackEvent(event)}
-                  className="w-9 h-9 flex items-center justify-center rounded-full transition-all"
-                  style={{ color: "var(--text-secondary)" }}
-                  onMouseEnter={e => (e.currentTarget.style.color = "var(--accent)")}
-                  onMouseLeave={e => (e.currentTarget.style.color = "var(--text-secondary)")}
+                  className="w-9 h-9 flex items-center justify-center rounded-full transition-colors duration-150 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                 >
                   <Icon size={16} />
                 </a>
@@ -263,36 +203,16 @@ export default function Hero() {
           </div>
 
           {/* Droite — photo */}
-          <motion.div style={{ y: photoY }} className="lg:w-72 xl:w-80 flex-shrink-0 mx-auto lg:mx-0">
+          <div className="lg:w-72 xl:w-80 flex-shrink-0 mx-auto lg:mx-0">
           <motion.div
-            initial={{ opacity: 0, scale: 0.92, x: 40 }}
-            animate={{ opacity: 1, scale: 1, x: 0 }}
-            transition={{ duration: 1, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
           >
             <div className="relative">
               <div
-                className="absolute -right-4 top-8 bottom-8 w-px"
-                style={{ background: "linear-gradient(180deg, transparent, rgba(var(--accent-rgb),0.2), transparent)" }}
-              />
-              <div
-                className="absolute -right-8 top-16 bottom-16 w-px"
-                style={{ background: "linear-gradient(180deg, transparent, rgba(var(--accent-rgb),0.08), transparent)" }}
-              />
-
-              {/* Glow derrière la photo */}
-              <div
-                className="absolute inset-0 rounded-[1.75rem] pointer-events-none"
-                style={{
-                  boxShadow: "0 0 60px rgba(var(--accent-rgb), 0.12), 0 0 120px rgba(var(--accent-rgb), 0.05)",
-                  zIndex: -1,
-                }}
-              />
-
-              <div
                 className="relative aspect-[3/4] rounded-[1.75rem] overflow-hidden"
-                style={{ border: "1px solid rgba(var(--accent-rgb), 0.12)" }}
+                style={{ border: "1px solid var(--card-border)" }}
               >
                 <Image src="/me.jpg" alt={personal.name} fill className="object-cover object-top" priority />
                 <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/70 to-transparent" />
@@ -307,16 +227,15 @@ export default function Hero() {
                       border: "1px solid rgba(255,255,255,0.12)",
                     }}
                   >
-                    <span className="text-white font-bold text-xs leading-none">{personal.age} ans</span>
+                    <span className="text-white font-medium text-xs leading-none">{personal.age} ans</span>
                     <span className="w-px h-3 bg-white/20" />
                     <span className="text-white/60 text-xs">{personal.location}</span>
                   </div>
-                  <span className="text-base">🇫🇷</span>
                 </div>
               </div>
             </div>
           </motion.div>
-          </motion.div>
+          </div>
         </div>
 
         {/* ── Barre bas ─────────────────────────────────────────────────────── */}
@@ -326,27 +245,17 @@ export default function Hero() {
           transition={{ delay: 1.2 }}
           className="flex items-center gap-6 pt-10 mt-auto"
         >
-          <div className="flex items-center gap-2.5" style={{ color: "var(--text-secondary)" }}>
-            <motion.div
-              animate={{ y: [0, 6, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-            >
-              <FiArrowDown size={13} />
-            </motion.div>
-            <span className="text-[0.65rem] tracking-[0.25em] font-mono-jb uppercase">Scroll</span>
-          </div>
+          <div className="hidden sm:block flex-1 h-px" style={{ backgroundColor: "var(--border-subtle)" }} />
 
-          <div className="flex-1 h-px" style={{ backgroundColor: "var(--border-subtle)" }} />
-
-          <div className="hidden sm:flex items-center gap-5">
+          <div className="flex items-center gap-4 sm:gap-5">
             {stats.map((s, i) => (
               <div key={i} className="flex items-center gap-5">
                 {i > 0 && <div className="w-px h-5" style={{ backgroundColor: "var(--card-border)" }} />}
-                <div className="text-right">
-                  <p className="font-mono-jb font-bold text-base leading-none" style={{ color: "var(--accent)" }}>
+                <div className="sm:text-right">
+                  <p className="font-mono-jb font-medium text-base leading-none tabular-nums" style={{ color: "var(--text-primary)" }}>
                     {s.value}
                   </p>
-                  <p className="text-[0.65rem] mt-0.5 font-mono-jb" style={{ color: "var(--text-secondary)" }}>{s.label}</p>
+                  <p className="text-xs mt-1 font-mono-jb" style={{ color: "var(--text-secondary)" }}>{s.label}</p>
                 </div>
               </div>
             ))}

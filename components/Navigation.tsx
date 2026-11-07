@@ -81,14 +81,6 @@ export default function Navigation() {
           className="h-full accent-bg transition-none"
           style={{ width: `${progress}%` }}
         />
-        {progress > 2 && (
-          <div
-            className="absolute top-[6px] text-[10px] font-bold tabular-nums leading-none px-1.5 py-0.5 rounded-full accent-bg text-white"
-            style={{ left: `calc(${progress}% - 18px)` }}
-          >
-            {Math.round(progress)}%
-          </div>
-        )}
       </div>
 
       <div className="fixed inset-x-0 top-0 z-50 h-[72px] flex items-start justify-center pt-5 pointer-events-none">
@@ -118,7 +110,7 @@ export default function Navigation() {
           className="pointer-events-auto"
         >
           {/* Desktop */}
-          <div className={`hidden md:flex items-center gap-0.5 rounded-full px-3 py-2.5 transition-all duration-300 ${activePillBg}`}>
+          <div className={`hidden md:flex items-center gap-0.5 rounded-full px-3 py-2.5 transition-colors duration-300 ${activePillBg}`}>
             {navLinks.map((link) => {
               const isActive = activeHash === link.href;
               return (
@@ -151,7 +143,7 @@ export default function Navigation() {
           </div>
 
           {/* Mobile */}
-          <div className={`md:hidden flex items-center gap-3 rounded-full px-4 py-2.5 transition-all duration-300 ${activePillBg}`}>
+          <div className={`md:hidden flex items-center gap-3 rounded-full px-4 py-2.5 transition-colors duration-300 ${activePillBg}`}>
             <a
               href="#home"
               className="font-display font-extrabold text-sm"
@@ -185,7 +177,7 @@ export default function Navigation() {
         >
           <button
             onClick={toggleMode}
-            className="w-9 h-9 rounded-full flex items-center justify-center border transition-all duration-200 backdrop-blur-xl"
+            className="w-9 h-9 rounded-full flex items-center justify-center border transition-colors duration-150 backdrop-blur-xl"
             style={mode === "light"
               ? { borderColor: "rgba(0,0,0,0.1)", color: "var(--text-secondary)", backgroundColor: "rgba(255,255,255,0.5)" }
               : { borderColor: "#242424", color: "#64748b", backgroundColor: "rgba(13,13,13,0.65)" }
@@ -202,7 +194,7 @@ export default function Navigation() {
             trigger={({ toggle }) => (
               <button
                 onClick={toggle}
-                className="inline-flex items-center gap-1.5 text-[0.83rem] font-bold text-white px-5 py-2.5 rounded-full accent-bg accent-glow transition-all hover:opacity-88"
+                className="inline-flex items-center gap-1.5 text-[0.83rem] font-semibold px-5 py-2.5 rounded-full accent-bg text-[#0A0806] transition-opacity duration-150 hover:opacity-90"
               >
                 CV ↓
                 <FiChevronDown size={12} />
@@ -234,7 +226,7 @@ export default function Navigation() {
                   key={link.href}
                   href={link.href}
                   onClick={() => setMobileOpen(false)}
-                  className={`flex items-center transition-all px-4 py-3 rounded-xl text-sm font-medium ${
+                  className={`flex items-center transition-colors duration-150 px-4 py-3 rounded-xl text-sm font-medium ${
                     mode === "light"
                       ? "text-[#555] hover:text-[#111] hover:bg-black/5"
                       : "text-slate-300 hover:text-white hover:bg-white/5"
@@ -250,7 +242,7 @@ export default function Navigation() {
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => { setMobileOpen(false); trackEvent("cv_download"); }}
-                className="flex items-center justify-center gap-2 accent-bg text-white font-bold text-sm py-3 px-4 rounded-xl transition-opacity hover:opacity-88"
+                className="flex items-center justify-center gap-2 accent-bg text-[#0A0806] font-semibold text-sm py-3 px-4 rounded-xl transition-opacity duration-150 hover:opacity-90"
               >
                 <FiFileText size={14} />
                 CV Classique ↓
@@ -261,7 +253,7 @@ export default function Navigation() {
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => { setMobileOpen(false); trackEvent("cv_download"); }}
-                className={`flex items-center justify-center gap-2 font-bold text-sm py-3 px-4 mt-1.5 rounded-xl border transition-colors ${
+                className={`flex items-center justify-center gap-2 font-semibold text-sm py-3 px-4 mt-1.5 rounded-xl border transition-colors ${
                   mode === "light"
                     ? "border-black/10 text-[#555] hover:bg-black/5"
                     : "border-[#242424] text-slate-300 hover:bg-white/5"

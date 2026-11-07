@@ -89,7 +89,7 @@ export default function Contact() {
   };
 
   return (
-    <section id="contact" className="py-20 sm:py-28 px-4 sm:px-6">
+    <section id="contact" className="pt-20 sm:pt-24 pb-20 sm:pb-24 px-4 sm:px-6">
       <div className="max-w-6xl mx-auto">
 
         {/* ── Section label ────────────────────────────────────────────────── */}
@@ -98,14 +98,14 @@ export default function Contact() {
           initial="hidden"
           whileInView="show"
           viewport={{ once: true }}
-          className="flex items-center gap-4 mb-10 sm:mb-14"
+          className="flex items-center gap-4 mb-8 sm:mb-12"
         >
-          <h2 className="font-display font-bold text-xs tracking-[0.3em] uppercase"
+          <h2 className="font-display font-medium text-xl sm:text-2xl"
             style={{ color: "var(--text-primary)" }}>
             Contact
           </h2>
           <div className="flex-1 h-px" style={{ backgroundColor: "var(--card-border)" }} />
-          <span className="font-mono-jb text-[0.7rem]" style={{ color: "var(--accent)" }}>06</span>
+          <span className="font-mono-jb text-xs tabular-nums" style={{ color: "var(--text-secondary)" }}>06</span>
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
@@ -117,10 +117,10 @@ export default function Contact() {
               initial="hidden"
               whileInView="show"
               viewport={{ once: true }}
-              className="font-display font-bold text-4xl sm:text-5xl lg:text-[3.5rem] leading-[1.0] mb-5"
+              className="font-display font-medium text-4xl sm:text-5xl leading-[1.05] tracking-[-0.02em] mb-5"
               style={{ color: "var(--text-primary)" }}
             >
-              Travaillons<br />ensemble.
+              Travaillons<br />ensemble
             </motion.h2>
 
             <motion.p
@@ -128,7 +128,7 @@ export default function Contact() {
               initial="hidden"
               whileInView="show"
               viewport={{ once: true }}
-              className="text-sm leading-relaxed mb-8 max-w-sm"
+              className="text-[15px] leading-relaxed mb-8 max-w-sm"
               style={{ color: "var(--text-secondary)" }}
             >
               Une opportunité, une mission freelance, ou juste envie d&apos;échanger ?
@@ -144,18 +144,16 @@ export default function Contact() {
               viewport={{ once: true }}
               onClick={() => trackEvent("email_click")}
               className="group inline-flex items-center gap-3 mb-10"
-              whileHover={{ x: 4 }}
-              transition={{ duration: 0.2 }}
             >
               <span
-                className="font-display font-bold text-base sm:text-xl group-hover:opacity-70 transition-opacity break-all"
+                className="font-display font-medium text-base sm:text-xl group-hover:opacity-70 transition-opacity duration-150 break-all"
                 style={{ color: "var(--text-primary)" }}
               >
                 {personal.email}
               </span>
               <FiArrowUpRight
                 size={20}
-                className="flex-shrink-0 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                className="flex-shrink-0 transition-transform duration-150 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
                 style={{ color: "var(--accent)" }}
               />
             </motion.a>
@@ -168,7 +166,7 @@ export default function Contact() {
               viewport={{ once: true }}
               className="mb-8"
             >
-              <p className="text-[0.62rem] tracking-widest uppercase font-semibold mb-1"
+              <p className="text-sm mb-1"
                 style={{ color: "var(--text-secondary)" }}>
                 Téléphone
               </p>
@@ -190,28 +188,17 @@ export default function Contact() {
               className="flex items-center gap-2"
             >
               {socials.map(({ icon: Icon, href, label, event }) => (
-                <motion.a
+                <a
                   key={label}
                   href={href}
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={label}
                   onClick={() => trackEvent(event)}
-                  whileHover={{ scale: 1.1, y: -2 }}
-                  whileTap={{ scale: 0.93 }}
-                  className="w-10 h-10 rounded-xl flex items-center justify-center"
-                  style={{
-                    background: "rgba(255,255,255,0.04)",
-                    border:     "1px solid rgba(255,255,255,0.08)",
-                    backdropFilter: "blur(8px)",
-                    color:      "var(--text-secondary)",
-                    transition: "border-color 0.2s ease, color 0.2s ease",
-                  }}
-                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--accent)"; e.currentTarget.style.color = "var(--accent)"; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"; e.currentTarget.style.color = "var(--text-secondary)"; }}
+                  className="w-10 h-10 rounded-xl flex items-center justify-center transition-colors duration-150 text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)] hover:border-[var(--card-border)] bg-[var(--tint-1)]"
                 >
                   <Icon size={16} />
-                </motion.a>
+                </a>
               ))}
             </motion.div>
           </div>
@@ -224,31 +211,27 @@ export default function Contact() {
             viewport={{ once: true }}
             className="rounded-2xl p-6 sm:p-8"
             style={{
-              background: "rgba(255,255,255,0.03)",
-              border: "1px solid rgba(255,255,255,0.07)",
-              backdropFilter: "blur(16px)",
+              background: "var(--tint-1)",
+              border: "1px solid var(--border-subtle)",
             }}
           >
             <AnimatePresence mode="wait">
               {status === "sent" ? (
                 <motion.div
                   key="success"
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0 }}
                   className="flex flex-col items-center justify-center gap-4 py-12 text-center"
                 >
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: "spring", stiffness: 260, damping: 18, delay: 0.1 }}
-                    className="w-14 h-14 rounded-full flex items-center justify-center"
-                    style={{ backgroundColor: "rgba(var(--accent-rgb),0.15)", border: "1px solid rgba(var(--accent-rgb),0.3)" }}
+                  <div
+                    className="w-12 h-12 rounded-full flex items-center justify-center"
+                    style={{ border: "1px solid var(--card-border)" }}
                   >
-                    <FiCheck size={24} style={{ color: "var(--accent)" }} />
-                  </motion.div>
-                  <h3 className="font-display font-bold text-xl" style={{ color: "var(--text-primary)" }}>
-                    Message envoyé !
+                    <FiCheck size={20} style={{ color: "#4cc38a" }} />
+                  </div>
+                  <h3 className="font-display font-medium text-xl" style={{ color: "var(--text-primary)" }}>
+                    Message envoyé
                   </h3>
                   <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
                     Je vous répondrai dans les plus brefs délais.
@@ -309,9 +292,9 @@ export default function Contact() {
                       animate={{ opacity: 1, y: 0 }}
                       className="flex items-center gap-2 text-sm rounded-xl px-4 py-3"
                       style={{
-                        color: "#ef4444",
-                        background: "rgba(239,68,68,0.08)",
-                        border: "1px solid rgba(239,68,68,0.2)",
+                        color: "#e5484d",
+                        background: "rgba(229,72,77,0.06)",
+                        border: "1px solid rgba(229,72,77,0.2)",
                       }}
                     >
                       <FiAlertCircle size={14} />
@@ -319,20 +302,18 @@ export default function Contact() {
                     </motion.p>
                   )}
 
-                  <motion.button
+                  <button
                     type="submit"
                     disabled={status === "sending"}
-                    whileHover={{ scale: status === "idle" || status === "error" ? 1.02 : 1 }}
-                    whileTap={{ scale: status === "idle" || status === "error" ? 0.97 : 1 }}
-                    className="mt-1 w-full flex items-center justify-center gap-2 text-white font-bold py-4 rounded-2xl text-sm accent-glow disabled:opacity-60 disabled:cursor-not-allowed"
-                    style={{ backgroundColor: "var(--accent)", transition: "opacity 0.2s ease" }}
+                    className="mt-1 w-full flex items-center justify-center gap-2 font-semibold h-12 rounded-xl text-sm transition-[opacity,transform] duration-150 hover:opacity-90 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
+                    style={{ backgroundColor: "var(--accent)", color: "#0A0806" }}
                   >
                     {status === "sending" ? (
                       <>
                         <motion.div
                           animate={{ rotate: 360 }}
                           transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                          className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
+                          className="w-4 h-4 border-2 border-black/20 border-t-black/70 rounded-full"
                         />
                         Envoi en cours…
                       </>
@@ -342,7 +323,7 @@ export default function Contact() {
                         Envoyer le message
                       </>
                     )}
-                  </motion.button>
+                  </button>
                 </motion.form>
               )}
             </AnimatePresence>
