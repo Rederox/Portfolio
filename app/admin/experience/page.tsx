@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { FiPlus, FiEdit2, FiTrash2, FiBriefcase, FiArrowUp, FiArrowDown } from "react-icons/fi";
+import { FiPlus, FiEdit2, FiTrash2, FiBriefcase, FiArrowUp, FiArrowDown, FiRefreshCw } from "react-icons/fi";
+import { experiences as cvExperiences } from "@/data/portfolio";
 import Modal from "@/components/admin/Modal";
 import {
   subscribeExperience, addExperience, updateExperience, deleteExperience,
@@ -13,6 +14,10 @@ const EMPTY: Omit<Experience, "id"> = {
   company: "", role: "", type: "CDI", period: "",
   description: [], technologies: [], current: false, order: 0,
 };
+
+// Clé de rapprochement : premier mot du nom d'entreprise (« IDLA — … » → « idla »)
+const companyKey = (name: string) =>
+  name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().split(/[^a-z0-9]+/).filter(Boolean)[0] ?? "";
 
 const JOB_TYPES = ["CDI", "CDD", "Stage", "Alternance", "Freelance", "Intérim"];
 
@@ -65,6 +70,27 @@ export default function AdminExperience() {
     } finally { setSaving(false); }
   };
 
+  const [syncing, setSyncing] = useState(false);
+  const [syncMsg, setSyncMsg] = useState("");
+
+  // Met à jour Firestore avec les expériences du CV (data/portfolio.ts).
+  // Les entrées existantes sont mises à jour, les nouvelles ajoutées ; les autres ne sont pas touchées.
+  const syncFromCv = async () => {
+    if (!window.confirm("Mettre à jour les expériences avec celles du CV ? Les entrées correspondantes seront remplacées.")) return;
+    setSyncing(true); setSyncMsg("");
+    try {
+      let added = 0, updated = 0;
+      for (const exp of cvExperiences) {
+        const match = items.find((it) => companyKey(it.company) === companyKey(exp.company));
+        if (match?.id) { await updateExperience(match.id, exp); updated++; }
+        else { await addExperience(exp); added++; }
+      }
+      setSyncMsg(`${updated} mise${updated > 1 ? "s" : ""} à jour, ${added} ajoutée${added > 1 ? "s" : ""}.`);
+    } catch {
+      setSyncMsg("Échec de la synchronisation.");
+    } finally { setSyncing(false); }
+  };
+
   const sorted = [...items].sort((a, b) => a.order - b.order);
 
   return (
@@ -72,13 +98,22 @@ export default function AdminExperience() {
       <div className="flex flex-wrap items-start justify-between gap-4 mb-8">
         <div>
           <h1 className="font-display font-bold text-3xl text-white mb-1">Expérience</h1>
-          <p className="text-slate-400 text-sm">{items.length} entrée{items.length !== 1 ? "s" : ""}</p>
+          <p className="text-slate-400 text-sm">
+            {items.length} entrée{items.length !== 1 ? "s" : ""}
+            {syncMsg && <span className="ml-2" style={{ color: "var(--accent)" }}>· {syncMsg}</span>}
+          </p>
         </div>
+        <div className="flex flex-wrap gap-2">
+        <button onClick={syncFromCv} disabled={syncing}
+          className="flex items-center gap-2 text-slate-300 font-medium px-4 py-2.5 rounded-xl text-sm border border-[#2a2a2a] hover:border-[#3a3a3a] transition-colors disabled:opacity-50">
+          <FiRefreshCw size={14} className={syncing ? "animate-spin" : ""} /> Mettre à jour depuis le CV
+        </button>
         <button onClick={openAdd}
           className="flex items-center gap-2 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition-opacity hover:opacity-85"
           style={{ backgroundColor: "var(--accent)" }}>
           <FiPlus size={15} /> Nouvelle expérience
         </button>
+        </div>
       </div>
 
       {items.length === 0 ? (
