@@ -1,18 +1,39 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
 import { FiUpload, FiFileText, FiZap, FiExternalLink, FiRotateCcw, FiCheck } from "react-icons/fi";
 import { uploadFile, deleteFile } from "@/lib/storage";
 import {
   subscribeCvSettings, saveCvFile, resetCvFile,
   type CvKind, type CvSettings,
 } from "@/lib/firestore";
+import { formatCvDate } from "@/hooks/useFirestore";
 import { personal } from "@/data/portfolio";
 
-const KINDS: { key: CvKind; label: string; desc: string; fallback: string; icon: typeof FiFileText }[] = [
-  { key: "classic", label: "CV Classique", desc: "Version design, envoyée directement aux recruteurs", fallback: personal.cv,    icon: FiFileText },
-  { key: "ats",     label: "CV ATS",       desc: "Version optimisée pour les logiciels de tri (ATS)",  fallback: personal.cvAts, icon: FiZap },
+const KINDS: {
+  key: CvKind;
+  label: string;
+  desc: string;
+  fallback: string;
+  filename: string;
+  icon: typeof FiFileText;
+}[] = [
+  {
+    key: "classic",
+    label: "CV Classique",
+    desc: "Version design, envoyée directement aux recruteurs",
+    fallback: personal.cv,
+    filename: `CV_${personal.firstName}_${personal.lastName}.pdf`,
+    icon: FiFileText,
+  },
+  {
+    key: "ats",
+    label: "CV ATS",
+    desc: "Version lisible par les logiciels de tri",
+    fallback: personal.cvAts,
+    filename: `CV_${personal.firstName}_${personal.lastName}_ATS.pdf`,
+    icon: FiZap,
+  },
 ];
 
 const MAX_SIZE = 10 * 1024 * 1024; // 10 Mo
@@ -27,6 +48,7 @@ function CvCard({ kind, settings }: { kind: (typeof KINDS)[number]; settings: Cv
 
   const current = settings[kind.key];
   const url = current?.url ?? kind.fallback;
+  const updated = formatCvDate(current?.updatedAt);
   const Icon = kind.icon;
 
   const handleFile = async (file: File | undefined) => {
@@ -34,25 +56,29 @@ function CvCard({ kind, settings }: { kind: (typeof KINDS)[number]; settings: Cv
     setError(null);
     setDone(false);
     if (file.type !== "application/pdf" && !/\.pdf$/i.test(file.name)) {
-      setError("Seuls les fichiers PDF sont acceptés.");
+      setError("Seuls les fichiers PDF sont acceptés");
       return;
     }
     if (file.size > MAX_SIZE) {
-      setError("Fichier trop volumineux (10 Mo max).");
+      setError("Fichier trop volumineux, 10 Mo maximum");
       return;
     }
 
     setUploading(true);
     setProgress(0);
     try {
-      const newUrl = await uploadFile(file, `cv/${kind.key}`, setProgress);
+      // « inline » : s'ouvre dans le lecteur PDF, et s'enregistre sous un nom propre
+      const newUrl = await uploadFile(file, `cv/${kind.key}`, setProgress, {
+        contentType: "application/pdf",
+        contentDisposition: `inline; filename="${kind.filename}"`,
+      });
       const previous = current?.url;
       await saveCvFile(kind.key, { url: newUrl, name: file.name, updatedAt: new Date().toISOString() });
       if (previous) await deleteFile(previous);
       setDone(true);
       setTimeout(() => setDone(false), 2500);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Échec de l'upload.");
+      setError(e instanceof Error ? e.message : "Échec de l'upload");
     } finally {
       setUploading(false);
       if (inputRef.current) inputRef.current.value = "";
@@ -67,56 +93,61 @@ function CvCard({ kind, settings }: { kind: (typeof KINDS)[number]; settings: Cv
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="bg-[#111] border border-[#1e1e1e] rounded-2xl p-6 flex flex-col gap-5"
-    >
-      <div className="flex items-start gap-3">
-        <span
-          className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-          style={{ backgroundColor: "rgba(var(--accent-rgb),0.12)", color: "var(--accent)" }}
-        >
-          <Icon size={18} />
-        </span>
-        <div className="min-w-0">
-          <h2 className="text-white font-semibold">{kind.label}</h2>
-          <p className="text-slate-500 text-xs mt-0.5">{kind.desc}</p>
-        </div>
-      </div>
-
-      {/* Fichier actuel */}
-      <div className="bg-[#161616] border border-[#252525] rounded-xl px-4 py-3 flex items-center gap-3">
-        <FiFileText size={16} className="text-red-400 flex-shrink-0" />
-        <div className="flex-1 min-w-0">
-          <p className="text-sm text-slate-200 truncate">{current?.name ?? kind.fallback.replace(/^\//, "")}</p>
-          <p className="text-xs text-slate-500 mt-0.5">
-            {current
-              ? `Mis à jour le ${new Date(current.updatedAt).toLocaleString("fr-FR", { dateStyle: "medium", timeStyle: "short" })}`
-              : "Fichier par défaut (dossier public)"}
-          </p>
+    <section className="bg-[#171310] border border-white/[0.08] rounded-2xl p-5 flex flex-col gap-5">
+      {/* En-tête */}
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex items-start gap-2.5 min-w-0">
+          <Icon size={16} className="mt-0.5 flex-shrink-0 text-[#8a847a]" />
+          <div className="min-w-0">
+            <h2 className="text-[15px] font-medium text-[#efe9de]">{kind.label}</h2>
+            <p className="text-[13px] text-[#aaa398] mt-0.5">{kind.desc}</p>
+          </div>
         </div>
         <a
           href={url}
           target="_blank"
           rel="noopener noreferrer"
-          className="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-[#1f1f1f] transition-colors"
-          title="Ouvrir"
+          className="flex items-center gap-1.5 text-[13px] text-[#aaa398] hover:text-[#efe9de] transition-colors duration-150 flex-shrink-0"
         >
+          Ouvrir
           <FiExternalLink size={14} />
         </a>
       </div>
 
-      {/* Zone d'upload */}
+      {/* Aperçu : le CV comme une feuille posée */}
+      <div className="rounded-xl bg-[#100D0A] border border-white/[0.06] p-4">
+        <div className="mx-auto max-w-[360px] aspect-[1/1.414] rounded bg-white overflow-hidden shadow-[0_8px_24px_rgba(0,0,0,0.45)]">
+          <iframe
+            key={url}
+            src={`${url}#toolbar=0&navpanes=0&view=FitH`}
+            title={`Aperçu ${kind.label}`}
+            className="w-full h-full border-0 pointer-events-none"
+          />
+        </div>
+      </div>
+
+      {/* Fichier actuel */}
+      <div className="flex items-baseline justify-between gap-4 text-[13px]">
+        <span className="text-[#efe9de] truncate">{current?.name ?? kind.fallback.replace(/^\//, "")}</span>
+        <span className="font-mono text-xs tabular-nums text-[#8a847a] flex-shrink-0">
+          {updated ? `Mis à jour en ${updated}` : "Fichier par défaut"}
+        </span>
+      </div>
+
+      {/* Remplacement */}
       <div
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") inputRef.current?.click(); }}
         onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
         onDragLeave={() => setDragOver(false)}
         onDrop={(e) => { e.preventDefault(); setDragOver(false); handleFile(e.dataTransfer.files[0]); }}
         onClick={() => !uploading && inputRef.current?.click()}
-        className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all duration-200 ${
-          dragOver ? "bg-white/[0.03]" : "border-[#2a2a2a] hover:border-[#3a3a3a] hover:bg-[#161616]"
+        className={`flex items-center justify-center gap-2 h-12 rounded-xl border border-dashed text-[13px] cursor-pointer transition-colors duration-150 focus-visible:outline focus-visible:outline-1 focus-visible:outline-[var(--accent)] ${
+          dragOver
+            ? "border-[var(--accent)] bg-white/[0.03] text-[#efe9de]"
+            : "border-white/[0.12] text-[#aaa398] hover:border-white/[0.2] hover:bg-white/[0.02] hover:text-[#efe9de]"
         }`}
-        style={dragOver ? { borderColor: "var(--accent)" } : undefined}
       >
         <input
           ref={inputRef}
@@ -126,36 +157,33 @@ function CvCard({ kind, settings }: { kind: (typeof KINDS)[number]; settings: Cv
           onChange={(e) => handleFile(e.target.files?.[0])}
         />
         {uploading ? (
-          <div className="flex flex-col items-center gap-2">
-            <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-            <p className="text-xs text-slate-400">Upload… {progress}%</p>
-          </div>
+          <span className="font-mono tabular-nums">Envoi… {progress} %</span>
         ) : done ? (
-          <div className="flex items-center justify-center gap-2 text-emerald-400">
-            <FiCheck size={16} />
-            <p className="text-sm font-medium">CV mis à jour</p>
-          </div>
+          <>
+            <FiCheck size={16} className="text-[#4cc38a]" />
+            <span className="text-[#efe9de]">CV remplacé</span>
+          </>
         ) : (
-          <div className="flex flex-col items-center gap-1.5 text-slate-400">
-            <FiUpload size={18} />
-            <p className="text-sm">Remplacer le PDF</p>
-            <p className="text-xs text-slate-600">Glisse un fichier ou clique · PDF, 10 Mo max</p>
-          </div>
+          <>
+            <FiUpload size={16} />
+            <span>Remplacer le PDF</span>
+            <span className="text-[#8a847a]">· glisser ou cliquer, 10 Mo max</span>
+          </>
         )}
       </div>
 
-      {error && <p className="text-xs text-red-400">{error}</p>}
+      {error && <p className="text-[13px] text-[#e5484d] -mt-2">{error}</p>}
 
       {current && (
         <button
           onClick={handleReset}
-          className="self-start flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-300 transition-colors"
+          className="self-start flex items-center gap-1.5 text-xs text-[#8a847a] hover:text-[#efe9de] transition-colors duration-150"
         >
           <FiRotateCcw size={12} />
           Revenir au fichier par défaut
         </button>
       )}
-    </motion.div>
+    </section>
   );
 }
 
@@ -167,9 +195,9 @@ export default function AdminCv() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="font-display font-bold text-3xl text-white mb-1">CV</h1>
-        <p className="text-slate-400 text-sm">
-          Remplace les CV téléchargeables sur le portfolio. La mise à jour est immédiate pour tous les visiteurs.
+        <h1 className="font-display font-medium text-3xl text-[#efe9de] mb-1">CV</h1>
+        <p className="text-[#aaa398] text-sm">
+          Les PDF proposés au téléchargement sur le portfolio. Un remplacement est visible tout de suite
         </p>
       </div>
 

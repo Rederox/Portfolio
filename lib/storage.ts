@@ -3,17 +3,19 @@ import {
   uploadBytesResumable,
   getDownloadURL,
   deleteObject,
+  type UploadMetadata,
 } from "firebase/storage";
 import { getStorage_ } from "./firebase";
 
 export async function uploadFile(
   file: File,
   path: string,
-  onProgress?: (progress: number) => void
+  onProgress?: (progress: number) => void,
+  metadata?: UploadMetadata
 ): Promise<string> {
   const filename = `${Date.now()}_${file.name.replace(/\s+/g, "_")}`;
   const storageRef = ref(getStorage_(), `${path}/${filename}`);
-  const uploadTask = uploadBytesResumable(storageRef, file);
+  const uploadTask = uploadBytesResumable(storageRef, file, metadata);
 
   return new Promise((resolve, reject) => {
     uploadTask.on(

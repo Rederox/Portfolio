@@ -222,14 +222,8 @@ export default function Hero() {
                 trigger={({ toggle }) => (
                   <button
                     onClick={toggle}
-                    className="inline-flex items-center gap-2 font-semibold px-7 py-3 rounded-xl text-sm transition-all"
-                    style={{
-                      backgroundColor: "var(--accent)",
-                      color: "#0A0806",
-                      transition: "opacity 0.2s ease, box-shadow 0.2s ease",
-                    }}
-                    onMouseEnter={e => { e.currentTarget.style.opacity = "0.88"; e.currentTarget.style.boxShadow = "0 0 32px rgba(201,169,110,0.3)"; }}
-                    onMouseLeave={e => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.boxShadow = "none"; }}
+                    className="inline-flex items-center gap-2 font-semibold px-7 py-3 rounded-xl text-sm transition-[opacity,transform] duration-150 hover:opacity-90 active:scale-[0.98]"
+                    style={{ backgroundColor: "var(--accent)", color: "#0A0806" }}
                   >
                     <FiDownload size={14} />
                     Télécharger CV

@@ -115,3 +115,10 @@ export function useCv() {
     settings,
   };
 }
+
+/** « nov. 2026 » — date de mise à jour affichée sous chaque CV */
+export function formatCvDate(iso?: string) {
+  if (!iso) return null;
+  const d = new Date(iso);
+  return isNaN(d.getTime()) ? null : d.toLocaleDateString("fr-FR", { month: "short", year: "numeric" });
+}

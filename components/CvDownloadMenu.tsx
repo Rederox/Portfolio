@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiFileText, FiZap } from "react-icons/fi";
-import { useCv } from "@/hooks/useFirestore";
+import { useCv, formatCvDate } from "@/hooks/useFirestore";
 import { trackEvent } from "@/lib/analytics";
 import { useMode } from "@/lib/mode-context";
 
@@ -55,7 +55,7 @@ export default function CvDownloadMenu({
             initial={{ opacity: 0, y: -8, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.97 }}
-            transition={{ duration: 0.16 }}
+            transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
             className={`absolute z-50 top-full mt-2 w-64 rounded-2xl p-1.5 shadow-2xl border ${
               align === "right" ? "right-0" : "left-0"
             } ${
@@ -64,43 +64,52 @@ export default function CvDownloadMenu({
                 : "bg-[#0d0d0d]/98 backdrop-blur-2xl border-[#1e1e1e]"
             }`}
           >
-            {CV_OPTIONS.map(({ key, label, desc, icon: Icon }) => (
-              <a
-                key={key}
-                href={cv[key]}
-                download
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => {
-                  trackEvent("cv_download");
-                  setOpen(false);
-                }}
-                className={`flex items-start gap-3 px-3.5 py-3 rounded-xl transition-colors ${
-                  isLight ? "hover:bg-black/5" : "hover:bg-white/5"
-                }`}
-              >
-                <span
-                  className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                  style={{ backgroundColor: "rgba(var(--accent-rgb),0.12)", color: "var(--accent)" }}
+            {CV_OPTIONS.map(({ key, label, desc, icon: Icon }) => {
+              const updated = formatCvDate(cv.settings[key]?.updatedAt);
+              return (
+                <a
+                  key={key}
+                  href={cv[key]}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => {
+                    trackEvent("cv_download");
+                    setOpen(false);
+                  }}
+                  className={`flex items-start gap-3 px-3 py-3 rounded-xl transition-colors duration-150 ${
+                    isLight ? "hover:bg-black/5" : "hover:bg-white/5"
+                  }`}
                 >
-                  <Icon size={14} />
-                </span>
-                <span className="min-w-0">
-                  <span
-                    className="block text-sm font-semibold"
-                    style={{ color: isLight ? "#171310" : "#F2EDE4" }}
-                  >
-                    {label}
+                  <Icon
+                    size={16}
+                    className="mt-0.5 flex-shrink-0"
+                    style={{ color: isLight ? "#7a7570" : "#8a847a" }}
+                  />
+                  <span className="min-w-0">
+                    <span
+                      className="block text-sm font-medium"
+                      style={{ color: isLight ? "#171310" : "#F2EDE4" }}
+                    >
+                      {label}
+                    </span>
+                    <span
+                      className="block text-xs mt-0.5 leading-snug"
+                      style={{ color: isLight ? "#7a7570" : "#8a847a" }}
+                    >
+                      {desc}
+                    </span>
+                    {updated && (
+                      <span
+                        className="block text-xs mt-1 font-mono tabular-nums"
+                        style={{ color: isLight ? "#7a7570" : "#8a847a" }}
+                      >
+                        Mis à jour en {updated}
+                      </span>
+                    )}
                   </span>
-                  <span
-                    className="block text-xs mt-0.5 leading-snug"
-                    style={{ color: isLight ? "#7a7570" : "#7A7068" }}
-                  >
-                    {desc}
-                  </span>
-                </span>
-              </a>
-            ))}
+                </a>
+              );
+            })}
           </motion.div>
         )}
       </AnimatePresence>
