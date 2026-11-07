@@ -1,211 +1,125 @@
 "use client";
 
-import { useRef } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { FiZap, FiTrendingUp, FiTool } from "react-icons/fi";
-import Image from "next/image";
-import { personal, stats as sharedStats } from "@/data/portfolio";
+import { motion } from "framer-motion";
+import { personal, stats } from "@/data/portfolio";
 
 const facts = [
-  { label: "Âge",          value: `${personal.age} ans`        },
-  { label: "Localisation", value: "Argenteuil · France"        },
+  { label: "Âge",          value: `${personal.age} ans` },
+  { label: "Localisation", value: "Argenteuil · France" },
   { label: "Langues",      value: "Français · Anglais (C1) · Tamoul" },
-  { label: "Mobilité",     value: "Permis B · Véhiculé"        },
+  { label: "Mobilité",     value: "Permis B · Véhiculé" },
 ];
-
-const statIcons = [FiZap, FiTrendingUp, FiTool];
-const stats = sharedStats.map(({ value, label }, i) => ({ value, label, icon: statIcons[i % statIcons.length] }));
 
 const fadeUp = (delay = 0) => ({
   hidden: { opacity: 0, y: 24 },
-  show:   { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.16, 1, 0.3, 1] as [number,number,number,number], delay } },
+  show:   { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.16, 1, 0.3, 1] as [number, number, number, number], delay } },
 });
 
-export default function About() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start end", "end start"],
-  });
-  const photoY = useTransform(scrollYProgress, [0, 1], [-20, 20]);
+const reveal = { initial: "hidden", whileInView: "show", viewport: { once: true } } as const;
 
+export default function About() {
   return (
-    <section id="about" ref={sectionRef} className="py-20 sm:py-28 px-4 sm:px-6">
+    <section id="about" className="py-20 sm:py-28 px-4 sm:px-6">
       <div className="max-w-6xl mx-auto">
 
-        {/* ── Section label ────────────────────────────────────────────────── */}
-        <motion.div
-          variants={fadeUp()}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true }}
-          className="flex items-center gap-4 mb-10 sm:mb-14"
-        >
-          <h2 className="font-display font-bold text-xs tracking-[0.3em] uppercase"
+        {/* ── Titre ─────────────────────────────────────────────────────────── */}
+        <motion.div variants={fadeUp()} {...reveal} className="flex items-center gap-5 mb-10 sm:mb-16">
+          <h2 className="font-display font-semibold text-3xl sm:text-4xl tracking-tight"
             style={{ color: "var(--text-primary)" }}>
-            À Propos
+            À propos
           </h2>
           <div className="flex-1 h-px" style={{ backgroundColor: "var(--card-border)" }} />
-          <span className="font-mono-jb text-[0.7rem]" style={{ color: "var(--accent)" }}>01</span>
+          <span className="font-mono-jb text-xs" style={{ color: "var(--text-secondary)" }}>01</span>
         </motion.div>
 
-        {/* ── Bento Grid ───────────────────────────────────────────────────── */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-start">
 
-          {/* ─ Cellule A : Bio — grande, 2/3 largeur ─────────────────────── */}
+          {/* ── Colonne gauche : intro + chiffres ──────────────────────────── */}
+          <motion.div variants={fadeUp(0.05)} {...reveal} className="lg:col-span-5 flex flex-col">
+            {personal.available && (
+              <span
+                className="self-start inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium mb-6"
+                style={{
+                  color:           "var(--accent)",
+                  backgroundColor: "rgba(var(--accent-rgb), 0.1)",
+                  border:          "1px solid rgba(var(--accent-rgb), 0.25)",
+                }}
+              >
+                <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "var(--accent)" }} />
+                Disponible pour de nouvelles opportunités
+              </span>
+            )}
+
+            <p className="text-sm font-medium mb-4" style={{ color: "var(--accent)" }}>
+              {personal.role}
+            </p>
+
+            <p className="text-lg sm:text-xl leading-relaxed" style={{ color: "var(--text-primary)" }}>
+              {personal.bio}
+            </p>
+
+            <dl className="grid grid-cols-3 mt-10 pt-8" style={{ borderTop: "1px solid var(--card-border)" }}>
+              {stats.map(({ value, short }, i) => (
+                <div
+                  key={short}
+                  className={i === 0 ? "pr-4" : "px-4"}
+                  style={i === 0 ? undefined : { borderLeft: "1px solid var(--card-border)" }}
+                >
+                  <dt className="sr-only">{short}</dt>
+                  <dd className="font-display font-semibold text-2xl sm:text-3xl leading-none"
+                    style={{ color: "var(--text-primary)" }}>
+                    {value}
+                  </dd>
+                  <dd className="text-xs sm:text-sm mt-2 leading-snug" style={{ color: "var(--text-secondary)" }}>
+                    {short}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </motion.div>
+
+          {/* ── Colonne droite : carte infos ───────────────────────────────── */}
           <motion.div
-            variants={fadeUp(0.05)}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true }}
-            className="bento-cell sm:col-span-2 lg:col-span-8 p-6 sm:p-7 lg:p-9 flex flex-col justify-between min-h-[220px] sm:min-h-[260px]"
+            variants={fadeUp(0.12)}
+            {...reveal}
+            className="lg:col-span-7 rounded-[20px] p-6 sm:p-10"
+            style={{ backgroundColor: "var(--surface)", border: "1px solid var(--card-border)" }}
           >
-            <div>
-              <p
-                className="text-[0.6rem] tracking-[0.45em] uppercase font-semibold mb-5"
-                style={{ color: "rgba(var(--accent-rgb), 0.8)" }}
-              >
-                {personal.role}
-              </p>
-              <p
-                className="text-base sm:text-[1.2rem] leading-relaxed font-light"
-                style={{ color: "var(--text-primary)" }}
-              >
-                {personal.bio}
-              </p>
-            </div>
+            <dl>
+              {facts.map(({ label, value }, i) => (
+                <div
+                  key={label}
+                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-6 py-5"
+                  style={i < facts.length - 1 ? { borderBottom: "1px solid var(--card-border)" } : undefined}
+                >
+                  <dt className="text-sm sm:text-base" style={{ color: "var(--text-secondary)" }}>{label}</dt>
+                  <dd className="text-base sm:text-lg font-medium sm:text-right" style={{ color: "var(--text-primary)" }}>
+                    {value}
+                  </dd>
+                </div>
+              ))}
+            </dl>
 
-            {/* Intérêts */}
-            <div className="mt-6">
-              <p className="text-[0.58rem] tracking-widest uppercase font-semibold mb-3"
-                style={{ color: "var(--text-secondary)" }}>
-                Centres d'intérêt
+            <div className="mt-8">
+              <p className="text-sm sm:text-base mb-4" style={{ color: "var(--text-secondary)" }}>
+                Centres d&apos;intérêt
               </p>
-              <div className="flex flex-wrap gap-2">
-                {personal.interests.map(({ emoji, label }) => (
-                  <motion.span
+              <ul className="flex flex-wrap gap-2.5">
+                {personal.interests.map(({ label }) => (
+                  <li
                     key={label}
-                    whileHover={{ scale: 1.05, y: -1 }}
-                    whileTap={{ scale: 0.96 }}
-                    className="flex items-center gap-1.5 text-[0.75rem] rounded-full px-3 py-1.5 cursor-default transition-colors"
+                    className="text-sm font-medium rounded-lg px-4 py-2.5 transition-colors"
                     style={{
-                      color:           "var(--text-secondary)",
-                      backgroundColor: "rgba(255,255,255,0.04)",
-                      border:          "1px solid rgba(255,255,255,0.08)",
+                      color:           "var(--text-primary)",
+                      backgroundColor: "var(--card)",
+                      border:          "1px solid var(--card-border)",
                     }}
                   >
-                    <span>{emoji}</span>
                     {label}
-                  </motion.span>
+                  </li>
                 ))}
-              </div>
+              </ul>
             </div>
-          </motion.div>
-
-          {/* ─ Cellule B : Photo — 1/3 largeur, 2 lignes de hauteur ────────── */}
-          <motion.div
-            variants={fadeUp(0.1)}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true }}
-            style={{ y: photoY }}
-            className="bento-cell sm:col-span-1 lg:col-span-4 lg:row-span-2 overflow-hidden"
-          >
-            <div className="relative w-full h-full min-h-[280px] sm:min-h-[320px]">
-              <Image
-                src="/about.jpg"
-                alt={personal.name}
-                fill
-                className="object-cover"
-                style={{ objectPosition: "50% 30%" }}
-              />
-              <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 to-transparent" />
-
-              {personal.available && (
-                <div
-                  className="absolute top-4 left-4 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[0.62rem] font-semibold"
-                  style={{
-                    backgroundColor: "rgba(var(--accent-rgb), 0.18)",
-                    backdropFilter: "blur(12px)",
-                    border:          "1px solid rgba(var(--accent-rgb), 0.3)",
-                    color:           "var(--accent)",
-                  }}
-                >
-                  <span className="w-1.5 h-1.5 rounded-full animate-pulse"
-                    style={{ backgroundColor: "var(--accent)" }} />
-                  Open to work
-                </div>
-              )}
-
-              {/* Faits en overlay bas */}
-              <div className="absolute bottom-0 left-0 right-0 p-5">
-                {facts.slice(0, 2).map(({ label, value }) => (
-                  <div key={label} className="flex items-center justify-between py-1.5"
-                    style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}>
-                    <span className="text-[0.58rem] uppercase tracking-widest font-semibold text-white/40">{label}</span>
-                    <span className="text-xs font-medium text-white/80">{value}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </motion.div>
-
-          {/* ─ Cellule C : Stats — 3 mini-cards côte à côte ─────────────── */}
-          <motion.div
-            variants={fadeUp(0.14)}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true }}
-            className="sm:col-span-1 lg:col-span-8 grid grid-cols-3 gap-3 sm:gap-4"
-          >
-            {stats.map(({ value, label, icon: Icon }) => (
-              <motion.div
-                key={label}
-                whileHover={{ scale: 1.03, y: -2 }}
-                whileTap={{ scale: 0.97 }}
-                className="bento-cell p-5 flex flex-col gap-3 cursor-default"
-              >
-                <Icon size={22} style={{ color: "var(--accent)" }} />
-                <div>
-                  <p
-                    className="font-mono-jb font-bold text-3xl leading-none"
-                    style={{ color: "var(--accent)" }}
-                  >
-                    {value}
-                  </p>
-                  <p className="text-[0.68rem] mt-1 leading-tight font-mono-jb" style={{ color: "var(--text-secondary)" }}>
-                    {label}
-                  </p>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
-
-          {/* ─ Cellule D : Faits supplémentaires ─────────────────────────── */}
-          <motion.div
-            variants={fadeUp(0.18)}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true }}
-            className="bento-cell sm:col-span-2 lg:col-span-8 px-5 sm:px-7 py-1"
-          >
-            {facts.slice(2).map(({ label, value }) => (
-              <div
-                key={label}
-                className="flex items-center justify-between py-4"
-                style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
-              >
-                <span
-                  className="text-[0.62rem] uppercase tracking-widest font-semibold"
-                  style={{ color: "var(--text-secondary)" }}
-                >
-                  {label}
-                </span>
-                <span className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
-                  {value}
-                </span>
-              </div>
-            ))}
           </motion.div>
         </div>
       </div>
